@@ -5,7 +5,7 @@ class Model:
     """
     """
 
-    def __init__(self, client: OpenAI, model_name: str='LLaMa_CPP', prompt: dict={}) -> None:
+    def __init__(self, client: OpenAI, model_name: str='LLaMa_CPP') -> None:
         """ Function to initiliaze a llm model
         Args: 
             client: The client instance of our model
@@ -16,20 +16,20 @@ class Model:
         """
         self.client = client
         self.model_name = model_name
-        self.prompt: dict = prompt
+        self.prompt: dict = {"role": "system"}
 
-    def set_prompt(self, prompt: dict) -> None:
+    def set_prompt(self, prompt: str) -> None:
         """
         Function set the prompt for the llm to use
 
         Args: 
-            prompt: A dictionary containing the prompt for the llm model
+            prompt: A string containg the prompt for our llm
 
         Returns:
             None
         """
-        self.prompt = prompt
-
+        self.prompt['content'] = prompt
+            
 
     def query(self, user_query: str) -> ChatCompletion:
         """

@@ -1,16 +1,23 @@
 from .llm.ModelClient import ModelClient
 from .llm.Model import Model
-from config import BASE_URL, API_KEY, PROMPT, MODEL_NAME
+from utils.config import CONFIG
 from Agent import Agent
 
 if __name__ == "__main__":
-    client: ModelClient = ModelClient(url=BASE_URL, key=API_KEY)
-    llm: Model = Model(client=client, model_name=MODEL_NAME)
+    client: ModelClient = ModelClient(url=CONFIG['BASE_URL'], key=CONFIG['API_KEY'])
+    llm: Model = Model(client=client, model_name=CONFIG['MODEL_NAME'])
 
-    PROMPT['content'] = 'general prompt for the llm'
+    tools = []
+    output_format = ''
+    function_call = {'call': 'tool.name'}
+    CONFIG['PROMPT'] = f"""
+    You are an AI assistant tasked with {CONFIG['GOAL']} with these {tools} to help. You must help the user with
+    whatever question/task they need. You must resturn the your output in this forrmat {output_format}.
+    If you need to call a function simply return {function_call}
+    """
 
-    llm.set_prompt()
+    llm.set_prompt(CONFIG['PROMPT'])
 
-    agent = Agent(model=llm, tools=[], goal='')
+    agent = Agent(model=llm, tools=tools, goal=CONFIG['GOAL'])
     
 
