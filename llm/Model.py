@@ -5,18 +5,18 @@ class Model:
     """
     """
 
-    def __init__(self, client: OpenAI, prompt: dict={}, model_name: str='LLaMa_CPP') -> None:
+    def __init__(self, client: OpenAI, model_name: str='LLaMa_CPP', prompt: dict={}) -> None:
         """ Function to initiliaze a llm model
         Args: 
             client: The client instance of our model
+            model_name: The name of the model we are using
             prompt: The prompt we are setting for our model
         Returns:
             None
         """
         self.client = client
-        self.prompt: dict = prompt
         self.model_name = model_name
-
+        self.prompt: dict = prompt
 
     def set_prompt(self, prompt: dict) -> None:
         """
