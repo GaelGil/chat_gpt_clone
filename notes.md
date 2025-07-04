@@ -9,12 +9,15 @@
 
 ## AI Agent (in the context of llm)
 
-- uses llms to understand
+- uses llms to understand goal, input
 - takes in goals
 - tools (searchweb, searchdb, api calls, function)
 - plans based on goal/input then decides what tools to use or next step to take and when
-- not just generating something it plans, reasons and acts bsed on goal, tools, and goal state
+- not just generating something it plans, reasons and acts based on goal, tools, and goal state
 - can take many steps to reach its goal
+- has some code/logic that takes in some input and a goal/task
+- plant how to achive goal using the tools
+- uses the llm to reason, plan (steps/actions), when and what tools to use
 
 ## RAG (Retrieval Augmented Generation)
 
