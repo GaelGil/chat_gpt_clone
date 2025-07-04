@@ -9,9 +9,6 @@ class ModelClient:
         pass
 
 
-    def prompt(self) -> None:
-        pass
-
     def get_client(self) -> OpenAI:
         return self.client
 
