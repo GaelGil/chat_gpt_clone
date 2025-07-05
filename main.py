@@ -16,8 +16,7 @@ if __name__ == "__main__":
     If you need to call a function simply return {function_call}
     """
 
-    llm.set_prompt(CONFIG['PROMPT'])
-
     agent = Agent(model=llm, tools=tools, goal=CONFIG['GOAL'])
-    
+    agent.model.set_prompt(prompt=CONFIG['PROMPT'])
+    agent.start()
 
