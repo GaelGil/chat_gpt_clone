@@ -20,8 +20,6 @@ if __name__ == "__main__":
                         tools=[],
                         model_name=CONFIG['MODEL_NAME'])
 
-
-
     agent: Agent = Agent(model=llm)
     agent.start()
 
