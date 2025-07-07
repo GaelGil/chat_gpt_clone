@@ -47,10 +47,26 @@ class Model:
 
     def set_tools(self, tools: list) -> None:
         """
+        Function set the prompt for the llm to use
+
+        Args: 
+            prompt: A string containg the prompt for our llm
+
+        Returns:
+            None
         """
         self.tools = tools
 
     def append_messages(self, options: dict) -> None:
+        """
+        Function set the prompt for the llm to use
+
+        Args: 
+            prompt: A string containg the prompt for our llm
+
+        Returns:
+            None
+        """
         self.messages.append(options)
 
     def set_messages(self) -> None:

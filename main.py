@@ -10,7 +10,7 @@ if __name__ == "__main__":
     
     tools: list = []
     CONFIG['PROMPT'] = f"""
-    You are an AI assistant tasked with {CONFIG['GOAL']}. You have tools available here {tools}. You must help the user with
+    You are an AI assistant tasked with {CONFIG['GOAL']}. You have tools available here {TOOLS}. You must help the user with
     whatever question/task they need. You must return ONLY in this forrmat {CONFIG['OUTPUT_FORMAT']}.
     """
 

@@ -40,26 +40,17 @@ class Agent:
             "content": topic
             })
 
-    def start(self) -> None:
-        """Function to start the agents tasks/process
-        """
-        self.set_working(True)
-        self.get_input()
-        self.set_messages()
-        response: ChatCompletion = self.call_model()
-        print(response)
+    def handle_response(self, response: ChatCompletion) -> None:
         message = response.choices[0].message
         if message.tool_calls:
             for tool_call in message.tool_calls:
                 function_name = tool_call.function.name
                 args = json.loads(tool_call.function.arguments)
 
-                if function_name in self.functions: # define functions
+                if function_name in self.model.tools: 
                     result = self.functions(function_name)
                 else:
                     result = f"Unknown tool: {function_name}"
-
-
 
                 self.model.append_messages({
                     "role": "assistant",
@@ -76,4 +67,18 @@ class Agent:
                 
                 new_response: ChatCompletion = self.call_model()
 
-                print(new_response.choices[0].message.content)
+                return new_response                
+
+
+    def start(self) -> None:
+        """Function to start the agents tasks/process
+        """
+        self.set_working(True)
+        self.get_input()
+        self.set_messages()
+        response: ChatCompletion = self.call_model()
+        print(response)
+        new_response = self.handle_response(response=response)
+        print(new_response)
+        self.set_working(False)
+
