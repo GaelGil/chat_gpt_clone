@@ -50,7 +50,30 @@ class Agent:
         message = response.choices[0].message
         if message.tool_calls:
             for tool_call in message.tool_calls:
-                fn_name = tool_call.function.name
+                function_name = tool_call.function.name
                 args = json.loads(tool_call.function.arguments)
 
+                if function_name in self.functions: # define functions
+                    result = self.functions(function_name)
+                else:
+                    result = f"Unknown tool: {function_name}"
 
+
+                messages.append({
+                    "role": "assistant",
+                    "tool_calls": [tool_call]
+                })
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": function_name,
+                    "content": result
+                })
+
+                # Send final message to get AI to respond with results
+                final_response = client.chat.completions.create(
+                    model="LLaMA_CPP",
+                    messages=messages
+                )
+
+                print(final_response.choices[0].message.content)
