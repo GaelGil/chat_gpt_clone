@@ -45,6 +45,7 @@ class Agent:
         """
         self.set_working(True)
         self.get_input()
+        self.set_messages()
         response: ChatCompletion = self.call_model()
         print(response)
         message = response.choices[0].message
@@ -59,21 +60,20 @@ class Agent:
                     result = f"Unknown tool: {function_name}"
 
 
-                messages.append({
+
+                self.model.append_messages({
                     "role": "assistant",
                     "tool_calls": [tool_call]
                 })
-                messages.append({
+
+                self.model.append_messages({
                     "role": "tool",
                     "tool_call_id": tool_call.id,
                     "name": function_name,
                     "content": result
                 })
+                
+                
+                new_response: ChatCompletion = self.call_model()
 
-                # Send final message to get AI to respond with results
-                final_response = client.chat.completions.create(
-                    model="LLaMA_CPP",
-                    messages=messages
-                )
-
-                print(final_response.choices[0].message.content)
+                print(new_response.choices[0].message.content)
