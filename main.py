@@ -3,11 +3,12 @@ from llm.Model import Model
 from openai import OpenAI
 from utils.config import CONFIG
 from Agent import Agent
+from utils.tools import TOOLS
 
 if __name__ == "__main__":
     client: OpenAI = ModelClient(url=CONFIG['BASE_URL'], key=CONFIG['API_KEY']).get_client()
     
-    tools = []
+    tools: list = []
     CONFIG['PROMPT'] = f"""
     You are an AI assistant tasked with {CONFIG['GOAL']}. You have tools available here {tools}. You must help the user with
     whatever question/task they need. You must return ONLY in this forrmat {CONFIG['OUTPUT_FORMAT']}.
@@ -17,7 +18,7 @@ if __name__ == "__main__":
                         system_prompt= {"role": "system",
                                         "content": CONFIG['SYSTEM_PROMPT']
                                         },
-                        tools=[],
+                        tools=TOOLS,
                         model_name=CONFIG['MODEL_NAME'])
 
     agent: Agent = Agent(model=llm)
