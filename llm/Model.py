@@ -5,23 +5,27 @@ class Model:
     """
     """
 
-    def __init__(self, client: OpenAI, system_prompt: dict={}, user_query: dict={}, tools: list=[], messages: list=[], model_name: str='LLaMa_CPP') -> None:
+    def __init__(self, client: OpenAI, prompt: dict={}, user_query: dict={}, tools: list={}, messages: list=[], model_name: str='LLaMa_CPP') -> None:
         """ Function to initiliaze a llm model
         Args: 
             client: The client instance of our model
             model_name: The name of the model we are using
-            prompt: The prompt we are setting for our model
+            system_prompt: The prompt we are setting for our model
+            user_query: The prompt by the user
+            tools: The tools available to the llm.
+            messages: The messages for the llm model.
+
         Returns:
             None
         """
         self.client = client
         self.model_name: str = model_name
-        self.system_prompt: dict = system_prompt 
+        self.prompt: dict = prompt 
         self.user_query: dict = user_query
         self.tools: dict = tools
         self.messages: list = messages
 
-    def set_system_prompt(self, system_prompt: dict) -> None:
+    def set_prompt(self, prompt: dict) -> None:
         """
         Function set the prompt for the llm to use
 
@@ -31,14 +35,14 @@ class Model:
         Returns:
             None
         """
-        self.system_prompt = system_prompt
+        self.prompt = prompt
 
     def set_user_query(self, user_query: dict) -> None:
         """
-        Function set the prompt for the llm to use
+        Function set the users query
 
         Args: 
-            prompt: A string containg the prompt for our llm
+            query: A string containg the users query
 
         Returns:
             None
@@ -47,10 +51,10 @@ class Model:
 
     def set_tools(self, tools: list) -> None:
         """
-        Function set the prompt for the llm to use
+        Function set the tools available for the llm
 
         Args: 
-            prompt: A string containg the prompt for our llm
+            prompt: A dictionary of tools avaialble to the llm
 
         Returns:
             None
@@ -59,10 +63,10 @@ class Model:
 
     def append_messages(self, options: dict) -> None:
         """
-        Function set the prompt for the llm to use
+        Function to add custom message options for the llm
 
         Args: 
-            prompt: A string containg the prompt for our llm
+            options: A dictionary containing the options for the llm 
 
         Returns:
             None
@@ -70,6 +74,15 @@ class Model:
         self.messages.append(options)
 
     def set_messages(self) -> None:
+        """
+        Function to combine all the messages set
+
+        Args: 
+            None
+
+        Returns:
+            None
+        """
         self.messages = [
             self.model_name,
             self.system_prompt,
@@ -79,7 +92,7 @@ class Model:
 
     def call_model(self) -> ChatCompletion:
         """
-        Function send a query to a llm
+        Function call our llm model
 
         Args: 
             None
