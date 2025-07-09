@@ -2,6 +2,8 @@ from langchain_community.tools import WikipediaQueryRun, DuckDuckGoSearchRun
 from langchain_community.utilities import WikipediaAPIWrapper
 from datetime import datetime
 from typing import Callable, Any
+from duckduckgo_search.exceptions import DuckDuckGoSearchException
+import time
 
 TOOL_REGISTRY: dict[str, Callable[..., Any]] = {}
 # ... any nummber and type of args
@@ -27,14 +29,23 @@ search = DuckDuckGoSearchRun()
 
 @register_tool('search_web')
 def search_web(query: str) -> str:
-    return search.run(query)
+    for attempt in range(3):  # Retry up to 3 times
+        try:
+            return search.run(query)
+        except DuckDuckGoSearchException as e:
+            if "Ratelimit" in str(e):
+                print(f"Rate limit hit. Retrying... ({attempt + 1}/3)")
+                time.sleep(2 * (attempt + 1))  # exponential backoff
+            else:
+                raise
+    return "DuckDuckGo rate-limited the request after multiple attempts."
 
 api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=100)
 wiki_query_tool = WikipediaQueryRun(api_wrapper=api_wrapper)
 
 @register_tool('wiki_query')
 def wiki_query(query: str) -> str:
-    return wiki_query_tool.run(query=query)
+    return wiki_query_tool.run(query)
 
 
 TOOL_DEFINITIONS = [

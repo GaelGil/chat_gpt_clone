@@ -44,33 +44,27 @@ class Agent:
 
     def handle_response(self, response: ChatCompletion) -> ChatCompletion:
         message = response.choices[0].message
-        print("IN HANDLE MESSAGE")
         content = message.content
         pattern = r"```json\s*(\{.*?\})\s*```"
         match = re.search(pattern, content, re.DOTALL)
         if match:
-            print("IN MATCH")
             tool_call_json = json.loads(match.group(1))
             tool_name = tool_call_json.get('action') 
+            # if tool_name:
             tool_name = tool_name.replace("Tool.", "")
             tool_args = {
                 'query': tool_call_json.get('content')  # adjust if your tool expects different param names
             }
-            print(f'TOOL NAME: {tool_name}')
             tool = self.functions[tool_name]
-            sample = tool(query='what is grok')
-            print(f'SAMPLE: {sample}')
-            print(f'Functions in AGENT.py: {self.functions}')
+            print(f'TOOL NAME: {tool_name}')
             print(f'TOOL: {tool}')
             try:
 
 
                 # Call the tool function manually
-                if tool_name in self.model.tools:
+                if tool_name in self.functions:
                     result = tool(**tool_args)
-                    print("CORRECT TOOLS")
                 else:
-                    print('ELSE')
                     result = f"Unknown tool: {tool_name}"
                 print(f'RESULT {result}')
 
@@ -103,7 +97,8 @@ class Agent:
         self.model.set_messages()
         response: ChatCompletion = self.call_model()
         while True:
-            print("🧠 Assistant:\n", response.choices[0].message.content)
+            print('Assistant:\n', response.choices[0].message.content)
+            print(response)
 
             # Handle potential tool calls and return the next response
             next_response = self.handle_response(response)

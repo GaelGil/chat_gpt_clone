@@ -14,7 +14,7 @@ if __name__ == "__main__":
     """
 
     llm: Model = Model(client=client,
-                        system_prompt= {"role": "system",
+                        system_prompt= {"role": "assistant",
                                         "content": CONFIG['SYSTEM_PROMPT']
                                         },
                         tools=TOOL_DEFINITIONS,
