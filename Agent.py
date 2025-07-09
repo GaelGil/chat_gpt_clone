@@ -44,33 +44,49 @@ class Agent:
 
     def handle_response(self, response: ChatCompletion) -> ChatCompletion:
         message = response.choices[0].message
-        if message.tool_calls:
-            for tool_call in message.tool_calls:
-                fn_name = tool_call.function.name
-                args = json.loads(tool_call.function.arguments)
+        content = message.content
+        pattern = r"```json\s*(\{.*?\})\s*```"
+        match = re.search(pattern, content, re.DOTALL)
+        if match:
+            tool_call_json = json.loads(match.group(1))
+            tool_name = tool_call_json.get('action') 
+            # if tool_name:
+            tool_name = tool_name.replace("Tool.", "")
+            tool_args = {
+                'query': tool_call_json.get('content')  # adjust if your tool expects different param names
+            }
+            tool = self.functions[tool_name]
+            print(f'TOOL NAME: {tool_name}')
+            print(f'TOOL: {tool}')
+            try:
 
-                if fn_name in self.functions:
-                    func = self.functions[fn_name]
-                    result = func(**args)
+
+                # Call the tool function manually
+                if tool_name in self.functions:
+                    result = tool(**tool_args)
                 else:
-                    result = f"Unknown tool: {fn_name}"
+                    result = f"Unknown tool: {tool_name}"
+                print(f'RESULT {result}')
 
-                # Add tool response
-                self.model.messages.append({
+                # Append the tool result back as messages for model context
+                self.model.append_messages({
                     "role": "assistant",
-                    "tool_calls": [tool_call]
+                    "content": content
                 })
-                self.model.messages.append({
+                self.model.append_messages({
                     "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "name": fn_name,
+                    "name": tool_name,
                     "content": result
                 })
+                    
+                return self.call_model()
 
-                print(self.model.messages)
-                response = self.call_model()
-                return response
-    
+            except Exception as e:
+                print("Failed to parse or handle embedded tool call:", e)
+                    
+
+            return self.call_model()
+
         return response
 
     def start(self) -> None:

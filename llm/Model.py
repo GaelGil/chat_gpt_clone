@@ -85,7 +85,7 @@ class Model:
         """
         self.messages = [
             self.model_name,
-            self.system_prompt,
+            self.prompt,
             self.user_query,
             self.tools,
         ]
