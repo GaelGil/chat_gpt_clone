@@ -10,6 +10,7 @@ CONFIG: dict = {
         'status': 'if another function needs to run',
         'action': 'you are given the name of the functions in tools, Each item in tools has Tool.name. so the name of the function to call',
         'tools_used': 'list of tools used from given tools',
-        'content': 'the accomplished goal'
+        'content': 'the accomplished goal',
+        'essay': 'a txt file of the generated content'
         }
 }
