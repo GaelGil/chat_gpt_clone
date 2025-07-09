@@ -1,6 +1,7 @@
 from llm.Model import Model
 from openai.types.chat.chat_completion import ChatCompletion
 import json
+import re
 
 
 class Agent:
@@ -43,30 +44,46 @@ class Agent:
 
     def handle_response(self, response: ChatCompletion) -> ChatCompletion:
         message = response.choices[0].message
-        if message.tool_calls:
-            for tool_call in message.tool_calls:
-                function_name = tool_call.function.name
-                func = self.functions[function_name]
-                args = json.loads(tool_call.function.arguments)
-                print(f'FUNC: {func}')
-                if function_name in self.model.tools: 
-                    result = func(**args)
-                    print(f'RESULT {result}')
+        print("IN HANDLE MESSAGE")
+        content = message.content
+        pattern = r"```json\s*(\{.*?\})\s*```"
+        match = re.search(pattern, content, re.DOTALL)
+        if match:
+            print("IN MATCH")
+            try:
+                tool_call_json = json.loads(match.group(1))
+                tool_name = tool_call_json.get('action') or tool_call_json.get('status').replace("Tool.", "")
+                tool_args = {
+                    'query': tool_call_json.get('content')  # adjust if your tool expects different param names
+                }
+                print(f'TOOL NAME: {tool_name}')
+                tool = self.functions[tool_name]
+                print(f'TOOL: {tool}')
+                # Call the tool function manually
+                if tool_name in self.model.tools:
+                    result = tool(**tool_args)
+                    print("CORRECT TOOLS")
                 else:
-                    result = f"Unknown tool: {function_name}"
+                    print('ELSE')
+                    result = f"Unknown tool: {tool_name}"
+                print(f'RESULT {result}')
 
+                # Append the tool result back as messages for model context
                 self.model.append_messages({
                     "role": "assistant",
-                    "tool_calls": [tool_call]
+                    "content": content
                 })
-
                 self.model.append_messages({
                     "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "name": function_name,
+                    "name": tool_name,
                     "content": result
                 })
-                
+                    
+                return self.call_model()
+
+            except Exception as e:
+                print("Failed to parse or handle embedded tool call:", e)
+                    
 
             return self.call_model()
 
