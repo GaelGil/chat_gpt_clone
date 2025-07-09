@@ -19,7 +19,7 @@ if __name__ == "__main__":
                                         },
                         tools=TOOL_DEFINITIONS,
                         model_name=CONFIG['MODEL_NAME'])
-
+    print(f'TOOL_REGISTRY: {TOOL_REGISTRY}')
     agent: Agent = Agent(model=llm, functions=TOOL_REGISTRY)
     agent.start()
 

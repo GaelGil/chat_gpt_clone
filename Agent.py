@@ -15,7 +15,7 @@ class Agent:
         """
         self.model: Model = model
         self.working: bool = False
-        self.functions: dict = {}
+        self.functions: dict = functions
 
     def set_working(self, working: bool) -> None:
         """Function to set the value of working or not working
@@ -50,15 +50,21 @@ class Agent:
         match = re.search(pattern, content, re.DOTALL)
         if match:
             print("IN MATCH")
+            tool_call_json = json.loads(match.group(1))
+            tool_name = tool_call_json.get('action') 
+            tool_name = tool_name.replace("Tool.", "")
+            tool_args = {
+                'query': tool_call_json.get('content')  # adjust if your tool expects different param names
+            }
+            print(f'TOOL NAME: {tool_name}')
+            tool = self.functions[tool_name]
+            sample = tool(query='what is grok')
+            print(f'SAMPLE: {sample}')
+            print(f'Functions in AGENT.py: {self.functions}')
+            print(f'TOOL: {tool}')
             try:
-                tool_call_json = json.loads(match.group(1))
-                tool_name = tool_call_json.get('action') or tool_call_json.get('status').replace("Tool.", "")
-                tool_args = {
-                    'query': tool_call_json.get('content')  # adjust if your tool expects different param names
-                }
-                print(f'TOOL NAME: {tool_name}')
-                tool = self.functions[tool_name]
-                print(f'TOOL: {tool}')
+
+
                 # Call the tool function manually
                 if tool_name in self.model.tools:
                     result = tool(**tool_args)
