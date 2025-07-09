@@ -4,7 +4,7 @@ import json
 
 
 class Agent:
-    def __init__(self, model: Model) -> None:
+    def __init__(self, model: Model, functions: dict) -> None:
         """Function to initlize a agent instance
         Args:
             model: The llm model we are going to use
@@ -12,8 +12,9 @@ class Agent:
         Returns: 
             None
         """
-        self.model = model
-        self.working = False
+        self.model: Model = model
+        self.working: bool = False
+        self.functions: dict = {}
 
     def set_working(self, working: bool) -> None:
         """Function to set the value of working or not working
@@ -45,10 +46,12 @@ class Agent:
         if message.tool_calls:
             for tool_call in message.tool_calls:
                 function_name = tool_call.function.name
+                func = self.functions[function_name]
                 args = json.loads(tool_call.function.arguments)
-
+                print(f'FUNC: {func}')
                 if function_name in self.model.tools: 
-                    result = self.functions(function_name)
+                    result = func(**args)
+                    print(f'RESULT {result}')
                 else:
                     result = f"Unknown tool: {function_name}"
 
@@ -64,10 +67,8 @@ class Agent:
                     "content": result
                 })
                 
-                
-                new_response: ChatCompletion = self.call_model()
 
-                return new_response                
+            return self.call_model()
 
         return response
 
@@ -78,8 +79,17 @@ class Agent:
         self.get_input()
         self.model.set_messages()
         response: ChatCompletion = self.call_model()
-        print(response)
-        new_response = self.handle_response(response=response)
-        print(new_response)
-        self.set_working(False)
+        while True:
+            print("🧠 Assistant:\n", response.choices[0].message.content)
 
+            # Handle potential tool calls and return the next response
+            next_response = self.handle_response(response)
+
+            # If no tool was invoked or nothing more to do, we're done
+            if next_response == response:
+                break
+
+            # Otherwise, continue the loop with the new response
+            response = next_response
+
+        self.set_working(False)
