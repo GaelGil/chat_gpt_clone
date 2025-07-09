@@ -8,8 +8,8 @@ from utils.tools import TOOL_REGISTRY, TOOL_DEFINITIONS
 if __name__ == "__main__":
     client: OpenAI = ModelClient(url=CONFIG['BASE_URL'], key=CONFIG['API_KEY']).get_client()
     CONFIG['PROMPT'] = f"""
-    You are an AI assistant tasked with {CONFIG['GOAL']}. You have tools available here {TOOL_DEFINITIONS}. You must help the user with
-    whatever question/task they need. You must return ONLY in this forrmat {CONFIG['OUTPUT_FORMAT']}.
+    You are an AI assistant tasked with {CONFIG['GOAL']}. You have tools available here {TOOL_DEFINITIONS} to get things done.
+    You must help the user with whatever question/task they need.
     """
 
     llm: Model = Model(client=client,
