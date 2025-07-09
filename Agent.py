@@ -34,13 +34,13 @@ class Agent:
     def get_input(self) -> None:
         """
         """
-        topic: str = input('Please the topic for the outline')
+        topic: str = input('Please the topic for the outline: ')
         self.model.set_user_query({
             "role": "user",
             "content": topic
             })
 
-    def handle_response(self, response: ChatCompletion) -> None:
+    def handle_response(self, response: ChatCompletion) -> ChatCompletion:
         message = response.choices[0].message
         if message.tool_calls:
             for tool_call in message.tool_calls:
@@ -69,13 +69,14 @@ class Agent:
 
                 return new_response                
 
+        return response
 
     def start(self) -> None:
         """Function to start the agents tasks/process
         """
         self.set_working(True)
         self.get_input()
-        self.set_messages()
+        self.model.set_messages()
         response: ChatCompletion = self.call_model()
         print(response)
         new_response = self.handle_response(response=response)
