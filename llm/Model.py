@@ -18,7 +18,7 @@ class Model:
         self.model_name: str = model_name
         self.system_prompt: dict = system_prompt 
         self.user_query: dict = user_query
-        self.tools: list = tools
+        self.tools: dict = tools
         self.messages: list = messages
 
     def set_system_prompt(self, system_prompt: dict) -> None:
