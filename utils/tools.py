@@ -12,8 +12,6 @@ def register_tool(name: str) -> Callable[[Callable[..., Any]], Callable[..., Any
         return func
     return decorator
 
-
-
 @register_tool('save_text_to_file')
 def save_to_txt(data: str, filename: str = "./research_output.txt") -> str:
     timestamp: datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -31,11 +29,56 @@ search = DuckDuckGoSearchRun()
 def search_web(query: str) -> str:
     return search.run(query)
 
-
-
 api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=100)
 wiki_query_tool = WikipediaQueryRun(api_wrapper=api_wrapper)
 
 @register_tool('wiki_query')
 def wiki_query(query: str) -> str:
     return wiki_query_tool.run(query=query)
+
+
+TOOL_DEFINITIONS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "save_text_to_file",
+            "description": "Save text to a file with an optional filename",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "data": {"type": "string"},
+                    "filename": {"type": "string"}
+                },
+                "required": ["data"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_web",
+            "description": "Search the web using DuckDuckGo",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string"}
+                },
+                "required": ["query"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "wiki_query",
+            "description": "Query Wikipedia for short summaries",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string"}
+                },
+                "required": ["query"]
+            }
+        }
+    }
+]
