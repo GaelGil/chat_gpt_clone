@@ -9,6 +9,7 @@ load_dotenv(Path('../.env'))
 
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
+# a get weather function
 def get_weather(latitude, longitude):
     response = requests.get(
         f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
@@ -16,26 +17,27 @@ def get_weather(latitude, longitude):
     data = response.json()
     return data['current']
 
-
+# define tools
 tools = [
     {
         'type': 'function',
-        'name': 'get_weather',
-        'description': 'Get current temperature for provided coordinates in celsius',
-        'parameters': {
-            'type': 'object',
-            'properties': {
-                'latitude': {'type': 'number'},
-                'longitude': {'type': 'number'}
+            'name': 'get_weather',
+            'description': 'Get current temperature for provided coordinates in celsius',
+            'parameters': {
+                'type': 'object',
+                'properties': {
+                    'latitude': {'type': 'number'},
+                    'longitude': {'type': 'number'}
+                },
+                'required' : ['latitude', 'longitude'],
+                'additionalProperties': False,
             },
-            'required' : ['latitude', 'longitude'],
-            'additionalProperties': False,
-        },
-        'strict': True
+            'strict': True
+        
     }
 ]
 
-
+# the input messages
 messages = [
     {
         'role': 'developer',
@@ -47,12 +49,14 @@ messages = [
     }
 ]
 
+# define model response
 response = client.responses.create(
     model='gpt-4o',
     input=messages,
     tools=tools
 )
 
+# get tool call
 tool_call = response.output[0]
 print(f'RESPONSE: {response}')
 print(f'TOOL_CALL.TYPE: {tool_call.type}')
@@ -60,24 +64,25 @@ print(f'TOOL_CALL: {tool_call}')
 
 # response.model_dump()
 
-# def call_function(name, args):
-#     if name == 'get_weather':
-#         return get_weather(**args)
+# define function that the model can call
+def call_function(name, args):
+    if name == 'get_weather':
+        return get_weather(**args)
     
-# for tool_call in response.output:
-#     if tool_call.type != 'function_call':
-#     name = tool_call.function.name
-#     args = json.loads(tool_call.function.arguments)
-#     messages.append(completion.choices[0].message)
-
-#     result = call_function(name, args)
-#     messages.append(
-#         {
-#             'role': 'tool',
-#             'tool_call_id': tool_call.id,
-#             'content': json.dumps(result)
-#         }
-#     )
+for tool_call in response.output:
+    if tool_call.type != 'function_call':
+        continue
+    name = tool_call.name
+    args = json.loads(tool_call.arguments)
+    messages.append(response.output[0])
+    result = call_function(name, args)
+    messages.append(
+        {
+            'type': 'function_call_output',
+            'call_id': tool_call.call_id,
+            'output': str(result)
+        }
+    )
 
 
 class WeatherResponse(BaseModel):
@@ -90,13 +95,14 @@ class WeatherResponse(BaseModel):
 
 
 
-completion_two = client.beta.chat.completions.parse(
+response_two = client.responses.parse(
     model='gpt-4o',
-    messages=messages,
+    input=messages,
     tools=tools,
-    response_format=WeatherResponse
+    text_format=WeatherResponse
 )
 
-final_response = completion_two.choices[0].message.parsed
-final_response.temperature
-final_response.response
+final_response = response_two.output_parsed
+print(final_response)
+print(final_response.temperature)
+print(final_response.response)
