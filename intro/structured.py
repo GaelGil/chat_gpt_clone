@@ -7,16 +7,16 @@ load_dotenv(Path('../.env'))
 
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
-
+# we can create a class like this to give to the model
+# it can then return the output in the structure of our class
 class CalendarEvent(BaseModel):
     name: str
     date: str
     participants: list[str]
 
-
-completion = client.beta.chat.completions.parse(
+response = client.responses.parse(
     model='gpt-4o',
-    messages=[
+    input=[
         {
             'role': 'system',
             'content': 'Extract envet information'
@@ -26,11 +26,8 @@ completion = client.beta.chat.completions.parse(
              'content': 'Alice and Bob are going to a science fair on friday'
          }
     ],
-    response_format=CalendarEvent
+    text_format=CalendarEvent
 )
 
-event = completion.choices[0].message.parsed
-event.name
-event.date
-event.participants
-
+event = response.output_parsed
+print(event)
