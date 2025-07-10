@@ -4,10 +4,12 @@ class ModelClient:
     """
     """
 
-    def __init__(self, url: str, key: str):
-        self.client = OpenAI(base_url=url, api_key=key)
-        pass
-
+    def __init__(self, key: str) -> None:
+        """
+        """
+        self.client = OpenAI(api_key=key)
 
     def get_client(self) -> OpenAI:
+        """
+        """
         return self.client
