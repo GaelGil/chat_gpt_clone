@@ -7,13 +7,13 @@ completion = client.chat.completions.create(
     model='gpt-4o',
     messages=[
         {
-        'role': 'system',
-        'content': 'You are a helpful AI assistant'
+            'role': 'system',
+            'content': 'You are a helpful AI assistant'
         },
         {
-        'role': 'user',
-        'content': 'Write a limerick about the Python programming language.'
-            }
+            'role': 'user',
+            'content': 'Write a limerick about the Python programming language.'
+        }
     ]
 )
 
