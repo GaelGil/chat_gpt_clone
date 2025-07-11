@@ -65,6 +65,7 @@ class CalendarResponse(BaseModel):
     calendar_link: Optional[str] = Field(description="Calendar link if applicable")
 
 
+# define functions to handle events
 def route_calendar_request(user_input: str) -> CalendarRequestType:
     """Router LLM call to determine the type of calendar request"""
     logger.info("Routing calendar request")
@@ -140,6 +141,7 @@ def handle_modify_event(description: str) -> CalendarResponse:
         )
 
 
+# function to handle everything
 def process_calendar_request(user_input: str) -> Optional[CalendarResponse]:
     """main function implementing the routing workflow"""
     logger.info("Processing calendar request")
@@ -154,3 +156,25 @@ def process_calendar_request(user_input: str) -> Optional[CalendarResponse]:
     else:
         logger.warning("Request type not supported")
         return None
+
+
+# new event test
+new_event_input = 'Let"s schedule a team meeting next Tuesday at 2pm with Alice and Bob'
+new_event_res = process_calendar_request(user_input=new_event_input)
+if new_event_res:
+    print(f"Response: {new_event_res.message}")
+
+
+# modify_event test
+modify_event_input = (
+    "Can you move the team meeting with Alice and Bob to Wednesday at 3pm instead?"
+)
+modify_event_res = process_calendar_request(user_input=modify_event_input)
+if modify_event_input:
+    print(f"Response: {modify_event_res.message}")
+
+# invalid test
+invalid_input = "Whats the weather like today?"
+invalid_res = process_calendar_request(user_input=invalid_input)
+if not invalid_res:
+    print("Request not recognized as a calendar option")
