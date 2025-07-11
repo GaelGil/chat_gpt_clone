@@ -11,7 +11,7 @@ class Agent:
         Args:
             model: The llm model we are going to use
 
-        Returns: 
+        Returns:
             None
         """
         self.model: Model = model
@@ -20,7 +20,7 @@ class Agent:
 
     def set_working(self, working: bool) -> None:
         """Function to set the value of working or not working
-        Args: 
+        Args:
             working: a true or false value
 
         Returns:
@@ -35,13 +35,9 @@ class Agent:
         return self.model.call_model()
 
     def get_input(self) -> None:
-        """
-        """
-        topic: str = input('Ask anything: ')
-        self.model.append_messages({
-            'role': 'user',
-            'content': topic
-        })
+        """ """
+        topic: str = input("Ask anything: ")
+        self.model.append_messages({"role": "user", "content": topic})
 
     def handle_response(self, response: ChatCompletion) -> ChatCompletion:
         message = response.choices[0].message
@@ -57,32 +53,32 @@ class Agent:
                     result = f"Unknown tool: {fn_name}"
 
                 # Add tool response
-                self.model.messages.append({
-                    "role": "assistant",
-                    "tool_calls": [tool_call]
-                })
-                self.model.messages.append({
-                    "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "name": fn_name,
-                    "content": result
-                })
+                self.model.messages.append(
+                    {"role": "assistant", "tool_calls": [tool_call]}
+                )
+                self.model.messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "name": fn_name,
+                        "content": result,
+                    }
+                )
 
                 print(self.model.messages)
                 response = self.call_model()
                 return response
-    
+
         return response
 
     def start(self) -> None:
-        """Function to start the agents tasks/process
-        """
+        """Function to start the agents tasks/process"""
         self.set_working(True)
         self.get_input()
         self.model.set_messages()
         response: Response = self.call_model()
         while True:
-            print('Assistant:\n', response.choices[0].message.content)
+            print("Assistant:\n", response.choices[0].message.content)
             print(response)
 
             # Handle potential tool calls and return the next response
