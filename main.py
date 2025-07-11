@@ -11,9 +11,14 @@ if __name__ == "__main__":
 
     llm: Model = Model(client=client,
                        model_name='gpt-4.1-mini',
-                       tools=TOOL_DEFENITIONS
-                        )
+                       input_messages=[
+                           {
+                               'role': 'developer',
+                                'content': 'You are an AI assistant, tasked with helping the user with any task'
+                            },
+                           ],
+                       tools=TOOL_DEFENITIONS)
     
     agent: Agent = Agent(model=llm, tools=TOOLS)
-    # agent.start()
+    agent.start()
 

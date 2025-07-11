@@ -5,7 +5,7 @@ class Model:
     """
     """
 
-    def __init__(self, client: OpenAI, dev_prompt: dict={}, tool_defs: list={}, messages: list=[], model_name: str='LLaMa_CPP') -> None:
+    def __init__(self, client: OpenAI, model_name: str, input_messages: list=[], tool_defs: list={}) -> None:
         """ Function to initiliaze a llm model
         Args: 
             client: The client instance of our model
@@ -20,23 +20,10 @@ class Model:
         """
         self.client = client
         self.model_name: str = model_name
-        self.dev_prompt: dict = dev_prompt 
+        self.input_messages: list = input_messages
         self.tool_defs: dict = tool_defs
-        self.input: list = messages
 
-    def set_prompt(self, dev_prompt: dict) -> None:
-        """
-        Function set the prompt for the llm to use
-
-        Args: 
-            prompt: A string containg the prompt for our llm
-
-        Returns:
-            None
-        """
-        self.dev_prompt = dev_prompt
-
-    def set_tools(self, tools: list) -> None:
+    def set_tool_defs(self, tool_defs: list) -> None:
         """
         Function set the tools available for the llm
 
@@ -46,9 +33,9 @@ class Model:
         Returns:
             None
         """
-        self.tools = tools
+        self.tool_defs = tool_defs
 
-    def append_messages(self, options: dict) -> None:
+    def append_messages(self, messages: dict) -> None:
         """
         Function to add custom message options for the llm
 
@@ -58,24 +45,7 @@ class Model:
         Returns:
             None
         """
-        self.messages.append(options)
-
-    def set_messages(self) -> None:
-        """
-        Function to combine all the messages set
-
-        Args: 
-            None
-
-        Returns:
-            None
-        """
-        self.messages = [
-            self.model_name,
-            self.prompt,
-            self.user_query,
-            self.tools,
-        ]
+        self.input_messages.append(messages)
 
     def call_model(self) -> ChatCompletion:
         """
@@ -87,10 +57,10 @@ class Model:
         Returns:
             ChatCompletion
         """
-        completion = self.client.chat.completions.create(
+        response = self.client.responses.create(
             model=self.model_name,
-            messages=self.messages,
-            tools=self.tools,
+            messages=self.input_messages,
+            tools=self.tool_defs,
             tool_choice='auto')
-        return completion
+        return response
 

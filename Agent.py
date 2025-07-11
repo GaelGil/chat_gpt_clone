@@ -1,5 +1,6 @@
 from llm.Model import Model
 from openai.types.chat.chat_completion import ChatCompletion
+from openai.types.responses.response import Response
 import json
 import re
 
@@ -36,11 +37,11 @@ class Agent:
     def get_input(self) -> None:
         """
         """
-        topic: str = input('Please the topic for the outline: ')
-        self.model.set_user_query({
-            "role": "user",
-            "content": topic
-            })
+        topic: str = input('Ask anything: ')
+        self.model.append_messages({
+            'role': 'user',
+            'content': topic
+        })
 
     def handle_response(self, response: ChatCompletion) -> ChatCompletion:
         message = response.choices[0].message
@@ -79,7 +80,7 @@ class Agent:
         self.set_working(True)
         self.get_input()
         self.model.set_messages()
-        response: ChatCompletion = self.call_model()
+        response: Response = self.call_model()
         while True:
             print('Assistant:\n', response.choices[0].message.content)
             print(response)
