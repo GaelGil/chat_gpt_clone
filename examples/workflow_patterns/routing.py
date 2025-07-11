@@ -73,7 +73,7 @@ def route_calendar_request(user_input: str) -> CalendarRequestType:
         model=model,
         input=[
             {
-                "rolte": "developer",
+                "role": "developer",
                 "content": "Determine if this is a request to create a new calendar event or modify an existing one",
             },
             {"role": "user", "content": user_input},
@@ -92,7 +92,7 @@ def handle_new_event(description: str) -> CalendarResponse:
         model=model,
         input=[
             {
-                "rolte": "developer",
+                "role": "developer",
                 "content": "Extract details for creating a new calendar event",
             },
             {"role": "user", "content": description},
