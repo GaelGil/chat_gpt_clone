@@ -6,7 +6,7 @@ from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 from openai import OpenAI
-load_dotenv(Path('../.env'))
+load_dotenv(Path('../../.env'))
 
 logging.basicConfig(
     level=logging.INFO,
@@ -117,11 +117,38 @@ def generate_confirmation(event_details: EventDetails) -> EventConfirmation:
     return result
 
 
-def proccess_calendar_request(user_input: str) ->Optional[EventConfirmation]:
+def process_calendar_request(user_input: str) ->Optional[EventConfirmation]:
     """main function implementing the prompt chain with gate check"""
     logger.info('Proccessing calendar request')
     logger.debug(f'Raw input: {user_input}')
 
     inital_extraction:EventExtraction = extract_event_info(user_input=user_input)
-    if (not inital_extraction.is_calender_event or inital_extraction.confidence_score < 0.7 )
+    if (not inital_extraction.is_calender_event or inital_extraction.confidence_score < 0.7):
+        logger.warning(f'Gate check failed = is_calendar_invite: {inital_extraction.is_calender_event}, confidence_score {inital_extraction.confidence_score}')
+        return None
+    logger.info('Gate check passed, proceeding with event parsing')
+    event_details: EventDetails = parse_event_details(inital_extraction.description)
+    confirmation: EventConfirmation = generate_confirmation(event_details=event_details)
+    logger.info('Calendar request processing completed successfully')
+    return confirmation
 
+# valid request 
+user_input = "Let's schedule a 1h team meeting next Tuesday at 2pm with Alice and Bob to discuss the project roadmap."
+result = process_calendar_request(user_input=user_input)
+if result:
+    print(f'Confirmation: {result.confirmation_message}')
+    if result.calendar_link:
+        print(f'Calendar link: {result.calendar_link}')
+else:
+    print("This doesn't appear to be a calendar event request.")
+
+# not a valid request
+user_input = "Can you send an email to Alice and Bob to discuss the project roadmap?"
+
+result = process_calendar_request(user_input)
+if result:
+    print(f"Confirmation: {result.confirmation_message}")
+    if result.calendar_link:
+        print(f"Calendar Link: {result.calendar_link}")
+else:
+    print("This doesn't appear to be a calendar event request.")
