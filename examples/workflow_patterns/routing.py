@@ -48,4 +48,10 @@ class CalendarResponse(BaseModel):
     """Final Response format"""
     sucess: bool = Field(description='whether the operation was successful')
     message: str = Field(description='User friendly response message')
-    calendar_link: Optinal[str] = Field(description='Calendar link if applicable')
+    calendar_link: Optional[str] = Field(description='Calendar link if applicable')
+
+
+
+def route_calendar_request(user_input: str) -> CalendarRequestType:
+    """Router LLM call to determine"""
+    return CalendarRequestType
