@@ -3,7 +3,7 @@ from openai import OpenAI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from pathlib import Path
-load_dotenv(Path('../.env'))
+load_dotenv(Path('../../.env'))
 
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
