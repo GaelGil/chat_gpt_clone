@@ -29,5 +29,7 @@ response = client.responses.parse(
     text_format=CalendarEvent
 )
 
+# get the parsed output in the format specified
 event = response.output_parsed
+# print event
 print(event)

@@ -58,11 +58,11 @@ response = client.responses.create(
 
 # get tool call
 tool_call = response.output[0]
+# some print statements
 print(f'RESPONSE: {response}')
 print(f'TOOL_CALL.TYPE: {tool_call.type}')
 print(f'TOOL_CALL: {tool_call}')
 
-# response.model_dump()
 
 # define function that the model can call
 def call_function(name, args):

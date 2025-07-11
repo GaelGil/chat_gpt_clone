@@ -43,30 +43,31 @@ messages = [
     }
 ]
 
-completion = client.responses.create(
+response = client.responses.create(
     model='gpt-4.1-mini',
     input=messages,
     tools=tools
 )
 
 
-completion.model_dump()
 
 def call_function(name, args):
     if name == 'search_kb':
         return search_kb(**args)
     
-for tool_call in completion.choices[0].message.tool_calls:
-    name = tool_call.function.name
-    args = json.loads(tool_call.function.arguments)
-    messages.append(completion.choices[0].message)
+for tool_call in response.output:
+    if tool_call.type != 'function_call':
+        continue
+    name = tool_call.name
+    args = json.loads(tool_call.arguments)
+    messages.append(response.output[0])
 
     result = call_function(name, args)
     messages.append(
         {
-            'role': 'tool',
-            'tool_call_id': tool_call.id,
-            'content': json.dumps(result)
+            'type': 'function_call_output',
+            'call_id': tool_call.call_id,
+            'output': str(result)
         }
     )
 
@@ -75,26 +76,28 @@ class KBResponse(BaseModel):
     answer: str = Field(description='The answer to the users question')
     source: int = Field(description='The record id of the answer')
 
-completion_two = client.beta.chat.completions.parse(
+response_two = client.responses.parse(
     model='gpt-4.1-mini',
     messages=messages,
     tools=tools,
     response_format=KBResponse
 )
 
-final_response = completion_two.choices[0].message.parsed
+final_response = response_two.output_parsed
 final_response.answer
 final_response.source
 
+
+# this wont cause a function call
 messages = [
     {"role": "system", "content": system_prompt},
     {"role": "user", "content": "What is the weather in Tokyo?"},
 ]
 
-completion_3 = client.beta.chat.completions.parse(
-    model="gpt-4o",
+response_three = client.responses.parse(
+    model="gpt-4.1-mini",
     messages=messages,
     tools=tools,
 )
 
-completion_3.choices[0].message.content
+print(response_three)
