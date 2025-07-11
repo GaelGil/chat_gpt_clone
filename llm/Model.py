@@ -5,7 +5,7 @@ class Model:
     """
     """
 
-    def __init__(self, client: OpenAI, prompt: dict={}, user_query: dict={}, tools: list={}, messages: list=[], model_name: str='LLaMa_CPP') -> None:
+    def __init__(self, client: OpenAI, dev_prompt: dict={}, tool_defs: list={}, messages: list=[], model_name: str='LLaMa_CPP') -> None:
         """ Function to initiliaze a llm model
         Args: 
             client: The client instance of our model
@@ -20,12 +20,11 @@ class Model:
         """
         self.client = client
         self.model_name: str = model_name
-        self.prompt: dict = prompt 
-        self.user_query: dict = user_query
-        self.tools: dict = tools
-        self.messages: list = messages
+        self.dev_prompt: dict = dev_prompt 
+        self.tool_defs: dict = tool_defs
+        self.input: list = messages
 
-    def set_prompt(self, prompt: dict) -> None:
+    def set_prompt(self, dev_prompt: dict) -> None:
         """
         Function set the prompt for the llm to use
 
@@ -35,19 +34,7 @@ class Model:
         Returns:
             None
         """
-        self.prompt = prompt
-
-    def set_user_query(self, user_query: dict) -> None:
-        """
-        Function set the users query
-
-        Args: 
-            query: A string containg the users query
-
-        Returns:
-            None
-        """
-        self.user_query = user_query
+        self.dev_prompt = dev_prompt
 
     def set_tools(self, tools: list) -> None:
         """

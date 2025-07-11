@@ -1,3 +1,3 @@
-TOOL_DEFINITIONS: list[dict] = [{
+TOOL_DEFENITIONS: list[dict] = [{
 
 }]

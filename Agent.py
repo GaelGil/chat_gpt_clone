@@ -5,7 +5,7 @@ import re
 
 
 class Agent:
-    def __init__(self, model: Model, functions: dict) -> None:
+    def __init__(self, model: Model, tools: dict) -> None:
         """Function to initlize a agent instance
         Args:
             model: The llm model we are going to use
@@ -15,7 +15,7 @@ class Agent:
         """
         self.model: Model = model
         self.working: bool = False
-        self.functions: dict = functions
+        self.tools: dict = tools
 
     def set_working(self, working: bool) -> None:
         """Function to set the value of working or not working
