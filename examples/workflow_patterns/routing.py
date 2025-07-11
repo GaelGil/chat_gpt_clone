@@ -51,7 +51,88 @@ class CalendarResponse(BaseModel):
     calendar_link: Optional[str] = Field(description='Calendar link if applicable')
 
 
-
 def route_calendar_request(user_input: str) -> CalendarRequestType:
-    """Router LLM call to determine"""
-    return CalendarRequestType
+    """Router LLM call to determine the type of calendar request"""
+    logger.info('Routing calendar request')
+    response = client.responses.parse(
+        model=model,
+        input=[
+            {
+                'rolte': 'developer',
+                'content': 'Determine if this is a request to create a new calendar event or modify an existing one'
+            },
+            {
+                'role': 'user',
+                'content': user_input
+            }
+        ],
+        text_format=CalendarRequestType
+    )
+    result = response.output_parsed
+    logger.info(f'Request routed as: {result.request_type}')
+    return result
+
+def handle_new_event(description: str) -> CalendarResponse:
+    """Process a new event request"""
+    logger.info('Processing a new event request')
+    response = client.responses.parse(
+        model=model,
+        input=[
+            {
+                'rolte': 'developer',
+                'content': 'Extract details for creating a new calendar event'
+            },
+            {
+                'role': 'user',
+                'content': description
+            }
+        ],
+        text_format=NewEventDetails
+    )
+    details = response.output_parsed
+    logger.info(f'New event: {details.model_dump_json(indent=2)}')
+    return CalendarResponse(
+        sucess=True,
+        message=f'Craeted new event {details.name} for {details.date} with {', '.join(details.participants)}',
+        calendar_link=f'link'
+        )
+
+def handle_modify_event(description: str) -> CalendarResponse:
+    """Process an event modification"""
+    logger.info('Processing event modification request')
+    response = client.responses.parse(
+        model=model,
+        input=[
+            {
+                'role': 'developer',
+                'content': 'Extract details for modifying a existing calendar event'
+            },
+            {
+                'role': 'user',
+                'content': description
+            }
+        ],
+        text_format=ModifyEventDetails
+    )
+    details = response.output_parsed
+    logger.info(f'Modified event: {details.model_dump_json(indent=2)}')
+    return CalendarResponse(
+        sucess=True,
+        message=f'Modified event {details.event_identifier} with the requested changes',
+        calendar_link=f'link'
+        )
+
+def process_calendar_request(user_input: str) -> Optional[CalendarResponse]:
+    """main function implementing the routing workflow"""
+    logger.info('Processing calendar request')
+    route_result = route_calendar_request(user_input=user_input)
+    if route_result.confidence_score < 0.7:
+        logger.warning(f"Low confidence score: {route_result.confidence_score}")
+        return None
+    if route_result.request_type == 'new_event':
+        return handle_new_event(route_result.description)
+    elif route_result.request_type == 'modify_event':
+        return handle_modify_event(route_result.description)
+    else:
+        logger.warning("Request type not supported")
+        return None
