@@ -2,15 +2,15 @@ import asyncio
 import json
 from contextlib import AsyncExitStack
 from typing import Any, Dict, List
+import os
 
-# import nest_asyncio
+import nest_asyncio
 from dotenv import load_dotenv
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
+from fastmcp import Client
 from openai import AsyncOpenAI
 
 # Apply nest_asyncio to allow nested event loops (needed for Jupyter/IPython)
-# nest_asyncio.apply()
+nest_asyncio.apply()
 
 # Load environment variables
 load_dotenv("../.env")
@@ -18,48 +18,36 @@ load_dotenv("../.env")
 # Global variables to store session state
 session = None
 exit_stack = AsyncExitStack()
-openai_client = AsyncOpenAI()
-model = "gpt-4o"
+openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+model = "gpt-4.1-mini"
 stdio = None
 write = None
 
 
-async def connect_to_server(server_script_path: str = "server.py"):
-    """Connect to an MCP server.
+async def connect_to_server(base_url: str = "http://localhost:8600/sse"):
+    """Connect to an MCP server via HTTP + SSE."""
+    global session, exit_stack
 
-    Args:
-        server_script_path: Path to the server script.
-    """
-    global session, stdio, write, exit_stack
+    # Open HTTP SSE connection via Client
+    session = await exit_stack.enter_async_context(Client(base_url))
 
-    # Server configuration
-    server_params = StdioServerParameters(
-        command="python",
-        args=[server_script_path],
-    )
-
-    # Connect to the server
-    stdio_transport = await exit_stack.enter_async_context(stdio_client(server_params))
-    stdio, write = stdio_transport
-    session = await exit_stack.enter_async_context(ClientSession(stdio, write))
-
-    # Initialize the connection
+    # Initialize the session
     await session.initialize()
 
     # List available tools
     tools_result = await session.list_tools()
-    print("\nConnected to server with tools:")
+    print("\n✅ Connected to server with tools:")
     for tool in tools_result.tools:
         print(f"  - {tool.name}: {tool.description}")
 
 
-async def get_mcp_tools() -> List[Dict[str, Any]]:
+async def get_mcp_tools(session) -> List[Dict[str, Any]]:
     """Get available tools from the MCP server in OpenAI format.
 
     Returns:
         A list of tools in OpenAI format.
     """
-    global session
+    # global session
 
     tools_result = await session.list_tools()
     return [
@@ -71,11 +59,11 @@ async def get_mcp_tools() -> List[Dict[str, Any]]:
                 "parameters": tool.inputSchema,
             },
         }
-        for tool in tools_result.tools
+        for tool in tools_result
     ]
 
 
-async def process_query(query: str) -> str:
+async def process_query(session, query: str) -> str:
     """Process a query using OpenAI and available MCP tools.
 
     Args:
@@ -84,10 +72,10 @@ async def process_query(query: str) -> str:
     Returns:
         The response from OpenAI.
     """
-    global session, openai_client, model
+    global openai_client, model
 
     # Get available tools
-    tools = await get_mcp_tools()
+    tools = await get_mcp_tools(session)
 
     # Initial OpenAI API call
     response = await openai_client.chat.completions.create(
@@ -146,17 +134,24 @@ async def cleanup():
 
 
 async def main():
-    """Main entry point for the client."""
-    await connect_to_server("server.py")
+    """Main entry point for the client using SSE + OpenAI tools."""
+    async with Client("http://0.0.0.0:8050/sse") as session:
+        # Get available tools from MCP
+        tools = await session.list_tools()
+        print(f"TOOLS: {tools}")
+        print("🛠 Tools:", [t.name for t in tools])
 
-    # Example: Ask about company vacation policy
-    query = "What is our company's vacation policy?"
-    print(f"\nQuery: {query}")
+        # Example user query
+        query = "What is our company's vacation policy?"
+        print(f"\n❓ Query: {query}")
 
-    response = await process_query(query)
-    print(f"\nResponse: {response}")
+        response = await process_query(session, query)
+        print(f"\nResponse: {response}")
 
     await cleanup()
+
+
+asyncio.run(main())
 
 
 if __name__ == "__main__":
