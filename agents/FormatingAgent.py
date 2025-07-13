@@ -1,7 +1,7 @@
 from mcp.client import ClientSession
 
 
-class FormattingAgent:
+class FormatingAgent:
     def __init__(self, session: ClientSession):
         self.session = session
 

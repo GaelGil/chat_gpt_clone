@@ -1,37 +1,32 @@
-import os
-from llm.ModelClient import ModelClient
-from llm.Model import Model
-from openai import OpenAI
-from Agent import Agent
-from utils.tools import TOOLS
-from utils.tool_defenitions import TOOL_DEFENITIONS
-
-if __name__ == "__main__":
-    client: OpenAI = ModelClient(key=os.getenv("OPENAI_API_KEY")).get_client()
-
-    llm: Model = Model(
-        client=client,
-        model_name="gpt-4.1-mini",
-        input_messages=[
-            {
-                "role": "developer",
-                "content": "You are an AI assistant, tasked with helping the user with any task",
-            },
-        ],
-        tools=TOOL_DEFENITIONS,
-    )
-
-    agent: Agent = Agent(model=llm, tools=TOOLS)
-    agent.start()
-
-
-# import asyncio
-# from agents.base_agent import BaseAgent
-
-# async def main():
-#     agent = BaseAgent()
-#     result = await agent.run("Summarize this GitHub repo: https://github.com/your/repo")
-#     print("Agent result:\n", result)
+import asyncio
+from mcp.client import Client
+from agents.InputProcessingAgent import InputProcessingAgent
+from agents.PlanningAgent import PlanningAgent
+from agents.FormatingAgent import FormattingAgent
 
 # if __name__ == "__main__":
-#     asyncio.run(main())
+
+
+async def main():
+    async with Client("http://localhost:8050/sse") as session:
+        input_agent = InputProcessingAgent(session)
+        planning_agent = PlanningAgent(session)
+        formatting_agent = FormattingAgent(session)
+
+        raw_inputs = {
+            "desired_classes": ["Math101", "Physics101"],
+            "required_classes": ["English101"],
+            "available_classes": ["Math101", "Physics101", "English101", "History101"],
+            "time_constraints": {"monday": ["9am-12pm"], "wednesday": ["2pm-5pm"]},
+        }
+
+        processed_inputs = await input_agent.process_inputs(raw_inputs)
+        schedule = await planning_agent.create_schedule(processed_inputs)
+        formatted_schedule = await formatting_agent.format_schedule(schedule)
+
+        print("Here is your formatted schedule:\n")
+        print(formatted_schedule)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
