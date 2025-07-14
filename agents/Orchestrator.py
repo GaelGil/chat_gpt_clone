@@ -1,7 +1,7 @@
 # main_agent.py
 import asyncio
 from mcp.client import Client
-from InputProccessingAgent import InputProcessingAgent
+from agents.InputProcessingAgent import InputProcessingAgent
 from PlanningAgent import PlanningAgent
 from FormatingAgent import FormattingAgent
 
