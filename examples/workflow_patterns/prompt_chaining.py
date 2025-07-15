@@ -1,12 +1,12 @@
 import logging
 from typing import Optional
 from datetime import datetime
-from examples.models.schemas import (
+from models.schemas import (
     EventExtraction,
     EventDetails,
     EventConfirmation,
 )
-from examples.Model import LLM
+from examples.workflow_patterns.Model import LLM
 
 
 logging.basicConfig(
