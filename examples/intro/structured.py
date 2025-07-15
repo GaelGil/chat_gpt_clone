@@ -1,5 +1,5 @@
-from examples.models.schemas import CalendarEvent
-from examples.Model import LLM
+from Model import LLM
+from models.schemas import CalendarEvent
 
 llm = LLM(model_name="gpt-4.1-mini")
 

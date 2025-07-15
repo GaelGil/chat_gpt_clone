@@ -1,6 +1,6 @@
 import json
-from examples.models.schemas import KBResponse
-from examples.Model import LLM
+from Model import LLM
+from models.schemas import KBResponse
 from mcp.client import MCPClient
 import asyncio
 

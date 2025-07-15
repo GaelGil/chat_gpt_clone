@@ -1,7 +1,7 @@
 import json
 import asyncio
-from examples.models.schemas import WeatherResponse
-from examples.Model import LLM
+from models.schemas import WeatherResponse
+from examples.workflow_patterns.Model import LLM
 from mcp.client import MCPClient
 
 

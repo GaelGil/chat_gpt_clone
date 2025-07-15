@@ -1,4 +1,4 @@
-from examples.Model import LLM
+from Model import LLM
 
 model = LLM(model_name="gpt-4.1-mini")
 
@@ -9,7 +9,7 @@ model = LLM(model_name="gpt-4.1-mini")
 # input = [{role: role, content: content}]
 # the api says to use developer over system
 
-response = LLM.create_response(
+response = model.create_response(
     messages=[
         {"role": "developer", "content": "You are a helpful AI assistant"},
         {
