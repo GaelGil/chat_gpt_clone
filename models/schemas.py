@@ -35,3 +35,11 @@ class SectionOutput(BaseModel):
 class ReviewOutput(BaseModel):
     polished_text: str
     issues_found: bool
+
+
+class EssayPlan(BaseModel):
+    plans: List[str]
+
+
+class SectionPlan(BaseModel):
+    sections: List[str]
