@@ -5,7 +5,7 @@ from mcp.client import MCPClient
 import asyncio
 
 
-def basic_retrival(llm: LLM, tools: list, mcp_client: MCPClient):
+def basic_retrival(llm: LLM, tools: list, client: MCPClient):
     # the system prompt (developer)
     system_prompt = "You are a helpful assistant that answers questions from the knowledge base about our e-commerce store"
 
@@ -21,7 +21,7 @@ def basic_retrival(llm: LLM, tools: list, mcp_client: MCPClient):
     # the function that the model can call
     async def call_function(name, args):
         if name == "search_kb":
-            res = await mcp_client.call_tool(name, args)
+            res = await client.call_tool(name, args)
             return res
 
     # for every tool call in the response
