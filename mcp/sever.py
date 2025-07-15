@@ -12,16 +12,8 @@ mcp = FastMCP(
 
 # a function to search inside a json file
 @mcp.tool(
-    type="function",
     name="search_kb",
     description="Get the answer to the users question from the knowledge base",
-    parameters={
-        "type": "object",
-        "properties": {"question": {"type": "string"}},
-        "required": ["question"],
-        "additionalProperties": False,
-    },
-    strict=True,
 )
 def search_kb() -> str:
     """
@@ -34,19 +26,8 @@ def search_kb() -> str:
 
 # get weather tool
 @mcp.tool(
-    type="function",
     name="get_weather",
     description="Get current temperature for provided coordinates in celsius",
-    parameters={
-        "type": "object",
-        "properties": {
-            "latitude": {"type": "number"},
-            "longitude": {"type": "number"},
-        },
-        "required": ["latitude", "longitude"],
-        "additionalProperties": False,
-    },
-    strict=True,
 )
 def get_weather(latitude, longitude):
     response = requests.get(

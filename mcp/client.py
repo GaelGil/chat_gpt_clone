@@ -19,10 +19,38 @@ class MCPClient:
             await self.session.__aexit__(None, None, None)
             self.session = None
 
-    async def list_tools(self):
+    async def list_tools(self) -> list:
         if not self.session:
             raise RuntimeError("Session not connected")
         return await self.session.list_tools()
+
+    async def get_tools(self) -> list[dict[str, Any]]:
+        """Retrieve tools in a format compatible with OpenAI."""
+        if not self.session:
+            raise RuntimeError("Session not connected")
+
+        tools = await self.session.list_tools()
+        openai_tools = []
+
+        for tool in tools:
+            openai_tools.append(
+                {
+                    "type": "function",
+                    "name": tool.name,  # Accessing 'name' attribute
+                    "description": tool.description,  # Accessing 'description' attribute
+                    "parameters": {
+                        "type": "object",
+                        "properties": tool.inputSchema[
+                            "properties"
+                        ],  # Accessing 'input_schema' attribute
+                        "required": tool.inputSchema.get(
+                            "required", []
+                        ),  # Accessing 'input_schema' attribute
+                    },
+                }
+            )
+
+        return openai_tools
 
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
         if not self.session:
@@ -32,12 +60,3 @@ class MCPClient:
 
 
 # async def main():
-#     client = MCPClient()
-#     await client.connect()
-#     tools = await client.list_tools()
-#     print("Available tools:", [tool.name for tool in tools])
-#     await client.disconnect()
-
-
-# if __name__ == "__main__":
-#     asyncio.run(main())
