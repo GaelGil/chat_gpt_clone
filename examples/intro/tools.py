@@ -1,7 +1,7 @@
 import json
 import os
 from openai import OpenAI
-from pydantic import BaseModel, Field
+from models.schemas import WeatherResponse
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -60,16 +60,6 @@ for tool_call in response.output:
 
 
 print(f"MESSAGES AFTER TOOL CALL: {messages} \n")
-
-
-# create a class to get response in our desired structure
-class WeatherResponse(BaseModel):
-    temperature: float = Field(
-        description="The current temerature in celsius for the given location"
-    )
-    response: str = Field(
-        description="A natural language response to the users question"
-    )
 
 
 # get a response from model.

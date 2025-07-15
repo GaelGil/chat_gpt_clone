@@ -1,8 +1,11 @@
 import json
 import os
 from openai import OpenAI
-from pydantic import BaseModel, Field
+from models.schemas import KBResponse
+from dotenv import load_dotenv
+from pathlib import Path
 
+load_dotenv(Path("../.env"))
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
@@ -48,9 +51,6 @@ for tool_call in response.output:
 
 
 # class strucutre for our response
-class KBResponse(BaseModel):
-    answer: str = Field(description="The answer to the users question")
-    source: int = Field(description="The record id of the answer")
 
 
 # get a response and add our desired response format

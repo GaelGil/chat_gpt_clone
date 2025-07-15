@@ -1,6 +1,6 @@
 import os
 from openai import OpenAI
-from pydantic import BaseModel
+from models.schemas import CalendarEvent
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -11,10 +11,6 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # we can create a class like this to give to the model
 # it can then return the output in the structure of our class
-class CalendarEvent(BaseModel):
-    name: str
-    date: str
-    participants: list[str]
 
 
 response = client.responses.parse(
