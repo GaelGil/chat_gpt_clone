@@ -1,8 +1,8 @@
 import json
 import asyncio
-from models.schemas import WeatherResponse
-from examples.workflow_patterns.Model import LLM
-from mcp.client import MCPClient
+from schemas import WeatherResponse
+from Model import LLM
+from client import MCPClient
 
 
 llm = LLM(model_name="gpt-4.1-mini")

@@ -1,7 +1,7 @@
 import json
 from Model import LLM
-from models.schemas import KBResponse
-from mcp.client import MCPClient
+from client import MCPClient
+from schemas import KBResponse
 import asyncio
 
 
@@ -12,7 +12,7 @@ def basic_retrival(llm: LLM, tools: list, client: MCPClient):
     # the inpiut messages
     messages = [
         {"role": "developer", "content": system_prompt},
-        {"rolse": "user", "content": "what is the return policy?"},
+        {"role": "user", "content": "what is the return policy?"},
     ]
 
     # create response
@@ -68,10 +68,10 @@ def basic_retrival(llm: LLM, tools: list, client: MCPClient):
 async def main():
     client = MCPClient()
     await client.connect()
-    tools = await client.list_tools()
+    tools = await client.get_tools()
     llm = LLM(model_name="gpt-4.1-mini")
 
-    basic_retrival(llm=llm, tools=tools)
+    (basic_retrival(llm=llm, tools=tools, client=client),)
 
 
 if __name__ == "__main__":
