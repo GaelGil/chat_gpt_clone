@@ -26,3 +26,12 @@ class ReviewedDocument(BaseModel):
 
 class PlanOutput(BaseModel):
     steps: List[str]
+
+
+class SectionOutput(BaseModel):
+    text: str
+
+
+class ReviewOutput(BaseModel):
+    polished_text: str
+    issues_found: bool

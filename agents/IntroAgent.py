@@ -18,6 +18,7 @@ class IntroAgent:
                 },
                 {"role": "user", "content": input},
             ],
+            tools=self.tools,
             text_format=EssayIntroduction,
         )
         return response.output_parsed

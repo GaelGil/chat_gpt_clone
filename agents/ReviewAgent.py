@@ -20,6 +20,7 @@ class ReviewAgent:
                 },
                 {"role": "user", "content": full_text},
             ],
+            tools=self.tools,
             text_format=ReviewedDocument,
         )
         return response.output_parsed

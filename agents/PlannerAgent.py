@@ -20,6 +20,7 @@ class PlannerAgent:
                 },
                 {"role": "user", "content": input},
             ],
+            tools=self.tools,
             text_format=PlanOutput,
         )
 
