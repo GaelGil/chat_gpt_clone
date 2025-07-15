@@ -1,28 +1,14 @@
-import asyncio
-
-# import json
-# from contextlib import AsyncExitStack
 from typing import Any, Dict
-# import os
 
 import nest_asyncio
 from dotenv import load_dotenv
 from fastmcp import Client
-# from openai import AsyncOpenAI
 
 # Apply nest_asyncio to allow nested event loops (needed for Jupyter/IPython)
 nest_asyncio.apply()
 
 # Load environment variables
 load_dotenv("../.env")
-
-# Global variables to store session state
-# session = None
-# exit_stack = AsyncExitStack()
-# openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-# model = "gpt-4.1-mini"
-# stdio = None
-# write = None
 
 
 class MCPClient:
@@ -50,13 +36,13 @@ class MCPClient:
         return result.content[0].text if result.content else None
 
 
-async def main():
-    client = MCPClient()
-    await client.connect()
-    tools = await client.list_tools()
-    print("Available tools:", [tool.name for tool in tools])
-    await client.disconnect()
+# async def main():
+#     client = MCPClient()
+#     await client.connect()
+#     tools = await client.list_tools()
+#     print("Available tools:", [tool.name for tool in tools])
+#     await client.disconnect()
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+# if __name__ == "__main__":
+#     asyncio.run(main())
