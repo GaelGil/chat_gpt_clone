@@ -11,7 +11,7 @@ class LLM:
         self.model_name = model_name
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    def create_response(self, messages: list, tools: list = None):
+    def create_response(self, messages: list, tools: list = None) -> OpenAI.Response:
         """
         Create a response from the model based on the input messages and optional tools.
         """

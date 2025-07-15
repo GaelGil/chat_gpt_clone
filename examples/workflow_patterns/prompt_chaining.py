@@ -1,13 +1,13 @@
-import os
 import logging
-from dotenv import load_dotenv
-from pathlib import Path
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, Field
-from openai import OpenAI
+from examples.models.schemas import (
+    EventExtraction,
+    EventDetails,
+    EventConfirmation,
+)
+from examples.Model import LLM
 
-load_dotenv(Path("../../.env"))
 
 logging.basicConfig(
     level=logging.INFO,
@@ -16,41 +16,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-model = "gpt-4.1-mini"
-
-
-# define models
-
-
-class EventExtraction(BaseModel):
-    """For First LLM call: Extract basic event information"""
-
-    description: str = Field(description="Raw description of the event")
-    is_calender_event: bool = Field(description="Wheter this event is a calendar event")
-    confidence_score: float = Field(description="Confidence score between 0 and 1")
-
-
-class EventDetails(BaseModel):
-    """For Second LLM call: Parse specific event details"""
-
-    name: str = Field(description="Name of event")
-    date: str = Field(
-        description="Date and time of the event. Use ISO 8601 to format this value."
-    )
-    duration_time: int = Field(description="Expected duration in minutes")
-    participants: list[str] = Field(description="List of participants")
-
-
-class EventConfirmation(BaseModel):
-    """For Third LLM call"""
-
-    confirmation_message: str = Field(
-        description="Natural language confirmation message"
-    )
-    calendar_link: Optional[str] = Field(
-        description="Generated calendar link if applicable"
-    )
+# Initialize the OpenAI client and model
+llm = LLM(model_name="gpt-4.1-mini")
 
 
 # define some functions
@@ -60,17 +27,15 @@ def extract_event_info(user_input: str) -> EventExtraction:
     logger.debug(f"Input text: {user_input}")
     today = datetime.now()
     date_context = f"Today is {today.strftime('%A, %B %d, %Y')}"
-
-    response = client.responses.parse(
-        model=model,
-        input=[
+    response = llm.prase_response(
+        messages=[
             {
                 "role": "developer",
                 "content": f"{date_context} Analyze if the text describes a calendar event.",
             },
             {"role": "user", "content": user_input},
         ],
-        text_format=EventExtraction,
+        response_format=EventExtraction,
     )
 
     result = response.output_parsed
@@ -85,16 +50,15 @@ def parse_event_details(description: str) -> EventDetails:
     logger.info("Starting event details parsing")
     today = datetime.now()
     date_context = f"Today is {today.strftime('%A, %B %d, %Y')}."
-    response = client.responses.parse(
-        model=model,
-        input=[
+    response = llm.parse_response(
+        messages=[
             {
                 "role": "developer",
-                "content": f'{date_context} Extract detailed event information. When dates reference "next Tuesday" or similar relative dates, use this current date as reference.',
+                "content": f"{date_context} Extract detailed event information. When dates reference 'next Tuesday' or similar relative dates, use this current date as reference.",
             },
             {"role": "user", "content": description},
         ],
-        text_format=EventDetails,
+        response_format=EventDetails,
     )
 
     result = response.output_parsed
@@ -108,16 +72,15 @@ def parse_event_details(description: str) -> EventDetails:
 def generate_confirmation(event_details: EventDetails) -> EventConfirmation:
     """Third LLM call to generate a confirmation messsage"""
     logger.info("Generating confirmation message")
-    response = client.responses.parse(
-        model=model,
-        input=[
+    response = llm.parse_response(
+        messages=[
             {
                 "role": "developer",
-                "content": "Generate a natural confirmation message for the event",
+                "content": "Generate a natural language confirmation message for the event.",
             },
             {"role": "user", "content": str(event_details.model_dump())},
         ],
-        text_format=EventConfirmation,
+        response_format=EventConfirmation,
     )
     result = response.output_parsed
     logger.info("Confirmation message generated successfully")
