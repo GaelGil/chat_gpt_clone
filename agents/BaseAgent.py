@@ -8,9 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 class BaseAgent(ABC):
-    def __init__(self, model_client, tool_registry: dict) -> None:
+    def __init__(self, model_client) -> None:
         self.model = model_client
-        self.tools = tool_registry
 
     @abstractmethod
     def run(self, input_data):

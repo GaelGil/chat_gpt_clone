@@ -1,25 +1,26 @@
 from openai import OpenAI
-from models.schemas import ReviewedDocument
+from models.schemas import PlanOutput
 
 
-class ReviewAgent:
+class PlannerAgent:
     def __init__(self, model: OpenAI, model_name: str, prompt: str, tools) -> None:
-        """Initialize the ReviewAgent with a prompt and tools."""
+        """Initialize the BasAgent with a prompt and tools."""
         self.model = model
         self.model_name = model_name
         self.prompt = prompt
         self.tools = tools
 
-    def run(self, full_text: str):
+    def run(self, input: str):
         response = self.model.responses.parse(
             model=self.model_name,
             input=[
                 {
                     "role": "developer",
-                    "content": "Review the following text and provide feedback.",
+                    "content": "Given a topic, plan what is needed to write a draft to a essay and save to a txt file",
                 },
-                {"role": "user", "content": full_text},
+                {"role": "user", "content": input},
             ],
-            text_format=ReviewedDocument,
+            text_format=PlanOutput,
         )
+
         return response.output_parsed
