@@ -2,18 +2,18 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 
-class Introduction(BaseModel):
+class EssayIntroduction(BaseModel):
     content: str
     sources: Optional[str]
     main_topic: str
 
 
-class Body(BaseModel):
+class EssayBody(BaseModel):
     content: str
     references: Optional[List[str]]
 
 
-class Conclusion(BaseModel):
+class EssayConclusion(BaseModel):
     summary: str
     insights: Optional[str]
 
@@ -22,3 +22,7 @@ class ReviewedDocument(BaseModel):
     final_text: str
     notes: Optional[str]
     next_steps: Optional[str]
+
+
+class PlanOutput(BaseModel):
+    steps: List[str]

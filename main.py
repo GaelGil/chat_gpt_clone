@@ -1,42 +1,89 @@
-# import asyncio
-# from mcp.client import Client
-# from agents.InputProcessingAgent import InputProcessingAgent
-# from agents.PlanningAgent import PlanningAgent
-# from agents.FormatingAgent import FormattingAgent
-
-# # if __name__ == "__main__":
-
-
-# async def main():
-#     async with Client("http://localhost:8050/sse") as session:
-#         input_agent = InputProcessingAgent(session)
-#         planning_agent = PlanningAgent(session)
-#         formatting_agent = FormattingAgent(session)
-
-#         raw_inputs = {
-#             "desired_classes": ["Math101", "Physics101"],
-#             "required_classes": ["English101"],
-#             "available_classes": ["Math101", "Physics101", "English101", "History101"],
-#             "time_constraints": {"monday": ["9am-12pm"], "wednesday": ["2pm-5pm"]},
-#         }
-
-#         processed_inputs = await input_agent.process_inputs(raw_inputs)
-#         schedule = await planning_agent.create_schedule(processed_inputs)
-#         formatted_schedule = await formatting_agent.format_schedule(schedule)
-
-#         print("Here is your formatted schedule:\n")
-#         print(formatted_schedule)
-
-
-# if __name__ == "__main__":
-#     asyncio.run(main())
-
-
-from agents.BaseAgent import BaseAgent
 from agents.IntroAgent import IntroAgent
 from agents.BodyAgent import BodyAgent
 from agents.ConclusionAgent import ConclusionAgent
 from agents.ReviewAgent import ReviewAgent
-from tools.tool_registry import ToolRegistry
+from tools.tool_registry import tools
+from agents.PlannerAgent import PlannerAgent
 from llm import ModelClient, Model
-from models.schemas import ReviewedDocument
+from openai import OpenAI
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def run_agentic_essay(topic: str, model: OpenAI, max_iterations: int = 4) -> None:
+    planner = PlannerAgent(
+        model=model,
+        prompt="Given a topic, plan what is needed to write a draft to a essay and save to a txt file",
+        tools=tools,
+    )
+
+    plan_text = planner.run({"topic": topic})
+    steps = [s.strip() for s in plan_text.split("\n") if s.strip()]
+
+    draft = {}
+    iter = 0
+    while iter < max_iterations:
+        iter += 1
+        print(f"--- Iteration {iteration} of planning+writing loop ---")
+
+        for step in steps:
+            if "intro" in step.lower():
+                draft["intro"] = IntroAgent.run({"topic": topic})
+            elif "body" in step.lower():
+                draft["body"] = BodyAgent.run({"intro_text": draft["intro"]})
+            elif "conclusion" in step.lower():
+                draft["conclusion"] = ConclusionAgent.run({"body_text": draft["body"]})
+
+        full_text = "\n\n".join(
+            [draft[s] for s in ["intro", "body", "conclusion"] if s in draft]
+        )
+        draft["reviewed"] = ReviewAgent.run({"full_text": full_text})
+
+        # Step 3: Reflect = check coherence, completeness
+        critique = planner.run(
+            {"topic": topic, "draft": draft["reviewed"], "reflection_step": True}
+        )
+        if "revise" not in critique.lower():
+            break
+        print("→ Planner requests revision:", critique)
+        plan_text += "\n" + critique  # update plan with critique
+
+    # Step 4: Persist result
+    tools["save_to_txt"](filename=f"{topic.replace(' ', '_')}.txt")
+    return draft["reviewed"]
+
+
+if __name__ == "__main__":
+    model = ModelClient(api_key=os.getenv("OPENAI_API_KEY")).get_client()
+
+    # PlannerAgent = PlannerAgent(
+    #     model=model,
+    #     prompt="Given a topic, plan what is needed to write a draft to a essay and save to a txt file",
+    #     tools=tools,
+    # )
+
+    # IntroAgent = IntroAgent(
+    #     model=ModelClient(Model()),
+    #     prompt="Write a compelling introduction about: {topic}",
+    #     tools=tools,
+    # )
+
+    # BodyAgent = BodyAgent(
+    #     model=ModelClient(Model()),
+    #     prompt="Given this introduction:\n\n{intro_text}\n\nWrite the main body expanding on the topic.",
+    #     tools=tools,
+    # )
+
+    # ConclusionAgent = ConclusionAgent(
+    #     model=ModelClient(Model()),
+    #     prompt="Based on this body:\n\n{body_text}\n\nWrite a thoughtful conclusion.",
+    #     tools=tools,
+    # )
+
+    # ReviewAgent = ReviewAgent(
+    #     model=ModelClient(Model()),
+    #     prompt="Review and edit the following text for clarity, grammar, and coherence:\n\n{full_text}",
+    #     tools=tools,
+    # )

@@ -2,9 +2,6 @@ import os
 import logging
 from dotenv import load_dotenv
 from pathlib import Path
-from typing import Optional
-from datetime import datetime
-from pydantic import BaseModel, Field
 from openai import OpenAI
 
 load_dotenv(Path("../../.env"))
