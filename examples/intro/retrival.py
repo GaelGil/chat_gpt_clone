@@ -1,13 +1,16 @@
 import json
 import os
 from openai import OpenAI
-from models.schemas import KBResponse
+from examples.models.schemas import KBResponse
 from dotenv import load_dotenv
 from pathlib import Path
+from examples.Model import LLM
 
 load_dotenv(Path("../.env"))
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+
+llm = LLM(model_name="gpt-4.1-mini")
 
 # the system prompt (developer)
 system_prompt = "You are a helpful assistant that answers questions from the knowledge base about our e-commerce store"
@@ -19,7 +22,7 @@ messages = [
 ]
 
 # create response
-response = client.responses.create(model="gpt-4.1-mini", input=messages, tools=tools)
+response = llm.create_response(messages=messages, tools=tools)
 
 
 # the function that the model can call
@@ -50,12 +53,9 @@ for tool_call in response.output:
     )
 
 
-# class strucutre for our response
-
-
 # get a response and add our desired response format
-response_two = client.responses.parse(
-    model="gpt-4.1-mini", messages=messages, tools=tools, response_format=KBResponse
+response_two = llm.parse_response(
+    messages=messages, tools=tools, response_format=KBResponse
 )
 
 # print the final response
@@ -63,16 +63,12 @@ final_response = response_two.output_parsed
 print(final_response)
 
 
-# this wont cause a function call
+# this wont cause a function call because the model does not have information/tool on how to answer
 messages = [
     {"role": "system", "content": system_prompt},
     {"role": "user", "content": "What is the weather in Tokyo?"},
 ]
 
-response_three = client.responses.parse(
-    model="gpt-4.1-mini",
-    input=messages,
-    tools=tools,
-)
+response_three = llm.parse_response(messages=messages, tools=tools)
 
 print(response_three)

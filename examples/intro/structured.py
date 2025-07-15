@@ -1,28 +1,19 @@
-import os
-from openai import OpenAI
-from models.schemas import CalendarEvent
-from dotenv import load_dotenv
-from pathlib import Path
+from examples.models.schemas import CalendarEvent
+from examples.Model import LLM
 
-load_dotenv(Path("../../.env"))
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
+llm = LLM(model_name="gpt-4.1-mini")
 
 # we can create a class like this to give to the model
 # it can then return the output in the structure of our class
-
-
-response = client.responses.parse(
-    model="gpt-4o",
-    input=[
-        {"role": "system", "content": "Extract envet information"},
+response = llm.parse_response(
+    messages=[
+        {"role": "system", "content": "Extract event information"},
         {
             "role": "user",
             "content": "Alice and Bob are going to a science fair on friday",
         },
     ],
-    text_format=CalendarEvent,
+    response_format=CalendarEvent,
 )
 
 # get the parsed output in the format specified

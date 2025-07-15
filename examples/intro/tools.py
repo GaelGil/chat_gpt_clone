@@ -1,13 +1,10 @@
 import json
-import os
-from openai import OpenAI
-from models.schemas import WeatherResponse
-from dotenv import load_dotenv
-from pathlib import Path
+from examples.models.schemas import WeatherResponse
+from examples.Model import LLM
 
-load_dotenv(Path("../../.env"))
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+llm = LLM(model_name="gpt-4.1-mini")
+
 
 # the input messages
 messages = [
@@ -16,7 +13,7 @@ messages = [
 ]
 
 # define model response
-response = client.responses.create(model="gpt-4.1-mini", input=messages, tools=tools)
+response = llm.create_response(messages=messages, tools=tools)
 
 # Get tool call.
 # At this point response.output[0] contains ResponseFunctionToolCall
@@ -63,8 +60,8 @@ print(f"MESSAGES AFTER TOOL CALL: {messages} \n")
 
 
 # get a response from model.
-response_two = client.responses.parse(
-    model="gpt-4.1-mini", input=messages, tools=tools, text_format=WeatherResponse
+response_two = ll.parse_response(
+    messages=messages, tools=tools, response_format=WeatherResponse
 )
 
 # At this point response_two.output[0] contains the ParsedResponseOutputMessage
