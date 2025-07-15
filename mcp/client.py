@@ -1,14 +1,9 @@
 from typing import Any, Dict
-
 import nest_asyncio
-from dotenv import load_dotenv
 from fastmcp import Client
 
 # Apply nest_asyncio to allow nested event loops (needed for Jupyter/IPython)
 nest_asyncio.apply()
-
-# Load environment variables
-load_dotenv("../.env")
 
 
 class MCPClient:

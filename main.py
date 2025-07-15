@@ -1,63 +1,27 @@
-from agents.IntroAgent import IntroAgent
-from agents.BodyAgent import BodyAgent
-from agents.ConclusionAgent import ConclusionAgent
-from agents.ReviewAgent import ReviewAgent
-from tools.tool_registry import tools
-from agents.PlannerAgent import PlannerAgent
-from llm.ModelClient import ModelClient
-from openai import OpenAI
+# from models import schemas
 import os
+from Model.LLM import LLM
 from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
-
-
-def run_agentic_essay(
-    topic: str, model: OpenAI, model_name: str = "gpt-4.1-mini", max_iterations: int = 4
-) -> None:
-    planner = PlannerAgent(
-        model=model,
-        model_name=model_name,
-        prompt="Given a topic, plan what is needed to write a draft to a essay and save to a txt file",
-        tools=tools,
-    )
-
-    plan_text = planner.run(topic)
-    steps = [s.strip() for s in plan_text.split("\n") if s.strip()]
-    print("Planning steps:", steps)
-    draft = {}
-    iter = 0
-    while iter < max_iterations:
-        iter += 1
-        print(f"--- Iteration {iter} of planning+writing loop ---")
-
-        for step in steps:
-            if "intro" in step.lower():
-                draft["intro"] = IntroAgent.run({"topic": topic})
-            elif "body" in step.lower():
-                draft["body"] = BodyAgent.run({"intro_text": draft["intro"]})
-            elif "conclusion" in step.lower():
-                draft["conclusion"] = ConclusionAgent.run({"body_text": draft["body"]})
-
-        full_text = "\n\n".join(
-            [draft[s] for s in ["intro", "body", "conclusion"] if s in draft]
-        )
-        draft["reviewed"] = ReviewAgent.run({"full_text": full_text})
-
-        # Step 3: Reflect = check coherence, completeness
-        critique = planner.run(
-            {"topic": topic, "draft": draft["reviewed"], "reflection_step": True}
-        )
-        if "revise" not in critique.lower():
-            break
-        print("→ Planner requests revision:", critique)
-        plan_text += "\n" + critique  # update plan with critique
-
-    # Step 4: Persist result
-    tools["save_to_txt"](filename=f"{topic.replace(' ', '_')}.txt")
-    return draft["reviewed"]
-
+load_dotenv(Path("./.env"))
 
 if __name__ == "__main__":
-    model = ModelClient(api_key=os.getenv("OPENAI_API_KEY")).get_client()
-    print(run_agentic_essay("The impact of AI on society", model))
+    # Initialize the LLM with a model name and API key
+
+    llm = LLM(model_name="gpt-4.1-mini", api_key=os.getenv("OPENAI_API_KEY"))
+
+    # Example usage of create_response
+    # response = llm.create_response(
+    #     messages=[
+    #         {"role": "developer", "content": "You are a helpful AI assistant"},
+    #         {
+    #             "role": "user",
+    #             "content": "Write a limerick about the Python programming language.",
+    #         },
+    #     ]
+    # )
+
+    # # Print the text response
+    # text_response = response.output[0].content[0].text
+    # print(text_response)
