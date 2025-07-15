@@ -1,6 +1,5 @@
 import json
 import os
-import requests
 from openai import OpenAI
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
@@ -9,35 +8,6 @@ from pathlib import Path
 load_dotenv(Path("../../.env"))
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-
-# a get weather function
-def get_weather(latitude, longitude):
-    response = requests.get(
-        f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
-    )
-    data = response.json()
-    return data["current"]
-
-
-# define tools
-tools = [
-    {
-        "type": "function",
-        "name": "get_weather",
-        "description": "Get current temperature for provided coordinates in celsius",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "latitude": {"type": "number"},
-                "longitude": {"type": "number"},
-            },
-            "required": ["latitude", "longitude"],
-            "additionalProperties": False,
-        },
-        "strict": True,
-    }
-]
 
 # the input messages
 messages = [

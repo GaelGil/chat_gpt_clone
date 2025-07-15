@@ -6,32 +6,6 @@ from pydantic import BaseModel, Field
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-# a function to search inside a json file
-def search_kb(question: str):
-    """
-    Load the whole knowledge base from the JSON file.
-    (This is a mock function for demonstration purposes, we don't search)
-    """
-    with open("kb.json", "r") as f:
-        return json.load(f)
-
-
-# define tools
-tools = [
-    {
-        "type": "function",
-        "name": "search_kb",
-        "description": "Get the answer to the users question from the knowledge base",
-        "parameters": {
-            "type": "object",
-            "properties": {"question": {"type": "string"}},
-            "required": ["question"],
-            "additionalProperties": False,
-        },
-        "strict": True,
-    }
-]
-
 # the system prompt (developer)
 system_prompt = "You are a helpful assistant that answers questions from the knowledge base about our e-commerce store"
 
