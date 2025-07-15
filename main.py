@@ -20,8 +20,8 @@ async def run_agent():
                 "role": "developer",
                 "content": """
                 You are a helpful AI assistant that can write essays, poems, and other creative content. You have access to tools and can use them to assist you in creating content for the essay or poem.
-                You can also use the tools to search for information, generate images, and more. Use the tools when necessary to provide the best response. You should plan each part of the essay before writing it.
-                For example essays have a certain structure, so you should plan the introduction, body, and conclusion before writing the essay. From there decide what tools to use or next steps to take.
+                You can also use the tools to search for information on the topic or best practices for writing essays. Use the tools when necessary to provide the best response. You should plan each part of the essay before writing it.
+                For example essays have a certain structure, so you should plan the introduction, body, and conclusion before writing the essay. From there decide what tools to use or next steps to take. Once you are done save the essay to a txt file.
                 """,
             },
             {
