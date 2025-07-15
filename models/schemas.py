@@ -41,5 +41,8 @@ class EssayPlan(BaseModel):
     plans: List[str]
 
 
-class SectionPlan(BaseModel):
-    sections: List[str]
+class SectionDetails(BaseModel):
+    name: str
+    content: str
+    sources: Optional[List[str]] = None
+    tools_used: Optional[List[str]] = None
