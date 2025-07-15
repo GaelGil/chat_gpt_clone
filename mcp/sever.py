@@ -1,5 +1,5 @@
-import os
 import json
+import requests
 from mcp.server.fastmcp import FastMCP
 
 # Create an MCP server
@@ -10,42 +10,50 @@ mcp = FastMCP(
 )
 
 
-@mcp.tool()
-def get_knowledge_base() -> str:
-    """Retrieve the entire knowledge base as a formatted string.
-
-    Returns:
-        A formatted string containing all Q&A pairs from the knowledge base.
+# a function to search inside a json file
+@mcp.tool(
+    type="function",
+    name="search_kb",
+    description="Get the answer to the users question from the knowledge base",
+    parameters={
+        "type": "object",
+        "properties": {"question": {"type": "string"}},
+        "required": ["question"],
+        "additionalProperties": False,
+    },
+    strict=True,
+)
+def search_kb() -> str:
     """
-    try:
-        kb_path = os.path.join(os.path.dirname(__file__), "data", "kb.json")
-        with open(kb_path, "r") as f:
-            kb_data = json.load(f)
+    Load the whole knowledge base from the JSON file.
+    (This is a mock function for demonstration purposes, we don't search)
+    """
+    with open("kb.json", "r") as f:
+        return json.load(f)
 
-        # Format the knowledge base as a string
-        kb_text = "Here is the retrieved knowledge base:\n\n"
 
-        if isinstance(kb_data, list):
-            for i, item in enumerate(kb_data, 1):
-                if isinstance(item, dict):
-                    question = item.get("question", "Unknown question")
-                    answer = item.get("answer", "Unknown answer")
-                else:
-                    question = f"Item {i}"
-                    answer = str(item)
-
-                kb_text += f"Q{i}: {question}\n"
-                kb_text += f"A{i}: {answer}\n\n"
-        else:
-            kb_text += f"Knowledge base content: {json.dumps(kb_data, indent=2)}\n\n"
-
-        return kb_text
-    except FileNotFoundError:
-        return "Error: Knowledge base file not found"
-    except json.JSONDecodeError:
-        return "Error: Invalid JSON in knowledge base file"
-    except Exception as e:
-        return f"Error: {str(e)}"
+# get weather tool
+@mcp.tool(
+    type="function",
+    name="get_weather",
+    description="Get current temperature for provided coordinates in celsius",
+    parameters={
+        "type": "object",
+        "properties": {
+            "latitude": {"type": "number"},
+            "longitude": {"type": "number"},
+        },
+        "required": ["latitude", "longitude"],
+        "additionalProperties": False,
+    },
+    strict=True,
+)
+def get_weather(latitude, longitude):
+    response = requests.get(
+        f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+    )
+    data = response.json()
+    return data["current"]
 
 
 # Run the server
