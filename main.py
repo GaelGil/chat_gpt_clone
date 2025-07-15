@@ -4,7 +4,7 @@ from agents.ConclusionAgent import ConclusionAgent
 from agents.ReviewAgent import ReviewAgent
 from tools.tool_registry import tools
 from agents.PlannerAgent import PlannerAgent
-from llm import ModelClient, Model
+from llm.ModelClient import ModelClient
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
@@ -12,21 +12,24 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def run_agentic_essay(topic: str, model: OpenAI, max_iterations: int = 4) -> None:
+def run_agentic_essay(
+    topic: str, model: OpenAI, model_name: str = "gpt-4.1-mini", max_iterations: int = 4
+) -> None:
     planner = PlannerAgent(
         model=model,
+        model_name=model_name,
         prompt="Given a topic, plan what is needed to write a draft to a essay and save to a txt file",
         tools=tools,
     )
 
-    plan_text = planner.run({"topic": topic})
+    plan_text = planner.run(topic)
     steps = [s.strip() for s in plan_text.split("\n") if s.strip()]
-
+    print("Planning steps:", steps)
     draft = {}
     iter = 0
     while iter < max_iterations:
         iter += 1
-        print(f"--- Iteration {iteration} of planning+writing loop ---")
+        print(f"--- Iteration {iter} of planning+writing loop ---")
 
         for step in steps:
             if "intro" in step.lower():
@@ -57,33 +60,4 @@ def run_agentic_essay(topic: str, model: OpenAI, max_iterations: int = 4) -> Non
 
 if __name__ == "__main__":
     model = ModelClient(api_key=os.getenv("OPENAI_API_KEY")).get_client()
-
-    # PlannerAgent = PlannerAgent(
-    #     model=model,
-    #     prompt="Given a topic, plan what is needed to write a draft to a essay and save to a txt file",
-    #     tools=tools,
-    # )
-
-    # IntroAgent = IntroAgent(
-    #     model=ModelClient(Model()),
-    #     prompt="Write a compelling introduction about: {topic}",
-    #     tools=tools,
-    # )
-
-    # BodyAgent = BodyAgent(
-    #     model=ModelClient(Model()),
-    #     prompt="Given this introduction:\n\n{intro_text}\n\nWrite the main body expanding on the topic.",
-    #     tools=tools,
-    # )
-
-    # ConclusionAgent = ConclusionAgent(
-    #     model=ModelClient(Model()),
-    #     prompt="Based on this body:\n\n{body_text}\n\nWrite a thoughtful conclusion.",
-    #     tools=tools,
-    # )
-
-    # ReviewAgent = ReviewAgent(
-    #     model=ModelClient(Model()),
-    #     prompt="Review and edit the following text for clarity, grammar, and coherence:\n\n{full_text}",
-    #     tools=tools,
-    # )
+    print(run_agentic_essay("The impact of AI on society", model))

@@ -8,6 +8,16 @@ class IntroAgent:
         self.prompt = prompt
         self.tools = tools
 
-    def send_messages(self, messages: List[dict]) -> str:
-        """Send messages to the model and return the response."""
-        return self.model.generate(messages)
+    def send_messages(self, messages: list[dict]) -> str:
+        response = self.model.responses.parse(
+            model=self.model_name,
+            input=[
+                {
+                    "role": "developer",
+                    "content": "Given a topic, plan what is needed to write a draft to a essay and save to a txt file",
+                },
+                {"role": "user", "content": input},
+            ],
+            text_format=EssayIntroduction,
+        )
+        return response.output_parsed
