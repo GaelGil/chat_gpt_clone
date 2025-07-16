@@ -3,7 +3,7 @@ from Model.LLM import LLM
 from dotenv import load_dotenv
 from pathlib import Path
 import asyncio
-from ModelSchemas.schemas import PlanOutput
+from ModelSchemas.schemas import PlanOutput, PlanStep
 from mcp_server_client.client import MCPClient
 
 
@@ -35,8 +35,13 @@ async def run_agent():
         response_format=PlanOutput,
     )
 
-    plans = response.output_parsed
+    plans: PlanOutput = response.output_parsed
     print(f"Plans: {plans}")
+    for step in plans.setps:
+        print(
+            f"Step ID: {step.id}, Description: {step.description}, Tools Needed: {step.tools_needed}"
+        )
+        step_response = llm.parse_response(messages=step.description, tools=tools)
 
 
 if __name__ == "__main__":
@@ -57,3 +62,86 @@ if __name__ == "__main__":
     # # Print the text response
     # text_response = response.output[0].content[0].text
     # print(text_response)
+
+
+# import os
+# from your_mcp import MCPClient, PlanOutput  # adjust import paths
+# from your_llm import LLM
+
+# async def run_agent(initial_user_msg):
+#     client = MCPClient()
+#     await client.connect()
+#     tools = await client.get_tools()
+#     llm = LLM(model_name="gpt-4.1-mini", api_key=os.getenv("OPENAI_API_KEY"))
+
+#     # system/developer instructions
+#     system_msg = {
+#         "role": "developer",
+#         "content": """
+# You are a helpful AI assistant that can write essays, poems, and other creative content. You have access to tools for research and writing.
+# Plan each part before writing. Use tools as needed. When task is complete, output a final_answer.
+# """
+#     }
+#     # start conversation
+#     context = [system_msg, {"role": "user", "content": initial_user_msg}]
+#     max_steps = 10
+
+#     for step in range(max_steps):
+#         resp = await llm.parse_response(messages=context, tools=tools, response_format=PlanOutput)
+#         # Example of expected structure:
+#         # {"thought": "...", "action": "search", "action_input": "...", "final_answer": None}
+
+#         thought = getattr(resp, "thought", None)
+#         action = getattr(resp, "action", None)
+#         final = getattr(resp, "final_answer", None)
+
+#         context.append({"role": "assistant", "content": f"Thought: {thought}"})
+
+#         if action:
+#             context.append({"role": "assistant", "content": f"Action: {action}({resp.action_input})"})
+#             # call the tool
+#             tool_output = await client.call_tool(action, resp.action_input)
+#             context.append({"role": "tool", "content": tool_output})
+#             context.append({"role": "assistant", "content": f"Observation: {tool_output}"})
+#         elif final:
+#             # DONE
+#             print("Agent finished!")
+#             return final
+
+#     raise RuntimeError("Max steps reached without completion")
+
+
+# # Example usage:
+# if __name__ == "__main__":
+#     import asyncio
+#     final = asyncio.run(run_agent(
+#         "Write a thoughtful essay about the cultural impact of Star Wars, ≥500 words, references from original trilogy, prequels, sequels."
+#     ))
+#     print("Essay output:\n", final)
+
+
+# async def run_agent_loop(llm, tools, initial_task):
+#     context, done = [initial_task], False
+#     steps = 0
+#     max_steps = 10  # safety guard
+
+#     while not done and steps < max_steps:
+#         prompt = build_prompt_from_context(context)
+#         response = await llm.parse_response(
+#             messages=prompt, tools=tools, response_format=PlanOutput
+#         )
+#         # assume response includes: thought, action?, tool, final_answer?
+#         context.append(response.thought)
+
+#         if response.action:
+#             output = await client.call_tool(response.tool, response.action_input)
+#             context.append(output)
+#             # let the agent reflect
+#             context.append(f"Observation: {output}")
+#         elif response.final_answer:
+#             return response.final_answer
+
+#         steps += 1
+
+#     if steps >= max_steps:
+#         raise RuntimeError("Max steps reached without completion.")

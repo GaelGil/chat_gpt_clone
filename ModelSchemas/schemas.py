@@ -1,54 +1,17 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, Field
+from typing import List
 
 
-class EssayIntroduction(BaseModel):
-    content: str
-    sources: Optional[str]
-    main_topic: str
+class PlanStep(BaseModel):
+    """Represents a single step in a plan."""
 
-
-class EssayBody(BaseModel):
-    content: str
-    references: Optional[List[str]]
-
-
-class EssayConclusion(BaseModel):
-    summary: str
-    insights: Optional[str]
-
-
-class ReviewedDocument(BaseModel):
-    final_text: str
-    notes: Optional[str]
-    next_steps: Optional[str]
+    id: int = Field(description="Unique identifier for the step")
+    description: str = Field(description="Description of the step")
+    tools_needed: List[str] = Field(
+        description="List of tools needed to complete this step"
+    )
 
 
 class PlanOutput(BaseModel):
-    steps: List[str]
-
-
-class SectionOutput(BaseModel):
-    text: str
-
-
-class ReviewOutput(BaseModel):
-    polished_text: str
-    issues_found: bool
-
-
-class EssayPlan(BaseModel):
-    plans: List[str]
-
-
-class SectionDetails(BaseModel):
-    name: str
-    content: str
-    sources: Optional[List[str]] = None
-    tools_used: Optional[List[str]] = None
-
-
-class ResearchOutput(BaseModel):
-    content: str
-    timestamp: str
-    sources: Optional[List[str]] = None
+    goal: str = Field(description="The overall goal of the plan")
+    setps: List[PlanStep] = Field(description="List of steps to achieve the goal")

@@ -43,3 +43,5 @@ For example if we are not able to get all the details on it it might run detail 
 
 Workflows = fixed layout, you write the steps.
 Agents = self-directed systems, the LLM chooses the strategy.
+
+# react style agent is Reason, Act, Observe and Think
