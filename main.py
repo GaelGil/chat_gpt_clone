@@ -3,7 +3,7 @@ from Model.LLM import LLM
 from dotenv import load_dotenv
 from pathlib import Path
 import asyncio
-from ModelSchemas.schemas import PlanOutput, PlanStep
+from ModelSchemas.schemas import PlanOutput, ResearchResponse, EssaySection
 from mcp_server_client.client import MCPClient
 
 
@@ -39,9 +39,28 @@ async def run_agent():
     print(f"Plans: {plans}")
     for step in plans.setps:
         print(
-            f"Step ID: {step.id}, Description: {step.description}, Tools Needed: {step.tools_needed}"
+            f"Step ID: {step.id}, Type: {step.type}, Description: {step.description}, Tools Needed: {step.tools_needed}"
         )
-        step_response = llm.parse_response(messages=step.description, tools=tools)
+        if step.type == "research":
+            # Call the research tool
+            research_response = await client.call_tool(
+                step.tools_needed[0], step.description
+            )
+            print(f"Research Response: {research_response}")
+            # Assuming the response is a ResearchResponse object
+            step_response = ResearchResponse(
+                tool_used=step.tools_needed[0], content=research_response
+            )
+        elif step.type == "write":
+            # Call the writing tool
+            write_response = await client.call_tool(
+                step.tools_needed[0], step.description
+            )
+            print(f"Write Response: {write_response}")
+            # Assuming the response is a string or similar
+            # step_response = write_response
+
+        # step_response = llm.parse_response(messages=step.description, tools=tools)
 
 
 if __name__ == "__main__":
