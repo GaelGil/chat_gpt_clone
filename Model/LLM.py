@@ -36,7 +36,7 @@ class LLM:
         """
         return self.client.responses.parse(
             model=self.model_name,
-            messages=messages,
+            input=messages,
             tools=tools,
             tool_choice="auto",
             text_format=response_format,

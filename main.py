@@ -2,8 +2,9 @@ import os
 from Model.LLM import LLM
 from dotenv import load_dotenv
 from pathlib import Path
-from mcp.client import MCPClient
-from models.schemas import PlanOutput
+import asyncio
+from ModelSchemas.schemas import PlanOutput
+from mcp_server_client.client import MCPClient
 
 
 load_dotenv(Path("./.env"))
@@ -14,6 +15,7 @@ async def run_agent():
     await client.connect()
     tools = await client.get_tools()
     llm = LLM(model_name="gpt-4.1-mini", api_key=os.getenv("OPENAI_API_KEY"))
+    print(f"Tools: {tools}")
     response = llm.parse_response(
         messages=[
             {
@@ -38,7 +40,7 @@ async def run_agent():
 
 
 if __name__ == "__main__":
-    run_agent()  # Run the agent function
+    asyncio.run(run_agent())  # Run the agent function
     # Initialize the LLM with a model name and API key
 
     # Example usage of create_response

@@ -46,3 +46,9 @@ class SectionDetails(BaseModel):
     content: str
     sources: Optional[List[str]] = None
     tools_used: Optional[List[str]] = None
+
+
+class ResearchOutput(BaseModel):
+    content: str
+    timestamp: str
+    sources: Optional[List[str]] = None
