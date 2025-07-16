@@ -1,4 +1,4 @@
-from mcp.client import ClientSession
+from mcp_server_client.client import ClientSession
 
 
 class InputProcessingAgent:
