@@ -10,7 +10,7 @@ from mcp_server_client.client import MCPClient
 load_dotenv(Path("./.env"))
 
 
-async def run_agent():
+async def execute():
     client = MCPClient()
     await client.connect()
     tools = await client.get_tools()
@@ -64,7 +64,7 @@ async def run_agent():
 
 
 if __name__ == "__main__":
-    asyncio.run(run_agent())  # Run the agent function
+    asyncio.run(execute())  # Run the agent function
     # Initialize the LLM with a model name and API key
 
     # Example usage of create_response
