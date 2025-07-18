@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import asyncio
 from Types.schemas import PlanOutput, ResearchResponse
-from mcp_server_client.client import MCPClient
+from MCP.client import MCPClient
 
 
 load_dotenv(Path("./.env"))
