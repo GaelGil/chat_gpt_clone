@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 
-class LLM:
+class OpenAi:
     """ """
 
     def __init__(self, model_name: str, api_key: str) -> None:

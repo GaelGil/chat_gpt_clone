@@ -1,9 +1,11 @@
 import os
-from Model.LLM import LLM
+from Models.OpenAi import OpenAi
+
+# from Models.Gemini import Gemini
 from dotenv import load_dotenv
 from pathlib import Path
 import asyncio
-from ModelSchemas.schemas import PlanOutput, ResearchResponse, EssaySection
+from Types.schemas import PlanOutput, ResearchResponse
 from mcp_server_client.client import MCPClient
 
 
@@ -14,7 +16,9 @@ async def execute():
     client = MCPClient()
     await client.connect()
     tools = await client.get_tools()
-    llm = LLM(model_name="gpt-4.1-mini", api_key=os.getenv("OPENAI_API_KEY"))
+    llm = OpenAi(model_name="gpt-4.1-mini", api_key=os.getenv("OPENAI_API_KEY"))
+    # llm = Gemini(model_name="gemini-2.5-pro", api_key=os.getenv("OPENAI_API_KEY"))
+
     print(f"Tools: {tools}")
     response = llm.parse_response(
         messages=[
