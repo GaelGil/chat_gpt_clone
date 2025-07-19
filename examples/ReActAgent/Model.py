@@ -2,7 +2,7 @@ from openai import OpenAI
 
 
 class LLM:
-    """ """
+    """LLM class function"""
 
     def __init__(self, model_name: str, api_key: str, dev_prompt) -> None:
         """
