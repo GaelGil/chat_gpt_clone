@@ -1,9 +1,10 @@
 import json
 import requests
 from mcp.server.fastmcp import FastMCP
-import wikipedia
+
+# import wikipedia
 import datetime
-import xml.etree.ElementTree as ET
+# import xml.etree.ElementTree as ET
 
 
 # Create an MCP server
@@ -19,7 +20,7 @@ mcp = FastMCP(
     name="search_kb",
     description="Get the answer to the users question from the knowledge base",
 )
-def search_kb() -> str:
+def search_kb() -> dict:
     """
     Load the whole knowledge base from the JSON file.
     (This is a mock function for demonstration purposes, we don't search)
@@ -42,30 +43,30 @@ def get_weather(latitude, longitude):
 
 
 # wiki search tool
-@mcp.tool(
-    name="wiki_search",
-    description="Get current temperature for provided coordinates in celsius",
-)
-def wiki_search(query: str, sentences: int = 2) -> str:
-    """
-    Searches Wikipedia for the given query and returns a summary.
+# @mcp.tool(
+#     name="wiki_search",
+#     description="Get current temperature for provided coordinates in celsius",
+# )
+# def wiki_search(query: str, sentences: int = 2) -> str:
+#     """
+#     Searches Wikipedia for the given query and returns a summary.
 
-    Args:
-        query (str): The search term.
-        sentences (int): Number of summary sentences to return.
+#     Args:
+#         query (str): The search term.
+#         sentences (int): Number of summary sentences to return.
 
-    Returns:
-        str: Summary of the top Wikipedia page match.
-    """
-    try:
-        summary = wikipedia.summary(query, sentences=sentences)
-        return summary
-    except wikipedia.exceptions.DisambiguationError as e:
-        return f"DisambiguationError: The query '{query}' may refer to multiple things:\n{e.options[:5]}"
-    except wikipedia.exceptions.PageError:
-        return f"No Wikipedia page found for '{query}'."
-    except Exception as e:
-        return f"An error occurred: {e}"
+#     Returns:
+#         str: Summary of the top Wikipedia page match.
+#     """
+#     try:
+#         summary = wikipedia.summary(query, sentences=sentences)
+#         return summary
+#     except wikipedia.exceptions.DisambiguationError as e:
+#         return f"DisambiguationError: The query '{query}' may refer to multiple things:\n{e.options[:5]}"
+#     except wikipedia.exceptions.PageError:
+#         return f"No Wikipedia page found for '{query}'."
+#     except Exception as e:
+#         return f"An error occurred: {e}"
 
 
 @mcp.tool(

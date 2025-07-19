@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 from datetime import datetime
-from models.schemas import (
+from examples.workflow_patterns.schemas import (
     EventExtraction,
     EventDetails,
     EventConfirmation,

@@ -1,6 +1,6 @@
 import logging
 from examples.workflow_patterns.Model import LLM
-from models.schemas import (
+from examples.workflow_patterns.schemas import (
     CalendarRequestType,
     CalendarResponse,
     NewEventDetails,
