@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 
-class OpenAi:
+class LLM:
     """ """
 
     def __init__(self, model_name: str, api_key: str, dev_prompt) -> None:
@@ -11,17 +11,18 @@ class OpenAi:
         Returns:
             None
         """
-        self.model_name = model_name
-        self.client = OpenAI(api_key=api_key)
-        self.messages = list
-        self.system: str
-        if self.system:
+        self.client: OpenAI = OpenAI(api_key=api_key)
+        self.model_name: str = model_name
+        self.messages: list
+        self.dev_prompt: str
+        if self.dev_prompt:
             self.messages.append({"role": "developer", "content": dev_prompt})
 
     def __call__(self, message: str):
         self.messages.append({"role": "user", "content": message})
         result = self.create_response()
         self.messages.append({"role": "assitant", "content": result})
+        return result
 
     def create_response(self, tools: list = None) -> OpenAI.responses:
         """
