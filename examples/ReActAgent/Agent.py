@@ -14,3 +14,11 @@ class Agent:
             i += 1
             result = self.llm(prompt)
             print(result)
+            actions = result.output_parsed
+            if actions:
+                action, action_input = actions[0].groups()
+            if action not in self.tools:
+                return f"No known tool {action}"
+
+            print()
+            observation = self.tools()
