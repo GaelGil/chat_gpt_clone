@@ -24,8 +24,8 @@ class LLM:
         self.messages.append({"role": "assitant", "content": result})
         return result
 
-    def add_message(self, message: str):
-        self.messages.append()
+    def add_message(self, message: dict) -> None:
+        self.messages.append(message)
 
     def create_response(self, tools: list = None) -> OpenAI.responses:
         """
