@@ -1,4 +1,4 @@
-from Model import LLM
+from LLM import LLM
 from MCPClient import MCPClient
 import json
 
@@ -30,10 +30,14 @@ class Agent:
 
                 name = tool_call.name
                 args = json.loads(tool_call.arguments)
-                messages.append(tool_call)
+                # add the tool call message to the llm messages
+                self.llm.add_message(tool_call)
+
+                # call tool and get result
                 result = self.call_tool(name, args)
-                print(response)
-                messages.append(
+
+                # add the result of the tool call
+                self.llm.add_message(
                     {
                         "type": "function_call_output",
                         "call_id": tool_call.call_id,

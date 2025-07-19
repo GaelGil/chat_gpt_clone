@@ -24,6 +24,9 @@ class LLM:
         self.messages.append({"role": "assitant", "content": result})
         return result
 
+    def add_message(self, message: str):
+        self.messages.append()
+
     def create_response(self, tools: list = None) -> OpenAI.responses:
         """
         Create a response from the model based on the input messages and optional tools.
