@@ -1,26 +1,35 @@
-import os
 from openai import OpenAI
-from dotenv import load_dotenv
-from pathlib import Path
-
-load_dotenv(Path("../../.env"))
 
 
-class LLM:
-    def __init__(self, model_name: str) -> None:
+class OpenAi:
+    """ """
+
+    def __init__(self, model_name: str, api_key: str, dev_prompt) -> None:
+        """
+        Args:
+            None
+        Returns:
+            None
+        """
         self.model_name = model_name
-        # print(os.getenv("OPENAI_API_KEY"))
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.client = OpenAI(api_key=api_key)
+        self.messages = list
+        self.system: str
+        if self.system:
+            self.messages.append({"role": "developer", "content": dev_prompt})
 
-    def create_response(
-        self, messages: list, tools: list = None, response_format=None
-    ) -> OpenAI.responses:
+    def __call__(self, message: str):
+        self.messages.append({"role": "user", "content": message})
+        result = self.create_response()
+        self.messages.append({"role": "assitant", "content": result})
+
+    def create_response(self, tools: list = None) -> OpenAI.responses:
         """
         Create a response from the model based on the input messages and optional tools.
         """
         return self.client.responses.create(
             model=self.model_name,
-            input=messages,
+            input=self.messages,
             tools=tools,
             tool_choice="auto",
         )

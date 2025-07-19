@@ -16,7 +16,7 @@ class LLM:
         Create a response from the model based on the input messages and optional tools.
         """
         return self.client.responses.create(
-            model=self.model_name, input=messages, tools=tools
+            model=self.model_name, input=messages, tools=tools, tool_choice="auto"
         )
 
     def parse_response(
@@ -27,7 +27,7 @@ class LLM:
         """
         return self.client.responses.parse(
             model=self.model_name,
-            messages=messages,
+            input=messages,
             tools=tools,
             response_format=response_format,
         )
