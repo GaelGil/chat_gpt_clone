@@ -8,7 +8,7 @@ from client import MCPClient
 llm = LLM(model_name="gpt-4.1-mini")
 
 
-def basic_tooling(llm: LLM, tools: list, client: MCPClient):
+async def basic_tooling(llm: LLM, tools: list, client: MCPClient):
     # the input messages
     messages = [
         {"role": "developer", "content": "You are a helpful weather assistant"},
@@ -25,8 +25,8 @@ def basic_tooling(llm: LLM, tools: list, client: MCPClient):
     tool_call = response.output[0]
     # some print statements
     print(f"RESPONSE: {response} \n")
-    print(f"TOOL_CALL.TYPE: {tool_call.type} \n")  # function_call
     print(f"TOOL_CALL: {tool_call} \n")
+    print(f"TOOL_CALL.TYPE: {tool_call.type} \n")  # function_call
     print(f"MESSAGES BEFORE TOOL CALL: {messages} \n")
 
     # define function that the model can call
@@ -43,11 +43,12 @@ def basic_tooling(llm: LLM, tools: list, client: MCPClient):
         name = tool_call.name
         # get the arguments for the tool
         args = json.loads(tool_call.arguments)
+
+        # call the function
+        result = await call_function(name, args)
+        print(response)
         # add the output to the messages (tool_call = item in response.output)
         messages.append(tool_call)
-        # call the function
-        result = call_function(name, args)
-        print(response)
         # add the tool result to the messages
         messages.append(
             {
@@ -83,10 +84,9 @@ def basic_tooling(llm: LLM, tools: list, client: MCPClient):
 async def main():
     client = MCPClient()
     await client.connect()
-    tools = await client.list_tools()
+    tools = await client.get_tools()
     llm = LLM(model_name="gpt-4.1-mini")
-
-    basic_tooling(llm=llm, tools=tools, client=client)
+    await basic_tooling(llm=llm, tools=tools, client=client)
 
 
 if __name__ == "__main__":

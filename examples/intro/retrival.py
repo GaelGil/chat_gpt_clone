@@ -5,7 +5,7 @@ from schemas import KBResponse
 import asyncio
 
 
-def basic_retrival(llm: LLM, tools: list, client: MCPClient):
+async def basic_retrival(llm: LLM, tools: list, client: MCPClient):
     # the system prompt (developer)
     system_prompt = "You are a helpful assistant that answers questions from the knowledge base about our e-commerce store"
 
@@ -24,6 +24,11 @@ def basic_retrival(llm: LLM, tools: list, client: MCPClient):
             res = await client.call_tool(name, args)
             return res
 
+    print(f"RESPONSE: {response}")
+    print(
+        f"RESPONSE.output: {response.output}"
+    )  #  [ResponseFunctionToolCall(arguments='{}', call_id='call_NodbSVSERRz8lPNTFPWnuDDL', name='search_kb', type='function_call', id='fc_687c197153e881a0980c9358a1857dfb03ede6fce18bc1bb', status='completed')]
+
     # for every tool call in the response
     for tool_call in response.output:
         if tool_call.type != "function_call":
@@ -35,7 +40,7 @@ def basic_retrival(llm: LLM, tools: list, client: MCPClient):
         # add the previous response output to input messages (tool_call = item in response.output)
         messages.append(tool_call)
         # call our function
-        result = call_function(name, args)
+        result = await call_function(name, args)
         # add the result of that to our input messages
         messages.append(
             {
@@ -71,7 +76,7 @@ async def main():
     tools = await client.get_tools()
     llm = LLM(model_name="gpt-4.1-mini")
 
-    (basic_retrival(llm=llm, tools=tools, client=client),)
+    await basic_retrival(llm=llm, tools=tools, client=client)
 
 
 if __name__ == "__main__":

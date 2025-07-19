@@ -13,7 +13,10 @@ class LLM:
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
     def create_response(
-        self, messages: list, tools: list = None, response_format=None
+        self,
+        messages: list,
+        tools: list = None,
+        tool_choice: str = "auto",
     ) -> OpenAI.responses:
         """
         Create a response from the model based on the input messages and optional tools.
@@ -22,11 +25,15 @@ class LLM:
             model=self.model_name,
             input=messages,
             tools=tools,
-            tool_choice="auto",
+            tool_choice=tool_choice,
         )
 
     def parse_response(
-        self, messages: list, tools: list = None, response_format=None
+        self,
+        messages: list,
+        tools: list = None,
+        tool_choice: str = "auto",
+        response_format="text",
     ) -> OpenAI.responses:
         """
         Parse the response from the model based on the input messages, optional tools, and desired response format.
@@ -35,6 +42,6 @@ class LLM:
             model=self.model_name,
             input=messages,
             tools=tools,
-            tool_choice="auto",
+            tool_choice=tool_choice,
             text_format=response_format,
         )
