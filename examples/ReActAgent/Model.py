@@ -23,7 +23,6 @@ class LLM:
             input=messages,
             tools=tools,
             tool_choice="auto",
-            text_format=response_format,
         )
 
     def parse_response(
