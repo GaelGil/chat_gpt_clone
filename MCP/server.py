@@ -3,6 +3,7 @@ import requests
 from mcp.server.fastmcp import FastMCP
 import wikipedia
 import datetime
+import xml.etree.ElementTree as ET
 
 
 # Create an MCP server
@@ -80,6 +81,12 @@ def save_txt(text: str, filename: str = "output.txt") -> str:
         f.write(formatted_text)
 
     return f"Data successfully saved to {filename}"
+
+
+@mcp.tool(name="arxiv_search", description="Search arxiv")
+def arxiv_search(query: str) -> str:
+    """Searches arxiv"""
+    pass
 
 
 # Run the server
