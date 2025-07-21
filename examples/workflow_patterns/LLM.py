@@ -3,7 +3,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from pathlib import Path
 
-load_dotenv(Path("../.env"))
+load_dotenv(Path("../../.env"))
 
 
 class LLM:
@@ -20,7 +20,7 @@ class LLM:
         )
 
     def parse_response(
-        self, messages: list, tools: list = None, response_format=None
+        self, messages: list, tools: list = [], response_format=None
     ) -> OpenAI.responses:
         """
         Parse the response from the model based on the input messages, optional tools, and desired response format.
@@ -29,5 +29,5 @@ class LLM:
             model=self.model_name,
             input=messages,
             tools=tools,
-            response_format=response_format,
+            text_format=response_format,
         )

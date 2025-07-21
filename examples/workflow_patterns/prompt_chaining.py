@@ -1,12 +1,12 @@
 import logging
 from typing import Optional
 from datetime import datetime
-from examples.workflow_patterns.schemas import (
+from Schemas import (
     EventExtraction,
     EventDetails,
     EventConfirmation,
 )
-from examples.workflow_patterns.Model import LLM
+from LLM import LLM
 
 
 logging.basicConfig(
@@ -27,7 +27,7 @@ def extract_event_info(user_input: str) -> EventExtraction:
     logger.debug(f"Input text: {user_input}")
     today = datetime.now()
     date_context = f"Today is {today.strftime('%A, %B %d, %Y')}"
-    response = llm.prase_response(
+    response = llm.parse_response(
         messages=[
             {
                 "role": "developer",
