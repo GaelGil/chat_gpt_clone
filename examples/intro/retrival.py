@@ -1,7 +1,7 @@
 import json
-from Model import LLM
+from LLM import LLM
 from client import MCPClient
-from schemas import KBResponse
+from Schemas import KBResponse
 import asyncio
 
 

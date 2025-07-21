@@ -1,7 +1,7 @@
 import json
 import asyncio
 from schemas import WeatherResponse
-from Model import LLM
+from LLM import LLM
 from client import MCPClient
 
 

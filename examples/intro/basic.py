@@ -1,4 +1,4 @@
-from Model import LLM
+from LLM import LLM
 
 model = LLM(model_name="gpt-4.1-mini")
 
