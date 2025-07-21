@@ -65,7 +65,9 @@ async def basic_retrival(llm: LLM, tools: list, client: MCPClient):
         {"role": "user", "content": "What is the weather in Tokyo?"},
     ]
 
-    response_three = llm.parse_response(messages=messages, tools=tools)
+    response_three = llm.parse_response(
+        messages=messages, tools=tools, response_format=KBResponse
+    )
 
     print(response_three)
 
