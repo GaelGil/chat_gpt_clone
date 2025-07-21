@@ -20,7 +20,7 @@ response = model.create_response(
 )
 
 # select the output text
-text_response = response.output[0].content[0].text
+text_response = response.output_text
 print(f"TEXT_RESPONSE: {text_response}")
 print(f"RESPONSE: {response}")
 

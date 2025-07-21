@@ -1,6 +1,6 @@
 import json
 import asyncio
-from schemas import WeatherResponse
+from Schemas import WeatherResponse
 from LLM import LLM
 from client import MCPClient
 
@@ -23,6 +23,8 @@ async def basic_tooling(llm: LLM, tools: list, client: MCPClient):
     # The tool calls are in output[0] because the model is deciding what it returns.
     # In our case our model has decided to call a function to complete the task
     tool_call = response.output[0]
+    print(dir(response))
+    print(f"RESPONSE.OUTPUT_TEXT: {response.output_text}")
     # some print statements
     print(f"RESPONSE: {response} \n")
     print(f"TOOL_CALL: {tool_call} \n")
