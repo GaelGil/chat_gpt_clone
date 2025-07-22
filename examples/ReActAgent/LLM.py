@@ -27,7 +27,7 @@ class LLM:
     def add_message(self, message: dict) -> None:
         self.messages.append(message)
 
-    def create_response(self, tools: list = None) -> OpenAI.responses:
+    def create_response(self, tools: list = []) -> OpenAI.responses:
         """
         Create a response from the model based on the input messages and optional tools.
         """
@@ -39,7 +39,7 @@ class LLM:
         )
 
     def parse_response(
-        self, messages: list, tools: list = None, response_format=None
+        self, messages: list, tools: list = [], response_format=None
     ) -> OpenAI.responses:
         """
         Parse the response from the model based on the input messages, optional tools, and desired response format.

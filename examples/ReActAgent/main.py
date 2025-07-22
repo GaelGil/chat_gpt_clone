@@ -10,10 +10,12 @@ load_dotenv(Path("./.env"))
 
 
 async def execute():
+    # start client
     client = MCPClient()
+    # connect to client
     await client.connect()
+    # get tools from client
     tools = await client.get_tools()
-    print(tools)
 
 
 if __name__ == "__main__":

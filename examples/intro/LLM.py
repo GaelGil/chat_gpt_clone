@@ -15,7 +15,7 @@ class LLM:
     def create_response(
         self,
         messages: list,
-        tools: list = None,
+        tools: list = [],
         tool_choice: str = "auto",
     ) -> OpenAI.responses:
         """
@@ -31,7 +31,7 @@ class LLM:
     def parse_response(
         self,
         messages: list,
-        tools: list = None,
+        tools: list = [],
         tool_choice: str = "auto",
         response_format="text",
     ) -> OpenAI.responses:
