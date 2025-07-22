@@ -4,7 +4,7 @@ from openai import OpenAI
 class LLM:
     """LLM class function"""
 
-    def __init__(self, model_name: str, api_key: str, dev_prompt) -> None:
+    def __init__(self, model_name: str, api_key: str) -> None:
         """
         Args:
             None
@@ -13,19 +13,6 @@ class LLM:
         """
         self.client: OpenAI = OpenAI(api_key=api_key)
         self.model_name: str = model_name
-        self.messages: list
-        self.dev_prompt: str
-        if self.dev_prompt:
-            self.messages.append({"role": "developer", "content": dev_prompt})
-
-    def __call__(self, message: str):
-        self.messages.append({"role": "user", "content": message})
-        result = self.create_response()
-        self.messages.append({"role": "assitant", "content": result})
-        return result
-
-    def add_message(self, message: dict) -> None:
-        self.messages.append(message)
 
     def create_response(self, tools: list = []) -> OpenAI.responses:
         """
@@ -33,13 +20,16 @@ class LLM:
         """
         return self.client.responses.create(
             model=self.model_name,
-            input=self.messages,
+            input=messages,
             tools=tools,
             tool_choice="auto",
         )
 
     def parse_response(
-        self, messages: list, tools: list = [], response_format=None
+        self,
+        messages: list,
+        response_format,
+        tools: list = [],
     ) -> OpenAI.responses:
         """
         Parse the response from the model based on the input messages, optional tools, and desired response format.
