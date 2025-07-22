@@ -4,8 +4,9 @@ from mcp.server.fastmcp import FastMCP
 
 # import wikipedia
 import datetime
-# import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
 
+ARXIV_NAMESPACE = "{http://www.w3.org/2005/Atom}"
 
 # Create an MCP server
 mcp = FastMCP(
@@ -87,7 +88,13 @@ def save_txt(text: str, filename: str = "output.txt") -> str:
 @mcp.tool(name="arxiv_search", description="Search arxiv")
 def arxiv_search(query: str) -> str:
     """Searches arxiv"""
-    pass
+    url = f"http://export.arxiv.org/api/query?search_query=all:{query}&start=0&max_results=1"
+    res = requests.get(url)
+    et_root = ET.fromstring(res.content)
+    for entry in et_root.findall(f"{ARXIV_NAMESPACE}entry"):
+        title = entry.find(f"{ARXIV_NAMESPACE}title").text.strip()
+        summary = entry.find(f"{ARXIV_NAMESPACE}summary").text.strip()
+    return json.dumps({"title": title, "summary": summary})
 
 
 # Run the server

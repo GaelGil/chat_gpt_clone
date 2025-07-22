@@ -1,8 +1,8 @@
 from openai import OpenAI
 
 
-class OpenAi:
-    """ """
+class LLM:
+    """LLM class function"""
 
     def __init__(self, model_name: str, api_key: str) -> None:
         """
@@ -11,10 +11,10 @@ class OpenAi:
         Returns:
             None
         """
-        self.model_name = model_name
-        self.client = OpenAI(api_key=api_key)
+        self.client: OpenAI = OpenAI(api_key=api_key)
+        self.model_name: str = model_name
 
-    def create_response(self, messages: list, tools: list = None) -> OpenAI.responses:
+    def create_response(self, messages: dict, tools: list = []) -> OpenAI.responses:
         """
         Create a response from the model based on the input messages and optional tools.
         """
@@ -26,7 +26,10 @@ class OpenAi:
         )
 
     def parse_response(
-        self, messages: list, tools: list = None, response_format=None
+        self,
+        messages: list,
+        response_format,
+        tools: list = [],
     ) -> OpenAI.responses:
         """
         Parse the response from the model based on the input messages, optional tools, and desired response format.
