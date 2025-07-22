@@ -12,14 +12,17 @@ class MCPClient:
         self.session = None
 
     async def connect(self):
+        """Create a session with the server"""
         self.session = await Client(self.base_url).__aenter__()
 
     async def disconnect(self):
+        """Close the session with the server"""
         if self.session:
             await self.session.__aexit__(None, None, None)
             self.session = None
 
     async def list_tools(self) -> list:
+        """List the tools avaiable to us"""
         if not self.session:
             raise RuntimeError("Session not connected")
         return await self.session.list_tools()
@@ -53,6 +56,7 @@ class MCPClient:
         return openai_tools
 
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
+        """Function to call a tool in our mcp server"""
         if not self.session:
             raise RuntimeError("Session not connected")
         result = await self.session.call_tool(tool_name, arguments)
