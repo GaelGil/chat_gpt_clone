@@ -39,7 +39,7 @@ class Agent:
         if self.dev_prompt:
             self.messages.append({"role": "developer", "content": self.dev_prompt})
 
-    def __call__(self, message: str):
+    def __call__(self, message: str = ""):
         """"""
         if message:
             self.messages.append({"role": "user", "content": message})
