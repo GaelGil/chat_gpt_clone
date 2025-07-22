@@ -56,7 +56,15 @@ class MCPClient:
         return openai_tools
 
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
-        """Function to call a tool in our mcp server"""
+        """Function to call a tool in our mcp server
+
+        Args:
+            tool_name: The name of the tool we are calling
+            arguments: The arguments for the tool we are calling
+
+        Returns:
+            Any
+        """
         if not self.session:
             raise RuntimeError("Session not connected")
         result = await self.session.call_tool(tool_name, arguments)
