@@ -25,7 +25,7 @@ def search_kb() -> dict:
     Load the whole knowledge base from the JSON file.
     (This is a mock function for demonstration purposes, we don't search)
     """
-    with open("kb.json", "r") as f:
+    with open("../resources/kb.json", "r") as f:
         return json.load(f)
 
 
