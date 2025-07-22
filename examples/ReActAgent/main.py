@@ -16,6 +16,7 @@ async def execute():
     await client.connect()
     # get tools from client
     tools = await client.get_tools()
+    # initialize agent
     agent = Agent(
         dev_prompt=config.dev_promopt,
         client=MCPClient,
@@ -24,7 +25,8 @@ async def execute():
         max_turns=1,
         tools=tools,
     )
-    assert agent
+    # run the agent with a prompt
+    await agent.run("explain the lightrag paper")
 
 
 if __name__ == "__main__":
