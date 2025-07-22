@@ -6,7 +6,7 @@ from MCPClient import MCPClient
 from Agent import Agent
 import config
 
-load_dotenv(Path("./.env"))
+load_dotenv(Path("../../.env"))
 
 
 async def execute():
