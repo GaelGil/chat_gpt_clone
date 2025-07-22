@@ -1,4 +1,4 @@
-""""""
+"""A class representing an AI agent"""
 
 from LLM import LLM
 from MCPClient import MCPClient
@@ -17,32 +17,60 @@ class Agent:
         max_turns: int = 1,
         tools: list = [],
     ):
-        """"""
+        """Initialize agent instace
+
+        Args:
+            dev_prompt: The developer prompt
+            client: The mcp client
+            api_key: The api key for our openai model
+            model_name: The name of the openai model we are using
+            max_turns: The max number of turns for the agent to take
+            tools: The tools available to the agent
+
+        Returns:
+            None
+        """
         self.dev_prompt: dict = dev_prompt
         self.client: MCPClient = client
         self.llm = LLM(model_name=model_name, api_key=api_key)
         self.max_turns: int = max_turns
         self.tools: list = tools
         self.messages: dict
+        if self.dev_prompt:
+            self.messages.append({"role": "developer", "content": self.dev_prompt})
 
     def __call__(self, message: str):
         """"""
         if message:
-            # self.llm.add_message({"role": "user", "content": message})
             self.messages.append({"role": "user", "content": message})
-            result = self.llm.create_response
-            result = self.llm.create_response()
-            self.llm.add_message({"role": "assitant", "content": result})
-        return result
+        response = self.llm.create_response(self.messages, self.tools)
+        self.messages.append({"role": "assitant", "content": response.output})
+        return response
 
     async def call_tool(self, name, args):
-        """"""
+        """
+        Args:
+            name: The name of the tool we are calling
+
+            args:
+                The arguments for the tool
+
+        Returns:
+            Any
+        """
         if name in self.tools:
             result = await self.call_tool(name, args)
         return result
 
     def run(self, query: str):
-        """"""
+        """Function to run the agent
+
+        Args:
+            query: The query sent to the agent
+
+        Returns:
+            None
+        """
         i = 0
         prompt = query
         while i < self.max_turns:
