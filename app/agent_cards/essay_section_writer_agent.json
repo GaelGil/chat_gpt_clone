@@ -1,5 +1,5 @@
 {
-  "name": "code_search_agent",
+  "name": "essay_section_writer_agent",
   "description": "Performs semantic code search and analysis across codebases using vector embeddings and natural language queries",
   "url": "http://localhost:10103/",
   "provider": null,
