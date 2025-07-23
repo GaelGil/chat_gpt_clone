@@ -1,7 +1,6 @@
 # type:ignore
 import asyncio
 import json
-import os
 
 from contextlib import asynccontextmanager
 
