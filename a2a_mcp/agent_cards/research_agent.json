@@ -18,18 +18,12 @@
   "defaultOutputModes": ["text", "text/plain", "application/json"],
   "skills": [
     {
-      "id": "code_documentation",
-      "name": "Code Documentation Generation",
-      "description": "Generates comprehensive documentation, docstrings, and comments for code files, functions, classes, and modules",
-      "tags": [
-        "documentation",
-        "docstrings",
-        "code comments",
-        "function documentation",
-        "class documentation"
-      ],
+      "id": "research",
+      "name": "Research on topic generation",
+      "description": "Generates comprehensive notes on topics it has researched",
+      "tags": ["research", "learn", "gain new knowledge"],
       "examples": [
-        "Generate comprehensive API documentation",
+        "Generate comprehensive notes on topic",
         "Create docstrings for Python functions",
         "Analyze and improve existing code comments",
         "Generate module-level documentation",
@@ -40,9 +34,9 @@
       "outputModes": ["text", "application/json"]
     },
     {
-      "id": "api_documentation",
-      "name": "API Documentation",
-      "description": "Generate API documentation including endpoints, parameters, response formats, and usage examples",
+      "id": "follow_up_research",
+      "name": "follow up on research from past research notes",
+      "description": "Researches a topic further based on original topic notes",
       "tags": [
         "API documentation",
         "endpoint documentation",
@@ -56,48 +50,6 @@
         "Create comprehensive API reference",
         "Generate endpoint usage examples",
         "Document authentication requirements"
-      ],
-      "inputModes": ["text"],
-      "outputModes": ["text", "application/json"]
-    },
-    {
-      "id": "readme_generation",
-      "name": "README Generation",
-      "description": "Generate comprehensive README files and project documentation including setup instructions and usage examples",
-      "tags": [
-        "README generation",
-        "project documentation",
-        "setup instructions",
-        "usage examples",
-        "installation guides"
-      ],
-      "examples": [
-        "Generate a comprehensive README for the project",
-        "Create installation and setup instructions",
-        "Document project structure and architecture",
-        "Generate usage examples and tutorials",
-        "Create contributing guidelines"
-      ],
-      "inputModes": ["text"],
-      "outputModes": ["text", "application/json"]
-    },
-    {
-      "id": "documentation_analysis",
-      "name": "Documentation Analysis",
-      "description": "Analyze existing documentation for completeness, quality, and identify gaps or outdated content",
-      "tags": [
-        "documentation analysis",
-        "coverage assessment",
-        "quality evaluation",
-        "gap identification",
-        "consistency check"
-      ],
-      "examples": [
-        "Analyze documentation coverage for the codebase",
-        "Identify missing or outdated documentation",
-        "Evaluate documentation quality and consistency",
-        "Find undocumented functions and classes",
-        "Check documentation accuracy against code"
       ],
       "inputModes": ["text"],
       "outputModes": ["text", "application/json"]
