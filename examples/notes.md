@@ -67,3 +67,30 @@ for item in response.output:
     if item.type == "function_call":
         print("Function call:", item.name, json.loads(item.arguments))
 ```
+
+# Questions and answers on code search project
+
+🧠 1. What Does It Mean to “Stream” Responses From the Code Search Agent?
+
+In the code:
+
+async for chunk in self.\_route_to_code_search_agent(query, context_id, task_id):
+yield chunk
+
+This means:
+
+    The Code Search Agent is generating parts of the answer bit by bit (like tokens or lines).
+
+    The orchestrator doesn't wait for a full answer — instead, it streams results back to the UI or client as they’re produced.
+
+This is useful for:
+
+    Fast UI feedback (e.g., like ChatGPT generating text as you watch)
+
+    Long-running processes that return data incrementally
+
+✅ This is why it’s written as an async for — it's waiting for each "chunk" (a response message or result block) from the other agent.
+
+# In general, streaming means:
+
+    🔁 Sending data in small pieces over time instead of all at once.
