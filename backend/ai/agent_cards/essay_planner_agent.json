@@ -1,0 +1,60 @@
+{
+  "name": "planner_agent",
+  "description": "Plans and breaks down complex code search requests into actionable tasks using available essay research, section writer, and reviewer agents",
+  "url": "http://localhost:10102/",
+  "provider": null,
+  "version": "1.0.0",
+  "documentationUrl": null,
+  "authentication": {
+    "credentials": null,
+    "schemes": ["public"]
+  },
+  "capabilities": {
+    "streaming": "True",
+    "pushNotifications": "True",
+    "stateTransitionHistory": "False"
+  },
+  "defaultInputModes": ["text", "text/plain"],
+  "defaultOutputModes": ["text", "text/plain", "application/json"],
+  "skills": [
+    {
+      "id": "essay_writing_task_planning",
+      "name": "Essay Writing Task Planning",
+      "description": "Breaks down complex essay writing requests into actionable subtasks using available agent types: essay_research, essay_review, essay_section_writing",
+      "tags": [
+        "task planning",
+        "essay writing strategy",
+        "workflow decomposition",
+        "agent orchestration"
+      ],
+      "examples": [
+        "Plan the steps to write an essay on the cultural impact of star wars",
+        "Create a strategy for refactoring legacy code modules",
+        "Design a workflow for documenting undocumented API endpoints",
+        "Plan a reseach and writing a section of an essay",
+        "Create tasks for reviewing this essay"
+      ],
+      "inputModes": ["text"],
+      "outputModes": ["text", "application/json"]
+    },
+    {
+      "id": "agent_task_mapping",
+      "name": "Agent Task Mapping",
+      "description": "Maps user requests to appropriate agent types and creates specific task descriptions",
+      "tags": ["task mapping", "agent selection", "task decomposition"],
+      "examples": [
+        "Map 'How do I improve my essay' to essay_review tasks",
+        "Map 'write this section of my essay' to essay_reasearch and essay_section_writing tasks",
+        "Create multi-step workflows combining different agent types"
+      ],
+      "inputModes": ["text"],
+      "outputModes": ["application/json"]
+    }
+  ],
+  "available_agents": [
+    "Essay Research Agent",
+    "Essay Review Agent",
+    "Essay Section Writer Agent"
+  ],
+  "planning_strategy": "immediate_action_oriented"
+}
