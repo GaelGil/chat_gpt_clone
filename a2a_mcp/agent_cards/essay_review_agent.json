@@ -1,6 +1,6 @@
 {
   "name": "essay_review_agent",
-  "description": "Performs comprehensive essay analysis including quality assessment, gramar/spell check",
+  "description": "Performs comprehensive code analysis including quality assessment, security analysis, complexity evaluation, and language detection",
   "url": "http://localhost:10104/",
   "provider": null,
   "version": "1.0.0",
@@ -39,8 +39,8 @@
       "outputModes": ["text", "application/json"]
     },
     {
-      "id": "gramar_spellcheck_analysis",
-      "name": "grammar spellcheck analysis",
+      "id": "language_analysis",
+      "name": "Programming Language Analysis",
       "description": "Analyze programming languages, frameworks, and technologies used in the codebase",
       "tags": [
         "language detection",
