@@ -58,25 +58,25 @@ class EssayAgent(BaseAgent):
         # Include session context in the instructions
         session_aware_instructions = self.instructions
         if session_id:
-            session_aware_instructions = f"""
-🚨 MANDATORY SESSION CONTEXT 🚨
-Your EXACT session ID is: {session_id}
+            session_aware_instructions = f""" 
+                                            🚨 MANDATORY SESSION CONTEXT 🚨
+                                            Your EXACT session ID is: {session_id}
 
-CRITICAL REQUIREMENTS:
-1. IMMEDIATELY use MCP tools with session_id="{session_id}" 
-2. For ANY question, start by calling get_session_files(session_id="{session_id}")
-3. Use the EXACT session_id "{session_id}" in every tool call
-4. Do NOT ask follow-up questions - use tools to get answers
+                                            CRITICAL REQUIREMENTS:
+                                            1. IMMEDIATELY use MCP tools with session_id="{session_id}" 
+                                            2. For ANY question, start by calling get_session_files(session_id="{session_id}")
+                                            3. Use the EXACT session_id "{session_id}" in every tool call
+                                            4. Do NOT ask follow-up questions - use tools to get answers
 
-{self.instructions}
+                                            {self.instructions}
 
-🚨 YOU MUST USE THESE TOOLS IMMEDIATELY:
-- get_session_files(session_id="{session_id}") 
-- vector_search_code(query="search_term", session_id="{session_id}")
-- search_code_by_file_path(file_path_pattern="*.py", session_id="{session_id}")
+                                            🚨 YOU MUST USE THESE TOOLS IMMEDIATELY:
+                                            - get_session_files(session_id="{session_id}") 
+                                            - vector_search_code(query="search_term", session_id="{session_id}")
+                                            - search_code_by_file_path(file_path_pattern="*.py", session_id="{session_id}")
 
-FAILURE TO USE MCP TOOLS = TASK FAILURE
-"""
+                                            FAILURE TO USE MCP TOOLS = TASK FAILURE
+                                            """
 
         generate_content_config = genai_types.GenerateContentConfig(temperature=0.0)
         self.agent = Agent(
@@ -91,6 +91,7 @@ FAILURE TO USE MCP TOOLS = TASK FAILURE
         self.runner = AgentRunner()
 
     async def invoke(self, query, session_id) -> dict:
+        """"""
         logger.info(f"Running {self.agent_name} for session {session_id}")
 
         raise NotImplementedError("Please use the streaming function")

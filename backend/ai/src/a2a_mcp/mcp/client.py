@@ -1,12 +1,9 @@
 # type:ignore
 import asyncio
 import json
-
 from contextlib import asynccontextmanager
-
 import click
-
-from ai_app.core.config import settings
+from backend.core.config import settings
 from fastmcp.utilities.logging import get_logger
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.sse import sse_client
