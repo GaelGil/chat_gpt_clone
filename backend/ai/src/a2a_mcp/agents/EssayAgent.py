@@ -21,7 +21,7 @@ from google.genai import types as genai_types
 logger = logging.getLogger(__name__)
 
 
-class CodeSearchAgent(BaseAgent):
+class EssayAgent(BaseAgent):
     """Code Search Agent backed by ADK."""
 
     def __init__(self, agent_name: str, description: str, instructions: str):

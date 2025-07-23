@@ -98,7 +98,7 @@ Respond with just "SIMPLE" or "COMPLEX".
 
         try:
             # Import here to avoid circular imports
-            from .CodeSearchAgent import CodeSearchAgent
+            from .EssayAgent import CodeSearchAgent
 
             # Create Code Search Agent with proper configuration
             code_agent = CodeSearchAgent(

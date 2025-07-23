@@ -21,7 +21,7 @@ from a2a.server.tasks import (
 from a2a.types import AgentCard
 from ..common import prompts
 from ..common.agent_executor import GenericAgentExecutor
-from .CodeSearchAgent import CodeSearchAgent
+from .EssayAgent import EssayAgent
 from .LangraphPlannerAgent import LangraphPlannerAgent
 from .OrchestratorAgent import OrchestratorAgent
 
@@ -42,23 +42,23 @@ def get_agent(agent_card: AgentCard):
             return LangraphPlannerAgent()
         if agent_card.name == "code_search_agent":
             print("DEBUG: Initializing Code Search Agent")
-            return CodeSearchAgent(
+            return EssayAgent(
                 agent_name="code_search_agent",
                 description="Performs semantic code search and analysis across codebases",
                 instructions=prompts.CODE_SEARCH_INSTRUCTIONS,
             )
-        if agent_card.name == "code_analysis_agent":
-            print("DEBUG: Initializing Code Analysis Agent")
-            return CodeSearchAgent(
-                agent_name="code_analysis_agent",
-                description="Performs static code analysis and code quality assessment",
+        if agent_card.name == "essay_review_agent":
+            print("DEBUG: Initializing Essay Review Agent")
+            return EssayAgent(
+                agent_name="essay_review_agent",
+                description="Performs static essay analysis and essay quality assessment",
                 instructions=prompts.CODE_ANALYSIS_INSTRUCTIONS,
             )
-        if agent_card.name == "code_documentation_agent":
-            print("DEBUG: Initializing Code Documentation Agent")
-            return CodeSearchAgent(
-                agent_name="code_documentation_agent",
-                description="Generates and analyzes code documentation and comments",
+        if agent_card.name == "essay_section_writer_agent":
+            print("DEBUG: Initializing Essay Section Writer Agent")
+            return EssayAgent(
+                agent_name="essay_section_writer_agentt",
+                description="Analyses notes on topic to create a section in an essay",
                 instructions=prompts.CODE_DOCUMENTATION_INSTRUCTIONS,
             )
     except Exception as e:
