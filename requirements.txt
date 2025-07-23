@@ -13,4 +13,9 @@ networkx
 sqlmodel
 weave
 webcolors
-wikipedia
+wikipediaFlask-Bcrypt
+flask-cors
+Flask-JWT-Extended
+Flask-Migrate
+pipdeptree
+psycopg2-binary
