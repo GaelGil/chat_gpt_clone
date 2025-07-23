@@ -1,18 +1,13 @@
 # type: ignore
 import json
 import os
-import sqlite3
-import traceback
 import uuid
 import asyncio
-from contextlib import asynccontextmanager
-from datetime import datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional
 import google.generativeai as genai
 import numpy as np
 import pandas as pd
-import requests
 from ..mcp_config import mcp_settings
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.utilities.logging import get_logger
@@ -146,7 +141,7 @@ def serve(host, port, transport):  # noqa: PLR0915
     mcp = FastMCP("agent-cards", host=host, port=port)
 
     df = build_agent_card_embeddings()
-    
+
     # Initialize vector search service for code embeddings (if database is configured)
     vector_search_service = None
     try:
@@ -635,115 +630,120 @@ def serve(host, port, transport):  # noqa: PLR0915
 
     @mcp.tool(
         name="vector_search_code",
-        description="Search for similar code chunks using natural language queries. Uses vector embeddings to find semantically similar code across all processed repositories."
+        description="Search for similar code chunks using natural language queries. Uses vector embeddings to find semantically similar code across all processed repositories.",
     )
     def vector_search_code(
         query: str,
         session_id: Optional[str] = None,
         limit: int = 10,
-        similarity_threshold: float = 0.7
+        similarity_threshold: float = 0.7,
     ) -> str:
         """
         Search for similar code chunks using vector embeddings.
-        
+
         Args:
             query: Natural language description of what you're looking for
             session_id: Optional UUID of specific session to search within
             limit: Maximum number of results (default: 10, max: 50)
             similarity_threshold: Minimum similarity score 0-1 (default: 0.7)
-            
+
         Returns:
             JSON string with search results including code snippets and metadata
         """
-        logger.info(f"🚨 MCP TOOL CALLED: vector_search_code with query='{query}' session_id={session_id}")
+        logger.info(
+            f"🚨 MCP TOOL CALLED: vector_search_code with query='{query}' session_id={session_id}"
+        )
         try:
             # Check if vector search service is available
             if not vector_search_service:
                 error_msg = "Vector search not available. Please configure database connection with POSTGRES_USER, POSTGRES_PASSWORD, and POSTGRES_DB environment variables."
                 logger.error(f"🚨 Vector search service not available: {error_msg}")
                 return json.dumps({"error": error_msg})
-            
+
             # Validate inputs
             limit = min(max(1, limit), 50)  # Clamp between 1 and 50
-            similarity_threshold = max(0.0, min(1.0, similarity_threshold))  # Clamp between 0 and 1
-            
+            similarity_threshold = max(
+                0.0, min(1.0, similarity_threshold)
+            )  # Clamp between 0 and 1
+
             # Parse session_id if provided
             session_uuid = None
             if session_id:
                 try:
                     session_uuid = uuid.UUID(session_id)
                 except ValueError:
-                    return json.dumps({"error": "Invalid session_id format. Must be a valid UUID."})
-            
+                    return json.dumps(
+                        {"error": "Invalid session_id format. Must be a valid UUID."}
+                    )
+
             # Generate embedding for the query
             query_embedding = genai.embed_content(
-                model=VECTOR_EMBEDDING_MODEL,
-                content=query,
-                output_dimensionality=768
+                model=VECTOR_EMBEDDING_MODEL, content=query, output_dimensionality=768
             )
-            
+
             # Perform the search
             try:
                 # Try to run in existing event loop context
                 results = asyncio.run(
                     vector_search_service.search_similar_code(
-                        query_embedding=query_embedding['embedding'],
+                        query_embedding=query_embedding["embedding"],
                         session_id=session_uuid,
                         limit=limit,
-                        similarity_threshold=similarity_threshold
+                        similarity_threshold=similarity_threshold,
                     )
                 )
             except RuntimeError:
                 # If there's already a loop running, use asyncio.create_task() approach
                 import concurrent.futures
-                import threading
-                
+
                 def run_async():
                     return asyncio.run(
                         vector_search_service.search_similar_code(
-                            query_embedding=query_embedding['embedding'],
+                            query_embedding=query_embedding["embedding"],
                             session_id=session_uuid,
                             limit=limit,
-                            similarity_threshold=similarity_threshold
+                            similarity_threshold=similarity_threshold,
                         )
                     )
-                
+
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     future = executor.submit(run_async)
                     results = future.result()
-            
+
             # Format results
             response = {
                 "query": query,
                 "total_results": len(results),
                 "similarity_threshold": similarity_threshold,
-                "results": results
+                "results": results,
             }
-            
+
             return json.dumps(response, indent=2)
-            
+
         except Exception as e:
             logger.error(f"Error in vector_search_code: {e}")
             return json.dumps({"error": f"Search failed: {str(e)}"})
 
     @mcp.tool(
         name="list_code_sessions",
-        description="List all code search sessions that have processed vector embeddings."
+        description="List all code search sessions that have processed vector embeddings.",
     )
     def list_code_sessions() -> str:
         """
         Get all sessions that have vector embeddings processed.
-        
+
         Returns:
             JSON string with list of sessions and their metadata
         """
         try:
             # Check if vector search service is available
             if not vector_search_service:
-                return json.dumps({
-                    "error": "Vector search not available. Please configure database connection with POSTGRES_USER, POSTGRES_PASSWORD, and POSTGRES_DB environment variables."
-                })
-            
+                return json.dumps(
+                    {
+                        "error": "Vector search not available. Please configure database connection with POSTGRES_USER, POSTGRES_PASSWORD, and POSTGRES_DB environment variables."
+                    }
+                )
+
             try:
                 # Try to run in existing event loop context
                 sessions = asyncio.run(
@@ -752,55 +752,56 @@ def serve(host, port, transport):  # noqa: PLR0915
             except RuntimeError:
                 # If there's already a loop running, use thread pool
                 import concurrent.futures
-                
+
                 def run_async():
                     return asyncio.run(
                         vector_search_service.get_sessions_with_embeddings()
                     )
-                
+
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     future = executor.submit(run_async)
                     sessions = future.result()
-            
-            response = {
-                "total_sessions": len(sessions),
-                "sessions": sessions
-            }
-            
+
+            response = {"total_sessions": len(sessions), "sessions": sessions}
+
             return json.dumps(response, indent=2)
-            
+
         except Exception as e:
             logger.error(f"Error in list_code_sessions: {e}")
             return json.dumps({"error": f"Failed to get sessions: {str(e)}"})
 
     @mcp.tool(
         name="get_session_files",
-        description="Get all files and their chunk information for a specific code search session."
+        description="Get all files and their chunk information for a specific code search session.",
     )
     def get_session_files(session_id: str) -> str:
         """
         Get all files and their chunk information for a specific session.
-        
+
         Args:
             session_id: UUID of the session to get files for
-            
+
         Returns:
             JSON string with file information and chunk statistics
         """
-        logger.info(f"🚨 MCP TOOL CALLED: get_session_files with session_id={session_id}")
+        logger.info(
+            f"🚨 MCP TOOL CALLED: get_session_files with session_id={session_id}"
+        )
         try:
             # Check if vector search service is available
             if not vector_search_service:
                 error_msg = "Vector search not available. Please configure database connection with POSTGRES_USER, POSTGRES_PASSWORD, and POSTGRES_DB environment variables."
                 logger.error(f"🚨 Vector search service not available: {error_msg}")
                 return json.dumps({"error": error_msg})
-            
+
             # Parse session_id
             try:
                 session_uuid = uuid.UUID(session_id)
             except ValueError:
-                return json.dumps({"error": "Invalid session_id format. Must be a valid UUID."})
-            
+                return json.dumps(
+                    {"error": "Invalid session_id format. Must be a valid UUID."}
+                )
+
             try:
                 # Try to run in existing event loop context
                 files = asyncio.run(
@@ -809,133 +810,134 @@ def serve(host, port, transport):  # noqa: PLR0915
             except RuntimeError:
                 # If there's already a loop running, use thread pool
                 import concurrent.futures
-                
+
                 def run_async():
                     return asyncio.run(
                         vector_search_service.get_session_files(session_uuid)
                     )
-                
+
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     future = executor.submit(run_async)
                     files = future.result()
-            
+
             response = {
                 "session_id": session_id,
                 "total_files": len(files),
-                "files": files
+                "files": files,
             }
-            
-            logger.info(f"🚨 MCP TOOL SUCCESS: get_session_files returned {len(files)} files for session {session_id}")
+
+            logger.info(
+                f"🚨 MCP TOOL SUCCESS: get_session_files returned {len(files)} files for session {session_id}"
+            )
             return json.dumps(response, indent=2)
-            
+
         except Exception as e:
             logger.error(f"Error in get_session_files: {e}")
             return json.dumps({"error": f"Failed to get session files: {str(e)}"})
 
     @mcp.tool(
         name="search_code_by_file_path",
-        description="Search for code chunks by file path pattern. Useful for finding specific files or file types."
+        description="Search for code chunks by file path pattern. Useful for finding specific files or file types.",
     )
     def search_code_by_file_path(
-        file_path_pattern: str,
-        session_id: Optional[str] = None
+        file_path_pattern: str, session_id: Optional[str] = None
     ) -> str:
         """
         Search for code chunks by file path pattern.
-        
+
         Args:
             file_path_pattern: SQL LIKE pattern for file paths (use % for wildcards)
             session_id: Optional UUID of specific session to search within
-            
+
         Returns:
             JSON string with matching code chunks
         """
         try:
             # Check if vector search service is available
             if not vector_search_service:
-                return json.dumps({
-                    "error": "Vector search not available. Please configure database connection with POSTGRES_USER, POSTGRES_PASSWORD, and POSTGRES_DB environment variables."
-                })
-            
+                return json.dumps(
+                    {
+                        "error": "Vector search not available. Please configure database connection with POSTGRES_USER, POSTGRES_PASSWORD, and POSTGRES_DB environment variables."
+                    }
+                )
+
             # Parse session_id if provided
             session_uuid = None
             if session_id:
                 try:
                     session_uuid = uuid.UUID(session_id)
                 except ValueError:
-                    return json.dumps({"error": "Invalid session_id format. Must be a valid UUID."})
-            
+                    return json.dumps(
+                        {"error": "Invalid session_id format. Must be a valid UUID."}
+                    )
+
             try:
                 # Try to run in existing event loop context
                 results = asyncio.run(
                     vector_search_service.search_by_file_path(
-                        file_path_pattern=file_path_pattern,
-                        session_id=session_uuid
+                        file_path_pattern=file_path_pattern, session_id=session_uuid
                     )
                 )
             except RuntimeError:
                 # If there's already a loop running, use thread pool
                 import concurrent.futures
-                
+
                 def run_async():
                     return asyncio.run(
                         vector_search_service.search_by_file_path(
-                            file_path_pattern=file_path_pattern,
-                            session_id=session_uuid
+                            file_path_pattern=file_path_pattern, session_id=session_uuid
                         )
                     )
-                
+
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     future = executor.submit(run_async)
                     results = future.result()
-            
+
             response = {
                 "file_path_pattern": file_path_pattern,
                 "total_results": len(results),
-                "results": results
+                "results": results,
             }
-            
+
             return json.dumps(response, indent=2)
-            
+
         except Exception as e:
             logger.error(f"Error in search_code_by_file_path: {e}")
             return json.dumps({"error": f"Failed to search by file path: {str(e)}"})
 
     @mcp.tool(
         name="generate_query_embedding",
-        description="Generate an embedding vector for a text query. Useful for understanding how the vector search works."
+        description="Generate an embedding vector for a text query. Useful for understanding how the vector search works.",
     )
     @weave.op()
     def generate_query_embedding(text: str) -> str:
         """
         Generate an embedding vector for a text query.
-        
+
         Args:
             text: The text to generate an embedding for
-            
+
         Returns:
             JSON string with the embedding vector and metadata
         """
         try:
             # Generate embedding
             response = genai.embed_content(
-                model=VECTOR_EMBEDDING_MODEL,
-                content=text,
-                output_dimensionality=768
+                model=VECTOR_EMBEDDING_MODEL, content=text, output_dimensionality=768
             )
-            
-            embedding = response['embedding']
-            
+
+            embedding = response["embedding"]
+
             result = {
                 "text": text,
                 "model": VECTOR_EMBEDDING_MODEL,
                 "embedding_dimension": len(embedding),
                 "embedding": embedding[:10],  # Show first 10 dimensions for brevity
-                "embedding_norm": float(np.linalg.norm(embedding))
+                "embedding_norm": float(np.linalg.norm(embedding)),
             }
-            
+
             return json.dumps(result, indent=2)
-            
+
         except Exception as e:
             logger.error(f"Error in generate_query_embedding: {e}")
             return json.dumps({"error": f"Failed to generate embedding: {str(e)}"})

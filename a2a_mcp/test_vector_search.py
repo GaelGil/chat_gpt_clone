@@ -6,7 +6,6 @@ This script tests the database connection and basic vector search operations.
 
 import asyncio
 import sys
-import os
 from pathlib import Path
 
 # Add the src directory to the path so we can import our modules
@@ -21,8 +20,9 @@ async def test_database_connection():
     print("Testing database connection...")
     try:
         with get_mcp_session() as session:
-            # Simple query to test connection  
+            # Simple query to test connection
             from sqlmodel import text
+
             result = session.exec(text("SELECT 1 as test"))
             row = result.first()
             if row and row.test == 1:
@@ -55,16 +55,16 @@ async def test_get_sessions():
         service = VectorSearchService()
         sessions = await service.get_sessions_with_embeddings()
         print(f"✅ Found {len(sessions)} sessions with embeddings")
-        
+
         if sessions:
             print("\nFirst session details:")
             session = sessions[0]
             for key, value in session.items():
-                if key == 'id':
+                if key == "id":
                     print(f"  {key}: {value}")
-                elif key in ['name', 'github_url', 'embedding_count']:
+                elif key in ["name", "github_url", "embedding_count"]:
                     print(f"  {key}: {value}")
-        
+
         return True
     except Exception as e:
         print(f"❌ get_sessions_with_embeddings failed: {e}")
@@ -77,18 +77,18 @@ async def test_search_functionality():
     try:
         service = VectorSearchService()
         sessions = await service.get_sessions_with_embeddings()
-        
+
         if not sessions:
             print("ℹ️  No sessions with embeddings found - skipping search test")
             return True
-        
+
         # Test file path search
         results = await service.search_by_file_path("%.py")
         print(f"✅ File path search returned {len(results)} Python files")
-        
+
         if results:
             print(f"  Example file: {results[0]['file_path']}")
-        
+
         return True
     except Exception as e:
         print(f"❌ Search functionality test failed: {e}")
@@ -99,39 +99,41 @@ async def main():
     """Run all tests."""
     print("Starting Vector Search Tests")
     print("=" * 50)
-    
+
     # Test configuration
     print("Configuration:")
     print(f"  Database URI: {str(mcp_settings.DATABASE_URI)}")
-    print(f"  Google API Key configured: {'Yes' if mcp_settings.GOOGLE_API_KEY else 'No'}")
+    print(
+        f"  Google API Key configured: {'Yes' if mcp_settings.GOOGLE_API_KEY else 'No'}"
+    )
     print()
-    
+
     # Run tests
     tests = [
         test_database_connection(),
         test_vector_search_service(),
         test_get_sessions(),
-        test_search_functionality()
+        test_search_functionality(),
     ]
-    
+
     results = await asyncio.gather(*tests, return_exceptions=True)
-    
+
     # Summary
     print("\n" + "=" * 50)
     print("Test Summary:")
-    
+
     passed = 0
     for i, result in enumerate(results):
         if isinstance(result, Exception):
-            print(f"  Test {i+1}: ❌ FAILED ({result})")
+            print(f"  Test {i + 1}: ❌ FAILED ({result})")
         elif result:
-            print(f"  Test {i+1}: ✅ PASSED")
+            print(f"  Test {i + 1}: ✅ PASSED")
             passed += 1
         else:
-            print(f"  Test {i+1}: ❌ FAILED")
-    
+            print(f"  Test {i + 1}: ❌ FAILED")
+
     print(f"\nOverall: {passed}/{len(results)} tests passed")
-    
+
     if passed == len(results):
         print("🎉 All tests passed! Vector search is ready to use.")
     else:
@@ -139,4 +141,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

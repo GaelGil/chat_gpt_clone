@@ -4,10 +4,9 @@ Configuration for the MCP Server.
 This is a standalone configuration separate from the main app.
 """
 
-import os
 from pathlib import Path
 from typing import Optional
-from pydantic import BaseModel, computed_field
+from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic_core import MultiHostUrl
 from pydantic import PostgresDsn
@@ -28,7 +27,7 @@ class MCPServerSettings(BaseSettings):
 
     # Google API Key for AI services
     GOOGLE_API_KEY: str
-    
+
     # Database configuration for PostgreSQL (optional - only needed for vector search tools)
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432
