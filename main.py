@@ -16,12 +16,10 @@ load_dotenv(Path("./.env"))
 
 
 async def execute():
-    # start client
-    client = MCPClient()
-    # connect to client
-    await client.connect()
-    # get tools from client
-    # tools = await client.get_tools()
+    client = MCPClient()  # start client
+
+    await client.connect()  # connect to client
+
     model = LLM(model_name="gpt-4.1-mini", api_key=os.getenv("OPENAI_API_KEY"))
 
     orchestrator = OrchestratorAgent(
@@ -30,8 +28,11 @@ async def execute():
     researcher = ResearchAgent(model=model, dev_prompt=AgentPrompts.RESEARCH_PROMPT)
     responder = ResponseAgent(model=model, dev_prompt=AgentPrompts.RESPONSE_PROMPT)
     reviewer = ReviewAgent(model=model, dev_prompt=AgentPrompts.REVIEW_PROMPT)
+    section = ReviewAgent(model=model, dev_prompt=AgentPrompts.SECTION_PROMPT)
 
-    orchestrator.run()
+    available_agents = {"agent"}
+
+    orchestrator.run(agents=[researcher, responder, reviewer, section])
 
 
 if __name__ == "__main__":

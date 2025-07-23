@@ -6,12 +6,14 @@ class ResearchAgent:
         self,
         model: LLM,
         dev_prompt: str,
+        tools: list,
         messages: list = [],
     ):
         self.messages = messages
         self.model = model
-        self.dev_promot = dev_prompt
-        if self.dev_promot:
+        self.dev_prompt = dev_prompt
+        self.tools = tools
+        if self.dev_prompt:
             self.add_message(role="developer", content=dev_prompt)
 
     def add_message(self, role: str, content: str):
@@ -20,11 +22,13 @@ class ResearchAgent:
     def generate_response(self, response_format, tools: list, parsed: bool = False):
         if parsed:
             response = self.model.parse_response(
-                messages=self.messages, response_format=response_format, tools=tools
+                messages=self.messages,
+                response_format=response_format,
+                tools=self.tools,
             )
 
             return response.parsed
 
-        response = self.model.parse_response(messages=self.messages, tools=tools)
+        response = self.model.parse_response(messages=self.messages, tools=self.tools)
 
         return response

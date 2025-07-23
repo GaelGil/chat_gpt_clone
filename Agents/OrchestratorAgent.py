@@ -10,8 +10,8 @@ class OrchestratorAgent:
     ):
         self.messages = messages
         self.model = model
-        self.dev_promot = dev_prompt
-        if self.dev_promot:
+        self.dev_prompt = dev_prompt
+        if self.dev_prompt:
             self.add_message(role="developer", content=dev_prompt)
 
     def add_message(self, role: str, content: str):
@@ -29,5 +29,7 @@ class OrchestratorAgent:
 
         return response
 
-    def run():
+    def run(self, agents, max_iter: int = 3):
+        while True:
+            continue
         pass
