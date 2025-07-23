@@ -10,3 +10,10 @@ You are an agentic essay-writing assistant. When given a topic, follow these pha
 Use tools via function calls for planning, research, writing, reflection, and saving.
 Respond ONLY with the next tool call.
 """
+
+
+ORCHESTRATOR_PROMPT = """"""
+RESEARCH_PROMPT = """"""
+RESPONSE_PROMPT = """"""
+REVIEW_PROMPT = """"""
+SECTION_PROMPT = """"""

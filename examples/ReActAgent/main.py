@@ -16,10 +16,16 @@ async def execute():
     await client.connect()
     # get tools from client
     tools = await client.get_tools()
+    # print(tools)
+    # if "arxiv_search" in tool_names:
+    #     print("yes")
+    # else:
+    #     print("no")
     # initialize agent
+
     agent = Agent(
         dev_prompt=config.dev_promopt,
-        client=MCPClient,
+        client=client,
         api_key=os.getenv("OPENAI_API_KEY"),
         model_name="gpt-4.1-mini",
         max_turns=1,
