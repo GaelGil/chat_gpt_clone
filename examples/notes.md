@@ -93,4 +93,29 @@ This is useful for:
 
 # In general, streaming means:
 
-    🔁 Sending data in small pieces over time instead of all at once.
+- 🔁 Sending data in small pieces over time instead of all at once.
+- stream(...) is a method that returns chunks of the agent’s response as they are generated.
+
+4. Is the CodeSearch Agent just a Worker?
+
+Yes
+
+The CodeSearch Agent is a worker agent.
+
+    It doesn't control anything.
+
+    It just performs a task: e.g., "Find all Python files in the repo and summarize them."
+
+The Orchestrator Agent is the "manager agent":
+
+    It decides if CodeSearch is needed.
+
+    It builds task flows.
+
+    It manages sessions and yields final output.
+
+🧠 Think of it like:
+Role Agent
+🧠 Thinks Orchestrator
+🗂️ Plans Planner Agent
+🔧 Does work CodeSearchAgent, SummarizerAgent, etc.
