@@ -98,12 +98,12 @@ Respond with just "SIMPLE" or "COMPLEX".
 
         try:
             # Import here to avoid circular imports
-            from .EssayAgent import CodeSearchAgent
+            from .EssayAgent import EssayAgent
 
             # Create Code Search Agent with proper configuration
-            code_agent = CodeSearchAgent(
-                agent_name="code_search_agent",
-                description="Code search agent for direct repository analysis",
+            code_agent = EssayAgent(
+                agent_name="essay_agent",
+                description="Essay agent for direct essay analysis",
                 instructions=prompts.CODE_SEARCH_INSTRUCTIONS,
             )
 
@@ -137,8 +137,16 @@ Respond with just "SIMPLE" or "COMPLEX".
 
     @weave.op()
     def answer_user_question(self, question) -> str:
+        """
+        Args:
+            question: The user question
+
+        Returns:
+            str
+        """
         try:
-            client = genai.Client()
+            client = genai.Client()  # get the clinet
+            # generate a response
             response = client.models.generate_content(
                 model="gemini-2.0-flash",
                 contents=prompts.QA_COT_PROMPT.replace(
@@ -159,6 +167,15 @@ Respond with just "SIMPLE" or "COMPLEX".
         )
 
     def set_node_attributes(self, node_id, task_id=None, context_id=None, query=None):
+        """Function to set node attributes in a workflow graph
+
+        Args:
+
+
+        Return
+
+
+        """
         attr_val = {}
         if task_id:
             attr_val["task_id"] = task_id

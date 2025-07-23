@@ -1,6 +1,6 @@
 {
   "name": "essay_research_agent",
-  "description": "Performs semantic code search and analysis across codebases using vector embeddings and natural language queries",
+  "description": "Researches topics with given tools to generates notes on them. These notes can be used to write a section in an essay",
   "url": "http://localhost:10103/",
   "provider": null,
   "version": "1.0.0",
@@ -18,37 +18,23 @@
   "defaultOutputModes": ["text", "text/plain", "application/json"],
   "skills": [
     {
-      "id": "semantic_search",
-      "name": "Semantic Code Search",
-      "description": "Performs semantic search across codebases using vector embeddings to find relevant code patterns, functions, and implementations",
-      "tags": [
-        "semantic search",
-        "vector search",
-        "code analysis",
-        "pattern matching",
-        "natural language queries"
-      ],
+      "id": "research_topic",
+      "name": "Research Topic",
+      "description": "Researches a given topic using tools",
+      "tags": ["tool calling", "research"],
       "examples": [
-        "Find all authentication functions in the codebase",
-        "Search for API endpoint implementations",
-        "Find error handling patterns",
-        "Locate payment processing code",
-        "What language is this repository written in?",
-        "Find database connection logic"
+        "Research star wars impact on culture",
+        "Research and return notes on variational auto encoders",
+        "Research what the curent political climate is in the United States"
       ],
       "inputModes": ["text"],
       "outputModes": ["text", "application/json"]
     },
     {
-      "id": "repository_analysis",
-      "name": "Repository Analysis",
-      "description": "Analyze repository structure, file organization, and language composition",
-      "tags": [
-        "repository analysis",
-        "language detection",
-        "file structure",
-        "codebase overview"
-      ],
+      "id": "create_notes",
+      "name": "Create Notes",
+      "description": "From the results of the tool calls creates notes on a given topic to be used to writing an essay",
+      "tags": ["repository analysis", "summarysing"],
       "examples": [
         "What programming languages are used in this repository?",
         "Analyze the overall structure of the codebase",
@@ -57,28 +43,8 @@
       ],
       "inputModes": ["text"],
       "outputModes": ["text", "application/json"]
-    },
-    {
-      "id": "file_path_search",
-      "name": "File Path Search",
-      "description": "Search for files by name patterns and paths within the codebase",
-      "tags": ["file search", "path matching", "file discovery"],
-      "examples": [
-        "Find all TypeScript files in the components directory",
-        "Locate configuration files",
-        "Search for test files",
-        "Find all Python modules"
-      ],
-      "inputModes": ["text"],
-      "outputModes": ["text", "application/json"]
     }
   ],
-  "mcp_tools": [
-    "vector_search_code",
-    "list_code_sessions",
-    "get_session_files",
-    "search_code_by_file_path",
-    "generate_query_embedding"
-  ],
+  "mcp_tools": ["wiki_search", "web_search", "arxiv_search"],
   "mcp_server": "http://localhost:10100/"
 }
