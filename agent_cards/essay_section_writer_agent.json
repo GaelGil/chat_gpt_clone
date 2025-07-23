@@ -1,6 +1,6 @@
 {
-  "name": "code_search_agent",
-  "description": "Performs semantic code search and analysis across codebases using vector embeddings and natural language queries",
+  "name": "essay_section_writer_agent",
+  "description": "Generates content for an essay on a given notes topic. Sections could be but not limited to intro, body paragraph , or conclusion",
   "url": "http://localhost:10103/",
   "provider": null,
   "version": "1.0.0",
