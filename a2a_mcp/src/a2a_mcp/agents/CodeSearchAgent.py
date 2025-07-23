@@ -25,6 +25,7 @@ class CodeSearchAgent(BaseAgent):
     """Code Search Agent backed by ADK."""
 
     def __init__(self, agent_name: str, description: str, instructions: str):
+        """"""
         init_api_key()
 
         # Set the GOOGLE_API_KEY environment variable for Google services
