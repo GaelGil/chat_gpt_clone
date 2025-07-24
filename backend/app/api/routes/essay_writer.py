@@ -1,25 +1,11 @@
 import uuid
-from typing import Any
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, BackgroundTasks
-from sqlmodel import func, select
 from urllib.parse import urlparse
 import re
+from flask import request, jsonify
+from flask import Blueprint
 
-# from app.models import (
-#     CodeSearchSession,
-#     CodeSearchSessionCreate,
-#     CodeSearchSessionUpdate,
-#     CodeSearchSessionPublic,
-#     CodeSearchSessionsPublic,
-#     Message,
-# )
-# from app.services.embedding_service import EmbeddingService
-
-router = APIRouter(prefix="/code-search", tags=["code-search"])
-
-# Initialize embedding service
-# embedding_service = EmbeddingService()
+essay_writer = Blueprint("essay_writer", __name__, url_prefix="/essay_writer")
 
 
 def extract_repo_name_from_url(url: str) -> str:
@@ -57,83 +43,58 @@ def is_valid_github_url(url: str) -> bool:
     except:
         return False
 
+    # Routes
 
-@router.get("/sessions", response_model=CodeSearchSessionsPublic)
-def get_user_sessions(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
-) -> Any:
-    """Get all code search sessions for the current user"""
 
-    # Count total sessions
-    count_statement = (
-        select(func.count())
-        .select_from(CodeSearchSession)
-        .where(CodeSearchSession.owner_id == current_user.id)
-    )
-    count = session.exec(count_statement).one()
+@essay_writer.route("/code-search/sessions", methods=["GET"])
+def get_user_sessions():
+    skip = request.args.get("skip", 0, type=int)
+    limit = request.args.get("limit", 100, type=int)
 
     # Get sessions ordered by last_used (most recent first)
-    statement = (
-        select(CodeSearchSession)
-        .where(CodeSearchSession.owner_id == current_user.id)
-        .order_by(CodeSearchSession.last_used.desc())
-        .offset(skip)
-        .limit(limit)
+
+    return jsonify(
+        CodeSearchSessionsPublic(
+            data=[session.to_dict() for session in sessions], count=count
+        ).to_dict()
     )
-    sessions = session.exec(statement).all()
-
-    return CodeSearchSessionsPublic(data=sessions, count=count)
 
 
-@router.post("/sessions", response_model=CodeSearchSessionPublic)
-def create_session(
-    *,
-    session: SessionDep,
-    current_user: CurrentUser,
-    background_tasks: BackgroundTasks,
-    session_in: CodeSearchSessionCreate,
-) -> Any:
-    """Create a new code search session"""
-
+@essay_writer.route("/code-search/sessions", methods=["POST"])
+def create_session():
+    request_data = request.get_json()
+    session_in = CodeSearchSessionCreate(**request_data)
     # Validate GitHub URL if provided
     if session_in.github_url:
         if not is_valid_github_url(session_in.github_url):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid GitHub URL. Please provide a valid GitHub repository URL.",
-            )
-
+            return jsonify(
+                {
+                    "detail": "Invalid GitHub URL. Please provide a valid GitHub repository URL."
+                }
+            ), 400
         # Extract repository name for uniqueness check
         try:
             repo_name = extract_repo_name_from_url(session_in.github_url)
         except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-
+            return jsonify({"detail": str(e)}), 400
         # Check if user already has a session for this repository
-        existing_session = session.exec(
-            select(CodeSearchSession).where(
+        existing_session = (
+            db.session.query(CodeSearchSession)
+            .filter(
                 CodeSearchSession.owner_id == current_user.id,
                 CodeSearchSession.github_url == session_in.github_url,
             )
-        ).first()
-
+            .first()
+        )
         if existing_session:
             # Update last_used and return existing session
             existing_session.last_used = datetime.now(timezone.utc)
-            session.add(existing_session)
-            session.commit()
-            session.refresh(existing_session)
-            return existing_session
-
+            db.session.commit()
+            return jsonify(existing_session.to_dict())
     # Create new session
-    db_session = CodeSearchSession.model_validate(
-        session_in, update={"owner_id": current_user.id}
-    )
-
-    session.add(db_session)
-    session.commit()
-    session.refresh(db_session)
-
+    db_session = CodeSearchSession(**session_in.dict(), owner_id=current_user.id)
+    db.session.add(db_session)
+    db.session.commit()
     # Start background embedding generation if GitHub URL provided
     if session_in.github_url:
         background_tasks.add_task(
@@ -141,148 +102,122 @@ def create_session(
             db_session.id,
             session_in.github_url,
         )
+    return jsonify(db_session.to_dict())
 
-    return db_session
 
-
-@router.get("/sessions/{session_id}", response_model=CodeSearchSessionPublic)
-def get_session(
-    session_id: uuid.UUID, session: SessionDep, current_user: CurrentUser
-) -> Any:
-    """Get a specific code search session"""
-
-    db_session = session.exec(
-        select(CodeSearchSession).where(
+@essay_writer.route("/code-search/sessions/<session_id>", methods=["GET"])
+def get_session(session_id: uuid.UUID):
+    current_user = get_current_user()
+    db_session = (
+        db.session.query(CodeSearchSession)
+        .filter(
             CodeSearchSession.id == session_id,
             CodeSearchSession.owner_id == current_user.id,
         )
-    ).first()
-
+        .first()
+    )
     if not db_session:
-        raise HTTPException(status_code=404, detail="Session not found")
+        return jsonify({"detail": "Session not found"}), 404
+    return jsonify(db_session.to_dict())
 
-    return db_session
 
-
-@router.put("/sessions/{session_id}", response_model=CodeSearchSessionPublic)
-def update_session(
-    session_id: uuid.UUID,
-    session: SessionDep,
-    current_user: CurrentUser,
-    session_update: CodeSearchSessionUpdate,
-) -> Any:
-    """Update a code search session"""
-
-    db_session = session.exec(
-        select(CodeSearchSession).where(
+@essay_writer.route("/code-search/sessions/<session_id>", methods=["PUT"])
+def update_session(session_id: uuid.UUID):
+    request_data = request.get_json()
+    current_user = get_current_user()
+    session_update = CodeSearchSessionUpdate(**request_data)
+    db_session = (
+        db.session.query(CodeSearchSession)
+        .filter(
             CodeSearchSession.id == session_id,
             CodeSearchSession.owner_id == current_user.id,
         )
-    ).first()
-
+        .first()
+    )
     if not db_session:
-        raise HTTPException(status_code=404, detail="Session not found")
-
+        return jsonify({"detail": "Session not found"}), 404
     # Update fields
-    session_data = session_update.model_dump(exclude_unset=True)
+    session_data = session_update.dict(exclude_unset=True)
     session_data["updated_at"] = datetime.now(timezone.utc)
-
     for field, value in session_data.items():
         setattr(db_session, field, value)
-
-    session.add(db_session)
-    session.commit()
-    session.refresh(db_session)
-
-    return db_session
+    db.session.commit()
+    return jsonify(db_session.to_dict())
 
 
-@router.delete("/sessions/{session_id}")
-def delete_session(
-    session_id: uuid.UUID, session: SessionDep, current_user: CurrentUser
-) -> Message:
-    """Delete a code search session"""
-
-    db_session = session.exec(
-        select(CodeSearchSession).where(
+@essay_writer.route("/code-search/sessions/<session_id>", methods=["DELETE"])
+def delete_session(session_id: uuid.UUID):
+    current_user = get_current_user()
+    db_session = (
+        db.session.query(CodeSearchSession)
+        .filter(
             CodeSearchSession.id == session_id,
             CodeSearchSession.owner_id == current_user.id,
         )
-    ).first()
-
+        .first()
+    )
     if not db_session:
-        raise HTTPException(status_code=404, detail="Session not found")
-
-    session.delete(db_session)
-    session.commit()
-
-    return Message(message="Session deleted successfully")
+        return jsonify({"detail": "Session not found"}), 404
+    db.session.delete(db_session)
+    db.session.commit()
+    return jsonify({"message": "Session deleted successfully"})
 
 
-@router.get("/sessions/{session_id}/embeddings-status")
-def get_embeddings_status(
-    session_id: uuid.UUID, session: SessionDep, current_user: CurrentUser
-) -> Any:
-    """Get the embeddings processing status for a session"""
-
-    db_session = session.exec(
-        select(CodeSearchSession).where(
+@essay_writer.route(
+    "/code-search/sessions/<session_id>/embeddings-status", methods=["GET"]
+)
+def get_embeddings_status(session_id: uuid.UUID):
+    current_user = get_current_user()
+    db_session = (
+        db.session.query(CodeSearchSession)
+        .filter(
             CodeSearchSession.id == session_id,
             CodeSearchSession.owner_id == current_user.id,
         )
-    ).first()
-
+        .first()
+    )
     if not db_session:
-        raise HTTPException(status_code=404, detail="Session not found")
-
+        return jsonify({"detail": "Session not found"}), 404
     # Get embeddings count
     embeddings_count = len(db_session.embeddings) if db_session.embeddings else 0
+    return jsonify(
+        {
+            "session_id": session_id,
+            "embeddings_processed": db_session.vector_embeddings_processed,
+            "embeddings_count": embeddings_count,
+            "created_at": db_session.created_at,
+            "updated_at": db_session.updated_at,
+        }
+    )
 
-    return {
-        "session_id": session_id,
-        "embeddings_processed": db_session.vector_embeddings_processed,
-        "embeddings_count": embeddings_count,
-        "created_at": db_session.created_at,
-        "updated_at": db_session.updated_at,
-    }
 
-
-@router.post("/sessions/{session_id}/regenerate-embeddings")
-def regenerate_embeddings(
-    session_id: uuid.UUID,
-    session: SessionDep,
-    current_user: CurrentUser,
-    background_tasks: BackgroundTasks,
-) -> Message:
-    """Regenerate embeddings for a session"""
-
-    db_session = session.exec(
-        select(CodeSearchSession).where(
+@essay_writer.route(
+    "/code-search/sessions/<session_id>/regenerate-embeddings", methods=["POST"]
+)
+def regenerate_embeddings(session_id: uuid.UUID):
+    current_user = get_current_user()
+    db_session = (
+        db.session.query(CodeSearchSession)
+        .filter(
             CodeSearchSession.id == session_id,
             CodeSearchSession.owner_id == current_user.id,
         )
-    ).first()
-
+        .first()
+    )
     if not db_session:
-        raise HTTPException(status_code=404, detail="Session not found")
-
+        return jsonify({"detail": "Session not found"}), 404
     if not db_session.github_url:
-        raise HTTPException(
-            status_code=400,
-            detail="Cannot regenerate embeddings for sessions without a GitHub URL",
-        )
-
+        return jsonify(
+            {"detail": "Cannot regenerate embeddings for sessions without a GitHub URL"}
+        ), 400
     # Reset embeddings status
     db_session.vector_embeddings_processed = False
     db_session.updated_at = datetime.now(timezone.utc)
-    session.add(db_session)
-    session.commit()
-
+    db.session.commit()
     # Start background embedding generation
     background_tasks.add_task(
         embedding_service.generate_embeddings_for_session,
         session_id,
         db_session.github_url,
     )
-
-    return Message(message="Embeddings regeneration started")
+    return jsonify({"message": "Embeddings regeneration started"})
