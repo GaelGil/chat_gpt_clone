@@ -1,6 +1,6 @@
 {
   "name": "essay_review_agent",
-  "description": "Performs comprehensive code analysis including quality assessment, security analysis, complexity evaluation, and language detection",
+  "description": "Performs comprehensive essay analysis including quality assessment, spell check and generates possible improvements",
   "url": "http://localhost:10104/",
   "provider": null,
   "version": "1.0.0",
@@ -18,22 +18,19 @@
   "defaultOutputModes": ["text", "text/plain", "application/json"],
   "skills": [
     {
-      "id": "code_analysis",
-      "name": "Comprehensive Code Analysis",
-      "description": "Analyzes code quality, identifies patterns, suggests improvements, detects potential issues, and evaluates complexity metrics",
+      "id": "essay_review",
+      "name": "Essay Review",
+      "description": "Analyzes essay quality, identifies patterns, suggests improvements, detects potential issues",
       "tags": [
         "static analysis",
-        "code quality",
+        "essay quality",
         "refactoring suggestions",
         "complexity metrics",
         "maintainability"
       ],
       "examples": [
-        "Analyze code complexity and suggest refactoring opportunities",
-        "Find potential security vulnerabilities",
-        "Identify code duplication and design patterns",
-        "Evaluate technical debt and maintainability",
-        "Assess code coverage and test quality"
+        "Analyze essay and suggest improving opportunities",
+        "Identify essay repetitiveness and design essay structure"
       ],
       "inputModes": ["text"],
       "outputModes": ["text", "application/json"]

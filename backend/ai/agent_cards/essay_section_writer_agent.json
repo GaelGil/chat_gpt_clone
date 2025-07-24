@@ -1,6 +1,6 @@
 {
   "name": "essay_section_writer_agent",
-  "description": "Generates content for an essay on a given notes topic. Sections could be but not limited to intro, body paragraph , or conclusion",
+  "description": "Generates content for an essay on a given topic and the notes on the topic. Sections could be but not limited to intro, body paragraph , or conclusion",
   "url": "http://localhost:10103/",
   "provider": null,
   "version": "1.0.0",
