@@ -19,3 +19,4 @@ Flask-JWT-Extended
 Flask-Migrate
 pipdeptree
 psycopg2-binary
+google-generativeai
