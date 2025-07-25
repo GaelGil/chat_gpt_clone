@@ -1,4 +1,4 @@
-from LLM import LLM
+from .LLM import LLM
 from Schemas import CalendarEvent
 
 llm = LLM(model_name="gpt-4.1-mini")

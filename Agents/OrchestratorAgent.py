@@ -1,6 +1,7 @@
 from collections.abc import AsyncGenerator
 from openai import OpenAI
 from MCP.client import MCPClient
+from helpers.schemas import ToolHistoryResponse, DecideResposnse
 
 # import asyncio
 import json
@@ -58,51 +59,6 @@ class OrchestratorAgent:
         """
         self.messages.append({"role": "user", "content": prompt})
 
-    async def decide(self, question: str, called_tools: list[dict] | None = None):
-        """Decide which tool to use to answer the question.
-
-        Args:
-            question (str): The question to answer.
-            called_tools (list[dict]): The tools that have been called.
-        """
-        if self.mcp_url is None:
-            return self.call_llm(question)
-        tool_prompt = await get_mcp_tool_prompt(self.mcp_url)
-        if called_tools:
-            called_tools_prompt = called_tools_history_template.render(
-                called_tools=called_tools
-            )
-        else:
-            called_tools_prompt = ""
-
-        prompt = decide_template.render(
-            question=question,
-            tool_prompt=tool_prompt,
-            called_tools=called_tools_prompt,
-        )
-        return self.call_llm(prompt)
-
-    def extract_tools(self, response: str) -> list[dict]:
-        """Extract the tools from the response.
-
-        Args:
-            response (str): The response from the LLM.
-
-        Returns:
-            list[dict]: List of tools
-        """
-        tool_calls = []
-        for tool_call in response.output:
-            if tool_call.type != "function_call":
-                continue
-            # select tool name
-            name = tool_call.name
-            # get the arguments for the tool
-            args = json.loads(tool_call.arguments)
-
-            tool_calls.append({"name": name, "arguments": args})
-        return tool_calls
-
     async def call_tool(self, tool_calls: list[dict]) -> list[dict]:
         """Call the tool.
 
@@ -116,6 +72,78 @@ class OrchestratorAgent:
             result = await self.mcp_client.call_tool(name, args)
             results.append({"name": name, "result": result})
         return results
+
+    def extract_tools(self, response: str) -> list[dict] | str:
+        """Extract the tool calls from the response. Set a tool call list containing tool name and arguments
+
+        Args:
+            response (str): The response from the LLM.
+
+        Returns:
+            list[dict]: List of tools
+        """
+        tool_calls: list[dict] = []
+        for tool_call in response.output:
+            if tool_call.type != "function_call":
+                continue
+            # select tool name
+            name = tool_call.name
+            # get the arguments for the tool
+            args = json.loads(tool_call.arguments)
+
+            tool_calls.append({"name": name, "arguments": args})
+        if not tool_calls:
+            return "No tools called"
+        return tool_calls
+
+    async def decide(self, question: str, called_tools: list[dict] | None = None):
+        """Decide which tool to use to answer the question.
+
+        Args:
+            question (str): The question to answer.
+            called_tools (list[dict]): The tools that have been called.
+        """
+        if self.mcp_url is None:
+            return self.call_llm(question)
+        tool_prompt = await get_mcp_tool_prompt(self.mcp_url)
+        if called_tools:
+            called_tools_prompt = self.llm.responses.parse(
+                model=self.model_name,
+                input=[
+                    {
+                        "role": "user",
+                        "content": question,
+                    },
+                    {
+                        "role": "assistant",
+                        "content": called_tools,
+                    },
+                ],
+                text_format=ToolHistoryResponse,
+            )
+        else:
+            called_tools_prompt = ""
+
+        prompt = self.llm.responses.parse(
+            model=self.model_name,
+            input=[
+                {
+                    "role": "user",
+                    "content": question,
+                },
+                {
+                    "role": "assistant",
+                    "content": tool_prompt,
+                },
+                {
+                    "role": "assistant",
+                    "content": called_tools_prompt,
+                },
+            ],
+            text_format=DecideResposnse,
+        )
+
+        return self.call_llm(prompt)
 
     async def stream(self, question: str) -> AsyncGenerator[str]:
         """Stream the process of answering a question, possibly involving tool calls.
@@ -158,13 +186,27 @@ class OrchestratorAgent:
                     }
                 )
 
-            called_tools_history = called_tools_history_template.render(
-                called_tools=called_tools, question=question
+            called_tools_history = self.llm.responses.parse(
+                model=self.model_name,
+                input=[
+                    {
+                        "role": "user",
+                        "content": question,
+                    },
+                    {
+                        "role": "assistant",
+                        "content": called_tools,
+                    },
+                ],
+                text_format=ToolHistoryResponse,
             )
+
+            parsed: ToolHistoryResponse = called_tools_history.parsed
+
             yield {
                 "is_task_complete": False,
                 "require_user_input": False,
-                "content": called_tools_history,
+                "content": parsed,
             }
 
         yield {
