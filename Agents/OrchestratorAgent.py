@@ -105,7 +105,7 @@ class OrchestratorAgent:
         """
         if self.mcp_url is None:
             return self.call_llm(question)
-        tool_prompt = await get_mcp_tool_prompt(self.mcp_url)
+        tool_prompt = await self.mcp_client.get_tools()
         if called_tools:
             called_tools_prompt = self.llm.responses.parse(
                 model=self.model_name,
