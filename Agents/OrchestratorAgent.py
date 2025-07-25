@@ -6,3 +6,5 @@ class OrchestatorAgent:
         self.max_turns = max_turns
         self.messages = messages
         self.tools = tools
+        if self.dev_prompt:
+            self.messages.append({"role": "developer", "content": self.dev_prompt})
