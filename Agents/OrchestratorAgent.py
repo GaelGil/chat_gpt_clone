@@ -1,7 +1,8 @@
 from collections.abc import AsyncGenerator
 from openai import OpenAI
 from MCP.client import MCPClient
-from helpers.schemas import ToolHistoryResponse, DecideResposnse
+from helpers.schemas import CalledToolHistoryResponse, DecideResposnse
+
 
 # import asyncio
 import json
@@ -107,42 +108,19 @@ class OrchestratorAgent:
             return self.call_llm(question)
         tool_prompt = await self.mcp_client.get_tools()
         if called_tools:
-            called_tools_prompt = self.llm.responses.parse(
-                model=self.model_name,
-                input=[
-                    {
-                        "role": "user",
-                        "content": question,
-                    },
-                    {
-                        "role": "assistant",
-                        "content": called_tools,
-                    },
-                ],
-                text_format=ToolHistoryResponse,
+            called_tools_prompt = CalledToolHistoryResponse(
+                question=question, tools=tool_prompt, called_tools=called_tools
             )
         else:
             called_tools_prompt = ""
 
-        prompt = self.llm.responses.parse(
-            model=self.model_name,
-            input=[
-                {
-                    "role": "user",
-                    "content": question,
-                },
-                {
-                    "role": "assistant",
-                    "content": tool_prompt,
-                },
-                {
-                    "role": "assistant",
-                    "content": called_tools_prompt,
-                },
-            ],
-            text_format=DecideResposnse,
+        prompt = DecideResposnse.render(
+            question=question,
+            tool_prompt=tool_prompt,
+            called_tools=called_tools_prompt,
         )
 
+        self.add_messages(prompt)
         return self.call_llm(prompt)
 
     async def stream(self, question: str) -> AsyncGenerator[str]:
@@ -186,27 +164,16 @@ class OrchestratorAgent:
                     }
                 )
 
-            called_tools_history = self.llm.responses.parse(
-                model=self.model_name,
-                input=[
-                    {
-                        "role": "user",
-                        "content": question,
-                    },
-                    {
-                        "role": "assistant",
-                        "content": called_tools,
-                    },
-                ],
-                text_format=ToolHistoryResponse,
+            called_tools_history = CalledToolHistoryResponse(
+                question=question,
+                tools="",
+                called_tools=called_tools,
             )
-
-            parsed: ToolHistoryResponse = called_tools_history.parsed
 
             yield {
                 "is_task_complete": False,
                 "require_user_input": False,
-                "content": parsed,
+                "content": called_tools_history,
             }
 
         yield {

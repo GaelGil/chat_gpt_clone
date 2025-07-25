@@ -6,6 +6,7 @@ class DecideResposnse(BaseModel):
     selected_tools: list[dict] = Field(description="List of selected tools")
 
 
-class ToolHistoryResponse(BaseModel):
-    question: str
-    called_tools: List[dict]
+class CalledToolHistoryResponse(BaseModel):
+    question: str = Field(description="The question to answer")
+    tools: List[dict] = Field(description="List of tools")
+    called_tools: List[dict] = Field(description="List of called tools")
