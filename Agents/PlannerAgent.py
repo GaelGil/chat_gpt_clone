@@ -24,7 +24,6 @@ class PlannerAgent:
         self.max_turns = max_turns
         self.messages = messages
         self.tools = tools
-        self.graph = []  # TODO: implement graph
         if self.dev_prompt:
             self.messages.append({"role": "developer", "content": self.dev_prompt})
 
@@ -39,10 +38,8 @@ class PlannerAgent:
         parsed = resp.output[0].content[0].parsed
         return parsed  # instance of ResponseFormat
 
-    async def stream(
-        self, question: str, session_id: str, task_id: str
-    ) -> AsyncIterable[dict]:
-        logger.info(f"Planning stream session={session_id} task={task_id}")
+    async def stream(self, question: str, task_id: str) -> AsyncIterable[dict]:
+        logger.info(f"Planning stream task={task_id}")
         parsed = self.plan(question)
         if parsed.status in ("input_required", "error"):
             yield {
@@ -66,7 +63,7 @@ class PlannerAgent:
                 "content": "Unexpected status",
             }
 
-    def invoke(self, question: str, session_id: str) -> dict:
+    def invoke(self, question: str) -> dict:
         parsed = self.plan(question)
         if parsed.status in ("input_required", "error"):
             return dict(

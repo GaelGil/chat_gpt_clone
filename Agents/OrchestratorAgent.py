@@ -50,11 +50,6 @@ class OrchestratorAgent:
         if self.dev_prompt:
             self.messages.append({"role": "developer", "content": self.dev_prompt})
 
-    def plan(self):
-        """Create a workflow plan based on the current state of the system."""
-
-        pass
-
     def stream_llm(self):
         """Stream LLM response.
 
