@@ -6,7 +6,7 @@ from Schemas import (
     EventDetails,
     EventConfirmation,
 )
-from LLM import LLM
+from .LLM import LLM
 
 
 logging.basicConfig(

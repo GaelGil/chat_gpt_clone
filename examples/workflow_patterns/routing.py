@@ -1,5 +1,5 @@
 import logging
-from LLM import LLM
+from .LLM import LLM
 from Schemas import (
     CalendarRequestType,
     CalendarResponse,

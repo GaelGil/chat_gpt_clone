@@ -1,5 +1,5 @@
 import json
-from LLM import LLM
+from .LLM import LLM
 from client import MCPClient
 from Schemas import KBResponse
 import asyncio
