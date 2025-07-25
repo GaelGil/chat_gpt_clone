@@ -9,6 +9,15 @@ import json
 
 
 class OrchestratorAgent:
+    """
+    OrchestratorAgent class.
+    Methods:
+        plan(): Create a workflow plan based on the current state of the system.
+        stream_llm(): Stream LLM response.
+        add_messages(): Add a message to the LLM's input messages.
+
+    """
+
     def __init__(
         self,
         dev_prompt: str,
@@ -19,6 +28,18 @@ class OrchestratorAgent:
         tools: list[dict],
         model_name: str = "gpt-4.1-mini",
     ):
+        """
+        Initialize the OrchestratorAgent.
+
+        Args:
+            dev_prompt (str): The developer prompt.
+            mcp_client (MCPClient): The MCP client.
+            llm (OpenAI): The LLM client.
+            messages (list[dict]): The input messages.
+            max_turns (int): The maximum number of turns.
+            tools (list[dict]): The tools.
+            model_name (str): The name of the model.
+        """
         self.model_name = model_name
         self.dev_prompt = dev_prompt
         self.mcp_client = mcp_client
@@ -67,21 +88,21 @@ class OrchestratorAgent:
             tools (list[dict]): The tools to call.
         """
         results = []
-        for i in range(len(tool_calls)):
-            name = tool_calls[i]["name"]
-            args = tool_calls[i]["arguments"]
-            result = await self.mcp_client.call_tool(name, args)
-            results.append({"name": name, "result": result})
+        for i in range(len(tool_calls)):  # for each tool
+            name = tool_calls[i]["name"]  # get name
+            args = tool_calls[i]["arguments"]  # get arguments
+            result = await self.mcp_client.call_tool(name, args)  # call tool
+            results.append({"name": name, "result": result})  # append result to list
         return results
 
     def extract_tools(self, response: str) -> list[dict] | str:
-        """Extract the tool calls from the response. Set a tool call list containing tool name and arguments
+        """Extract the tool calls from the response. Create a tool call list containing tool name and arguments
 
         Args:
             response (str): The response from the LLM.
 
         Returns:
-            list[dict]: List of tools
+            list[dict]: List of tools | str
         """
         tool_calls: list[dict] = []
         for tool_call in response.output:
@@ -104,24 +125,22 @@ class OrchestratorAgent:
             question (str): The question to answer.
             called_tools (list[dict]): The tools that have been called.
         """
-        if self.mcp_url is None:
-            return self.call_llm(question)
-        tool_prompt = await self.mcp_client.get_tools()
-        if called_tools:
+        tools = await self.mcp_client.get_tools()  # get list of tools
+        if called_tools:  # we have had previos tool calls format it
             called_tools_prompt = CalledToolHistoryResponse(
-                question=question, tools=tool_prompt, called_tools=called_tools
+                question=question, tools=tools, called_tools=called_tools
             )
         else:
-            called_tools_prompt = ""
+            called_tools_prompt = ""  # else just pass an empty string
 
         prompt = DecideResposnse.render(
             question=question,
-            tool_prompt=tool_prompt,
+            tool_prompt=tools,
             called_tools=called_tools_prompt,
         )
 
-        self.add_messages(prompt)
-        return self.call_llm(prompt)
+        self.add_messages(prompt)  # add the prompt to the messages
+        return self.stream_llm(prompt)  # return the model call
 
     async def stream(self, question: str) -> AsyncGenerator[str]:
         """Stream the process of answering a question, possibly involving tool calls.
