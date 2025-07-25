@@ -2,6 +2,9 @@ from collections.abc import AsyncGenerator
 from openai import OpenAI
 from MCP.client import MCPClient
 
+# import asyncio
+import json
+
 
 class OrchestratorAgent:
     def __init__(
@@ -45,9 +48,17 @@ class OrchestratorAgent:
             yield event
 
     def add_messages(self, prompt: str):
+        """Add a message to the LLM's input messages.
+
+        Args:
+            prompt (str): The prompt to add to the LLM's input messages.
+
+        Returns:
+            None
+        """
         self.messages.append({"role": "user", "content": prompt})
 
-    async def decide_tool(self, prompt: str, called_tools: list[dict]):
+    async def decide(self, question: str, called_tools: list[dict] | None = None):
         """Decide which tool to use to answer the question.
 
         Args:
@@ -55,8 +66,7 @@ class OrchestratorAgent:
             called_tools (list[dict]): The tools that have been called.
         """
         if self.mcp_url is None:
-            self.add_messages(prompt)
-            return self.stream_llm(prompt)
+            return self.call_llm(question)
         tool_prompt = await get_mcp_tool_prompt(self.mcp_url)
         if called_tools:
             called_tools_prompt = called_tools_history_template.render(
@@ -70,8 +80,42 @@ class OrchestratorAgent:
             tool_prompt=tool_prompt,
             called_tools=called_tools_prompt,
         )
-
         return self.call_llm(prompt)
+
+    def extract_tools(self, response: str) -> list[dict]:
+        """Extract the tools from the response.
+
+        Args:
+            response (str): The response from the LLM.
+
+        Returns:
+            list[dict]: List of tools
+        """
+        tool_calls = []
+        for tool_call in response.output:
+            if tool_call.type != "function_call":
+                continue
+            # select tool name
+            name = tool_call.name
+            # get the arguments for the tool
+            args = json.loads(tool_call.arguments)
+
+            tool_calls.append({"name": name, "arguments": args})
+        return tool_calls
+
+    async def call_tool(self, tool_calls: list[dict]) -> list[dict]:
+        """Call the tool.
+
+        Args:
+            tools (list[dict]): The tools to call.
+        """
+        results = []
+        for i in range(len(tool_calls)):
+            name = tool_calls[i]["name"]
+            args = tool_calls[i]["arguments"]
+            result = await self.mcp_client.call_tool(name, args)
+            results.append({"name": name, "result": result})
+        return results
 
     async def stream(self, question: str) -> AsyncGenerator[str]:
         """Stream the process of answering a question, possibly involving tool calls.
@@ -99,19 +143,21 @@ class OrchestratorAgent:
                     "content": chunk,
                 }
             tools = self.extract_tools(response)
+
             if not tools:
                 break
             results = await self.call_tool(tools)
 
-            called_tools += [
-                {
-                    "tool": tool["name"],
-                    "arguments": tool["arguments"],
-                    "isError": result.isError,
-                    "result": result.content[0].text,
-                }
-                for tool, result in zip(tools, results, strict=True)
-            ]
+            for i in range(len(results)):
+                called_tools.append(
+                    {
+                        "tool": tools[i]["name"],
+                        "arguments": tools[i]["arguments"],
+                        "isError": results[i].isError,
+                        "result": results[i].content[0].text,
+                    }
+                )
+
             called_tools_history = called_tools_history_template.render(
                 called_tools=called_tools, question=question
             )

@@ -1,5 +1,5 @@
 from collections.abc import AsyncGenerator
-from openai import OpenAI
+# from openai import OpenAI
 
 
 class PlannerAgent:
