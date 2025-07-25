@@ -3,7 +3,17 @@ from openai import OpenAI
 
 
 class PlannerAgent:
-    def __init__(self, dev_prompt, mcp_client, llm, messages, max_turns, tools):
+    def __init__(
+        self,
+        dev_prompt,
+        mcp_client,
+        llm,
+        messages,
+        max_turns,
+        tools,
+        model_name: str = "gpt-4.1-mini",
+    ):
+        self.model_name = model_name
         self.dev_prompt = dev_prompt
         self.mcp_client = mcp_client
         self.llm = llm
@@ -18,7 +28,7 @@ class PlannerAgent:
 
         pass
 
-    def stream_llm(self, prompt: str):
+    def stream_llm(self):
         """Stream LLM response.
 
         Args:
@@ -27,13 +37,14 @@ class PlannerAgent:
         Returns:
             Generator[str, None, None]: A generator of the LLM response.
         """
-        # client = genai.Client(vertexai=False, api_key=GOOGLE_API_KEY)
-        # for chunk in client.models.generate_content_stream(
-        #     model="gemini-2.5-flash-lite",
-        #     contents=prompt,
-        # ):
-        #     yield chunk.text
-        pass
+        stream = self.llm.responses.create(
+            model=self.model_name, input=self.messages, stream=True
+        )
+        for event in stream:
+            yield event
+
+    def add_messages(self, prompt: str):
+        self.messages.append({"role": "user", "content": prompt})
 
     async def decide_tool(self, prompt: str, called_tools: list[dict]):
         """Decide which tool to use to answer the question.
@@ -57,6 +68,7 @@ class PlannerAgent:
             tool_prompt=tool_prompt,
             called_tools=called_tools_prompt,
         )
+
         return self.call_llm(prompt)
 
     async def stream(self, question: str) -> AsyncGenerator[str]:
