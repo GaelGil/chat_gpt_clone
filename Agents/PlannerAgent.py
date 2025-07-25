@@ -1,5 +1,9 @@
-from collections.abc import AsyncGenerator
-# from openai import OpenAI
+import logging
+from helpers.schemas import ResponseFormat
+from typing import AsyncIterable
+import json
+
+logger = logging.getLogger(__name__)
 
 
 class PlannerAgent:
@@ -20,107 +24,120 @@ class PlannerAgent:
         self.max_turns = max_turns
         self.messages = messages
         self.tools = tools
+        self.graph = []  # TODO: implement graph
         if self.dev_prompt:
             self.messages.append({"role": "developer", "content": self.dev_prompt})
 
-    def plan(self):
-        """Create a workflow plan based on the current state of the system."""
-
-        pass
-
-    def stream_llm(self):
-        """Stream LLM response.
-
-        Args:
-            prompt (str): The prompt to send to the LLM.
-
-        Returns:
-            Generator[str, None, None]: A generator of the LLM response.
-        """
-        stream = self.llm.responses.create(
-            model=self.model_name, input=self.messages, stream=True
+    def plan(self, question: str):
+        resp = self.client.responses.create(
+            model="gpt-4o-mini",
+            input=self._build_input(question),
+            response_format=ResponseFormat,
+            text_format="auto",
+            stream=False,
         )
-        for event in stream:
-            yield event
+        parsed = resp.output[0].content[0].parsed
+        return parsed  # instance of ResponseFormat
 
-    def add_messages(self, prompt: str):
-        self.messages.append({"role": "user", "content": prompt})
-
-    async def decide_tool(self, prompt: str, called_tools: list[dict]):
-        """Decide which tool to use to answer the question.
-
-        Args:
-            question (str): The question to answer.
-            called_tools (list[dict]): The tools that have been called.
-        """
-        if self.mcp_url is None:
-            return self.call_llm(prompt)
-        tool_prompt = await get_mcp_tool_prompt(self.mcp_url)
-        if called_tools:
-            called_tools_prompt = called_tools_history_template.render(
-                called_tools=called_tools
-            )
+    async def stream(
+        self, question: str, session_id: str, task_id: str
+    ) -> AsyncIterable[dict]:
+        logger.info(f"Planning stream session={session_id} task={task_id}")
+        parsed = self.plan(question)
+        if parsed.status in ("input_required", "error"):
+            yield {
+                "response_type": "text",
+                "is_task_complete": False,
+                "require_user_input": True,
+                "content": parsed.question,
+            }
+        elif parsed.status == "completed":
+            yield {
+                "response_type": "data",
+                "is_task_complete": True,
+                "require_user_input": False,
+                "content": [t.dict() for t in parsed.content],
+            }
         else:
-            called_tools_prompt = ""
+            yield {
+                "response_type": "text",
+                "is_task_complete": False,
+                "require_user_input": True,
+                "content": "Unexpected status",
+            }
 
-        prompt = decide_template.render(
-            question=question,
-            tool_prompt=tool_prompt,
-            called_tools=called_tools_prompt,
+    def invoke(self, question: str, session_id: str) -> dict:
+        parsed = self.plan(question)
+        if parsed.status in ("input_required", "error"):
+            return dict(
+                response_type="text",
+                is_task_complete=False,
+                require_user_input=True,
+                content=parsed.question,
+            )
+        return dict(
+            response_type="data",
+            is_task_complete=True,
+            require_user_input=False,
+            content=[t.dict() for t in parsed.content],
         )
 
-        return self.call_llm(prompt)
-
-    async def stream(self, question: str) -> AsyncGenerator[str]:
-        """Stream the process of answering a question, possibly involving tool calls.
-
-        Args:
-            question (str): The question to answer.
-
-        Yields:
-            dict: Streaming output, including intermediate steps and final result.
-        """
-        called_tools = []
-        for i in range(10):
-            yield {
-                "is_task_complete": False,
-                "require_user_input": False,
-                "content": f"Step {i}",
-            }
-
-            response = ""
-            for chunk in await self.decide(question, called_tools):
-                response += chunk
-                yield {
+    def _parse_response(self, response_text: str) -> dict:
+        try:
+            parsed = json.loads(response_text)
+            tasks = parsed.get("tasks", [])
+            if not tasks:
+                return {
+                    "response_type": "text",
                     "is_task_complete": False,
-                    "require_user_input": False,
-                    "content": chunk,
+                    "require_user_input": True,
+                    "content": "Could not determine tasks. Please clarify your input.",
                 }
-            tools = self.extract_tools(response)
-            if not tools:
-                break
-            results = await self.call_tool(tools)
-
-            called_tools += [
-                {
-                    "tool": tool["name"],
-                    "arguments": tool["arguments"],
-                    "isError": result.isError,
-                    "result": result.content[0].text,
-                }
-                for tool, result in zip(tools, results, strict=True)
-            ]
-            called_tools_history = called_tools_history_template.render(
-                called_tools=called_tools, question=question
-            )
-            yield {
-                "is_task_complete": False,
+            return {
+                "response_type": "data",
+                "is_task_complete": True,
                 "require_user_input": False,
-                "content": called_tools_history,
+                "content": tasks,
+            }
+        except Exception as e:
+            logger.warning(f"Failed to parse Gemini output: {e}")
+            return {
+                "response_type": "text",
+                "is_task_complete": False,
+                "require_user_input": True,
+                "content": "Invalid format received from planner model.",
             }
 
-        yield {
-            "is_task_complete": True,
-            "require_user_input": False,
-            "content": "Task completed",
+    def get_agent_response(self, config):
+        current_state = self.graph.get_state(config)
+        structured_response = current_state.values.get("structured_response")
+        if structured_response and isinstance(structured_response, ResponseFormat):
+            if (
+                structured_response.status == "input_required"
+                # and structured_response.content.tasks
+            ):
+                return {
+                    "response_type": "text",
+                    "is_task_complete": False,
+                    "require_user_input": True,
+                    "content": structured_response.question,
+                }
+            if structured_response.status == "error":
+                return {
+                    "response_type": "text",
+                    "is_task_complete": False,
+                    "require_user_input": True,
+                    "content": structured_response.question,
+                }
+            if structured_response.status == "completed":
+                return {
+                    "response_type": "data",
+                    "is_task_complete": True,
+                    "require_user_input": False,
+                    "content": structured_response.content.model_dump(),
+                }
+        return {
+            "is_task_complete": False,
+            "require_user_input": True,
+            "content": "We are unable to process your code search request at the moment. Please try again.",
         }
