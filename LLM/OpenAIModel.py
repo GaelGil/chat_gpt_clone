@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 
-class LLM:
+class OpenAIModel:
     def __init__(self, api_key: str) -> None:
         """
         Args:
@@ -11,7 +11,7 @@ class LLM:
         """
         self.client = OpenAI(api_key=api_key)
 
-    def get_client(self):
+    def get_client(self) -> OpenAI:
         """
         Args:
             None
