@@ -119,3 +119,18 @@ Role Agent
 🧠 Thinks Orchestrator
 🗂️ Plans Planner Agent
 🔧 Does work CodeSearchAgent, SummarizerAgent, etc.
+
+# Planner Agent
+
+- Creates plan with tasks to complete a task
+- Decides which tasks to do and when and which agent should do them
+- DOES NOT run agents
+- only creates the plan/workflow
+
+# Orchestrator Agent
+
+- takes in a plan/task list
+- assigns tasks to agents accordingly
+- checks tasks status
+- runs the plan that the planner agent created
+- does run the agents
