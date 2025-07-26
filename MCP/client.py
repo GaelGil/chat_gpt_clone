@@ -1,33 +1,43 @@
 from typing import Any, Dict
-import nest_asyncio
 
 # import asyncio
 from fastmcp import Client
 
-# Apply nest_asyncio to allow nested event loops (needed for Jupyter/IPython)
-nest_asyncio.apply()
-
 
 class MCPClient:
     def __init__(self, base_url: str = "http://localhost:8050/sse"):
+        """Initialize the MCP client.
+
+        Args:
+            base_url (str): The base URL of the MCP server.
+
+        Returns:
+            None"""
         self.base_url = base_url
         self.session = None
 
     async def connect(self):
+        """Connect to the MCP server."""
         self.session = await Client(self.base_url).__aenter__()
 
     async def disconnect(self):
+        """Disconnect from the MCP server."""
         if self.session:
             await self.session.__aexit__(None, None, None)
             self.session = None
 
     async def list_tools(self) -> list:
+        """List available tools."""
         if not self.session:
             raise RuntimeError("Session not connected")
         return await self.session.list_tools()
 
     async def get_tools(self) -> list[dict[str, Any]]:
-        """Retrieve tools in a format compatible with OpenAI."""
+        """Retrieve tools in a format compatible with OpenAI.
+
+        Returns:
+            list[dict[str, Any]]: List of tools in OpenAI format.
+        """
         if not self.session:
             raise RuntimeError("Session not connected")
 
@@ -55,19 +65,16 @@ class MCPClient:
         return openai_tools
 
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
+        """Call a tool.
+
+        Args:
+            tool_name (str): The name of the tool to call.
+            arguments (Dict[str, Any]): The arguments to pass to the tool.
+
+        Returns:
+            Any: The result of the tool call.
+        """
         if not self.session:
             raise RuntimeError("Session not connected")
         result = await self.session.call_tool(tool_name, arguments)
         return result.content[0].text if result.content else None
-
-
-# async def main():
-#     client = MCPClient()
-#     await client.connect()
-#     tools = await client.list_tools()
-#     print("Available tools:", [tool.name for tool in tools])
-#     await client.disconnect()
-
-
-# if __name__ == "__main__":
-#     asyncio.run(main())
