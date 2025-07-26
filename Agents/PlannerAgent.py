@@ -1,5 +1,5 @@
 import logging
-from helpers.schemas import Plan
+from utils.schemas import Plan
 from openai import OpenAI
 from MCP.client import MCPClient
 

@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 from Agents.PlannerAgent import PlannerAgent
 from Agents.OrchestratorAgent import OrchestratorAgent
-import helpers.prompts as prompts
+import utils.prompts as prompts
 from MCP.client import MCPClient
 import asyncio
 
