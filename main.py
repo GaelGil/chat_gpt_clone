@@ -6,6 +6,7 @@ from Agents.PlannerAgent import PlannerAgent
 from Agents.OrchestratorAgent import OrchestratorAgent
 import helpers.prompts as prompts
 from MCP.client import MCPClient
+import asyncio
 
 load_dotenv(Path("./.env"))
 
@@ -15,8 +16,7 @@ async def execute():
 
     await client.connect()
     mcp_client = MCPClient()
-    print(mcp_client.list_tools())
-    # TODO: connect to client
+    tools = await mcp_client.get_tools()
 
     llm_model = OpenAIModel(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -25,8 +25,7 @@ async def execute():
         mcp_client=mcp_client,
         llm=llm_model,
         messages=[],
-        max_turns=3,
-        tools=[],
+        tools=tools,
     )
 
     orchestrator = OrchestratorAgent(
@@ -34,10 +33,13 @@ async def execute():
         mcp_client=mcp_client,
         llm=llm_model,
         messages=[],
-        max_turns=3,
-        tools=[],
+        tools=tools,
     )
 
     plan = planner.create_plan()
     orchestrator.excute(plan)
     pass
+
+
+if __name__ == "__main__":
+    asyncio.run(execute())

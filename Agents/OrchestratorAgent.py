@@ -2,7 +2,8 @@ from collections.abc import AsyncGenerator
 from openai import OpenAI
 from MCP.client import MCPClient
 from helpers.schemas import CalledToolHistoryResponse, DecideResposnse
-
+from helpers.schemas import Plan, PlannerTask
+from typing import Any
 
 # import asyncio
 import json
@@ -24,7 +25,6 @@ class OrchestratorAgent:
         dev_prompt (str): The developer prompt.
         mcp_client (MCPClient): The MCP client.
         llm (OpenAI): The LLM client.
-        max_turns (int): The maximum number of turns.
         messages (list[dict]): The input messages.
         tools (list[dict]): The tools.
 
@@ -36,7 +36,6 @@ class OrchestratorAgent:
         mcp_client: MCPClient,
         llm: OpenAI,
         messages: list[dict],
-        max_turns: int,
         tools: list[dict],
         model_name: str = "gpt-4.1-mini",
     ):
@@ -56,11 +55,50 @@ class OrchestratorAgent:
         self.dev_prompt = dev_prompt
         self.mcp_client = mcp_client
         self.llm = llm
-        self.max_turns = max_turns
         self.messages = messages
         self.tools = tools
         if self.dev_prompt:
             self.messages.append({"role": "developer", "content": self.dev_prompt})
+
+    def select_agent(self, agent_name: str) -> Any | str:
+        """Select the agent to use.
+
+        Args:
+            agent_name (str): The name of the agent.
+
+        Returns:
+            The agent.
+        """
+        if agent_name == "OrchestratorAgent":
+            agent = OrchestratorAgent()
+        elif agent_name == "PlannerAgent":
+            agent = OrchestratorAgent()
+        elif agent_name == "ToolAgent":
+            agent = OrchestratorAgent()
+        elif agent_name == "ExecutorAgent":
+            agent = OrchestratorAgent()
+        else:
+            agent = f"No available agent found with name: {agent_name}"
+        return agent
+
+    def execute(self, plan: Plan):
+        """Execute the plan.
+
+        Args:
+            plan (Plan): The plan to execute.
+
+        Returns:
+            None
+        """
+        responses: dict = {}
+        for i in range(len(plan)):
+            task: PlannerTask = plan[i]
+            agent_name = task.assigned_agent
+            agent = self.select_agent(agent_name)
+
+            response = agent.execute_task(task)
+            responses[agent_name] = response
+        pass
 
     def stream_llm(self):
         """Stream LLM response.

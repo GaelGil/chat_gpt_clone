@@ -13,7 +13,6 @@ class PlannerAgent:
         mcp_client,
         llm,
         messages,
-        max_turns,
         tools,
         model_name: str = "gpt-4.1-mini",
     ):
@@ -25,7 +24,6 @@ class PlannerAgent:
             mcp_client (MCPClient): The MCP client.
             llm (OpenAI): The LLM client.
             messages (list[dict]): The input messages.
-            max_turns (int): The maximum number of turns.
             tools (list[dict]): The tools.
             model_name (str): The name of the model.
 
@@ -36,7 +34,6 @@ class PlannerAgent:
         self.dev_prompt: str = dev_prompt
         self.mcp_client: MCPClient = mcp_client
         self.llm: OpenAI = llm
-        self.max_turns: int = max_turns
         self.messages: list[dict] = messages
         self.tools: list[dict] = tools
         if self.dev_prompt:

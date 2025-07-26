@@ -20,6 +20,7 @@ class PlannerTask(BaseModel):
     description: str = Field(
         description="Clear description of the task to be executed."
     )
+    assigned_agent: str = Field(description="The agent responsible for the task")
     status: (
         Any
         | Literal[
