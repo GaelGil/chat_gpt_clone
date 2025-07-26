@@ -35,13 +35,11 @@ class PlannerTask(BaseModel):
     ) = Field(description="Status of the task", default="input_required")
 
 
-class TaskList(BaseModel):
+class Plan(BaseModel):
     """Output schema for the Planner Agent."""
 
-    original_query: str | None = Field(
-        description="The original user query for context."
-    )
-
+    original_query: str = Field(description="The original user query for context.")
+    description: str = Field(description="Clear description of the .")
     tasks: list[PlannerTask] = Field(
         description="A list of tasks to be executed sequentially."
     )
@@ -54,7 +52,7 @@ class ResponseFormat(BaseModel):
     question: str = Field(
         description="Input needed from the user to generate the code search plan"
     )
-    content: TaskList = Field(
+    content: Plan = Field(
         description="List of tasks when the code search plan is generated"
     )
 

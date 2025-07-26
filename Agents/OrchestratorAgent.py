@@ -12,9 +12,21 @@ class OrchestratorAgent:
     """
     OrchestratorAgent class.
     Methods:
-        plan(): Create a workflow plan based on the current state of the system.
         stream_llm(): Stream LLM response.
         add_messages(): Add a message to the LLM's input messages.
+        decide(): Decide which tool to use to answer the question.
+        stream(): Stream the process of answering a question, possibly involving tool calls.
+        extract_tools(): Extract the tool calls from the response.
+        call_tool(): Call the tool.
+
+    Attributes:
+        model_name (str): The name of the model.
+        dev_prompt (str): The developer prompt.
+        mcp_client (MCPClient): The MCP client.
+        llm (OpenAI): The LLM client.
+        max_turns (int): The maximum number of turns.
+        messages (list[dict]): The input messages.
+        tools (list[dict]): The tools.
 
     """
 
@@ -65,7 +77,7 @@ class OrchestratorAgent:
         for event in stream:
             yield event
 
-    def add_messages(self, prompt: str):
+    def add_messages(self, query: str):
         """Add a message to the LLM's input messages.
 
         Args:
@@ -74,13 +86,16 @@ class OrchestratorAgent:
         Returns:
             None
         """
-        self.messages.append({"role": "user", "content": prompt})
+        self.messages.append({"role": "user", "content": query})
 
     async def call_tool(self, tool_calls: list[dict]) -> list[dict]:
-        """Call the tool.
+        """Recives a list of tool calls and calls the tools
 
         Args:
             tools (list[dict]): The tools to call.
+
+        REturns:
+            list[dict]: The results of the tool calls.
         """
         results = []
         for i in range(len(tool_calls)):  # for each tool
