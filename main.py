@@ -12,13 +12,11 @@ load_dotenv(Path("./.env"))
 
 
 async def execute():
-    client = MCPClient()  # start client
-
-    await client.connect()
-    mcp_client = MCPClient()
-    tools = await mcp_client.get_tools()
-
-    llm_model = OpenAIModel(api_key=os.getenv("OPENAI_API_KEY"))
+    mcp_client = MCPClient()  # initialize MCP client instance
+    await mcp_client.connect()  # connect to mcp client
+    tools = await mcp_client.get_tools()  # get tools
+    print("tools: ", tools)  # print tools
+    llm_model = OpenAIModel(api_key=os.getenv("OPENAI_API_KEY")).get_client()
 
     planner = PlannerAgent(
         dev_prompt=prompts.PLANNER_AGENT_PROMPT,
@@ -38,7 +36,7 @@ async def execute():
 
     plan = planner.create_plan()
     orchestrator.excute(plan)
-    pass
+    # pass
 
 
 if __name__ == "__main__":
