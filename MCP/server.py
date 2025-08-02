@@ -144,15 +144,23 @@ def assemble_content(content: str, context: str) -> str:
             {
                 "role": "developer",
                 "content": f"""
-                        You are an expert essay assembler, you take in essay at its current state
-                        and previous tool results (context).
-                        You assemble the essay based on context and the current essay state.
+                        You are an expert content assembler, you take in some content at its current state
+                        and assemble it into well written content to effectively communitcate an idea.
+                        You will be given some context in the format of a list of dictionaries. Here is an
+                        example context:
+                        [
+                        dict('task_id': 1, 'task': "write a intro paragraph on topic", 'results': "A intro paragraph written on a topic"),
+                        dict('task_id': 2, 'task': "write a paragraph on topic with previous task results", 'results': "A paragraph written on a topic with previous task results"),
+                        ...
+                        ]
+                        You must assmple the context into something like this:
+                        "A intro paragraph written on a topic, A paragraph written on a topic with previous task results ..."
                         Here is the context: {context}
                         """,
             },
             {
                 "role": "user",
-                "content": content,
+                "content": "Assemble the context into",
             },
         ],
         text_format=str,
