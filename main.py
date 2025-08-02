@@ -1,26 +1,23 @@
-#!/usr/bin/env python3
 """
-Agent workflow for processing test emails in .md format and placing orders.
+Agent workflow for processing task requests
 
-This script reads test email files in markdown format, parses their content,
-and uses the agent framework to process orders based on the email content.
+This script reads takes in a user request and uses a planner agent to create a plan
+to complete the request. The plan is then executed by an executor.
 """
 
+import os
 import asyncio
 import logging
-
-from typing import Tuple
-from llm_clients.OpenAIClient import OpenAIClient
-from MCP.client import MCPClient
-from agents.OrchestratorAgent import OrchestratorAgent
-from agents.PlannerAgent import PlannerAgent
-from utils.prompts import ORCHESTRATOR_AGENT_PROMPT, PLANNER_AGENT_PROMPT
-from utils.schemas import Plan
-import os
 from dotenv import load_dotenv
+from typing import Tuple
+from utils.OpenAIClient import OpenAIClient
+from MCP.client import MCPClient
+from utils.Executor import Executor
+from agents.PlannerAgent import PlannerAgent
+from utils.prompts import PLANNER_AGENT_PROMPT
+from utils.schemas import Plan
 
 load_dotenv()
-
 
 # Configure logging
 logging.basicConfig(
@@ -29,24 +26,22 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-async def initialize_agent_service() -> Tuple[
-    OrchestratorAgent, PlannerAgent, MCPClient
-]:
+async def initialize_agent_service() -> Tuple[Executor, PlannerAgent, MCPClient]:
     """Initialize and return the OrchestratorAgent with MCP client integration.
 
     Returns:
         Tuple[OrchestratorAgent, MCPClient]: A tuple containing the initialized OrchestratorAgent and MCPClient.
     """
     try:
-        logger.info("Initializing MCP client...")
+        logger.info("Initializing MCP client ...")
         mcp_client = MCPClient()
         await mcp_client.connect()
 
-        logger.info("Getting tools from MCP...")
+        logger.info("Getting tools from MCP ...")
         tools = await mcp_client.get_tools()
         logger.info(f"Loaded {len(tools)} tools from MCP")
 
-        logger.info("Initializing OpenAI client...")
+        logger.info("Initializing OpenAI client ...")
         # openai_client = OpenAI(os.getenv("OPENAI_API_KEY"))
         llm = OpenAIClient(api_key=os.getenv("OPENAI_API_KEY")).get_client()
 
@@ -57,7 +52,7 @@ async def initialize_agent_service() -> Tuple[
             )
             tools = [tools] if tools is not None else []
 
-        logger.info("Initializing OrchestratorAgent...")
+        logger.info("Initializing Executor ...")
         logger.info(f"Number of tools: {len(tools)}")
 
         try:
@@ -65,17 +60,10 @@ async def initialize_agent_service() -> Tuple[
             agent_tools = [
                 tool.copy() if hasattr(tool, "copy") else tool for tool in tools
             ]
-
-            orechestrator = OrchestratorAgent(
-                dev_prompt=ORCHESTRATOR_AGENT_PROMPT,
-                mcp_client=mcp_client,
-                llm=llm,
-                messages=[],
-                tools=agent_tools,
-                model_name="gpt-4.1-mini",
-            )
-
-            logger.info("Successfully initialized OrchestratorAgent")
+            # Initialize Executor
+            executor = Executor(mcp_client=mcp_client)
+            logger.info("Successfully initialized Executor")
+            # Initialize PlannerAgent
             planner = PlannerAgent(
                 dev_prompt=PLANNER_AGENT_PROMPT,
                 llm=llm,
@@ -84,7 +72,7 @@ async def initialize_agent_service() -> Tuple[
                 model_name="gpt-4.1-mini",
             )
             logger.info("Successfully initialized PlannerAgent")
-            return orechestrator, planner, mcp_client
+            return executor, planner, mcp_client
 
         except Exception as agent_init_error:
             logger.error(
@@ -107,8 +95,8 @@ async def initialize_agent_service() -> Tuple[
         raise
 
 
-async def process(
-    orchestator: OrchestratorAgent, planer: PlannerAgent, content: str
+async def create_execute_plan(
+    executor: Executor, planer: PlannerAgent, content: str
 ) -> bool:
     """
     Process a single email file and place orders based on its content using the agentic workflow.
@@ -121,13 +109,10 @@ async def process(
     """
     # Try to process the email using agent
     try:
-        print("first")
         plan = planer.plan(content)
         plan_parsed: Plan = plan.output_parsed
-        print(f"plan: {plan}")
-        print(f"plan.type: {type(plan)}")
-        res = await orchestator.execute_plan(plan_parsed)
-        print(f"RES: {res}")
+        res = await executor.execute_plan(plan_parsed)
+        print(res)
 
     except Exception as process_error:  # Exception as process_error
         logger.error(
@@ -136,30 +121,21 @@ async def process(
         return False
 
 
-async def process_emails() -> None:
-    """
-    Process .md files in the specified directory as test emails, one at a time.
-
-    Args:
-        directory: Directory containing test email files. Defaults to TEST_EMAILS_DIR.
-    """
+async def run_agent() -> None:
+    """ """
 
     # Initialize agent service
     content = "write an essay on the culture impact of the internet"
     try:
         orchestrator, planner, mcp_client = await initialize_agent_service()
         print(orchestrator.tools)
-        # Process only the oldest unprocessed email
-        # email_to_process = unprocessed_emails[0]
-        # logger.info(f"Processing email: {email_to_process.name}")
 
-        # Process the email (success is a bool)
-        success = await process(orchestrator, planner, content)
+        # success = await create_execute_plan(orchestrator, planner, content)
 
-        if success:
-            logger.info(f"Successfully processed content: {content}")
-        else:
-            logger.warning(f"Failed to process content: {content}")
+        # if success:
+        #     logger.info(f"Successfully processed content: {content}")
+        # else:
+        #     logger.warning(f"Failed to process content: {content}")
 
     except Exception as e:
         logger.error(f"Error in email processing workflow: {str(e)}")
@@ -171,4 +147,4 @@ async def process_emails() -> None:
 
 if __name__ == "__main__":
     # Run the async main function
-    asyncio.run(process_emails())
+    asyncio.run(run_agent())
