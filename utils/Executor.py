@@ -78,7 +78,7 @@ class Executor:
                 }
             ]
         results = []  # Tool call results
-        print("CALLING_TOOLS")
+        print("CALLING_TOOLS ... ")
         for tool in tool_calls:  # For each tool
             try:  # Try to call the tool
                 if not isinstance(tool, dict):  # If tool is not a dict return error
