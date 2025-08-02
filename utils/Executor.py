@@ -1,4 +1,5 @@
 from utils.schemas import Plan, PlannerTask
+from MCP.client import MCPClient
 
 
 class Executor:
@@ -12,10 +13,11 @@ class Executor:
 
     """
 
-    def __init__(self):
+    def __init__(self, mcp_client: MCPClient):
         """
         Initialize the orchestrator
         """
+        self.mcp_client = mcp_client
         self.tool_call_history: list = []
         self.previous_task_results: list = [{"first task, no previous task yet"}]
 
@@ -98,7 +100,7 @@ class Executor:
                     continue
 
                 # Call the tool through MCP client
-                result = await mcp_client.call_tool(name, arguments)
+                result = await self.mcp_client.call_tool(name, arguments)
                 # append tool call reults. Includes name, arguments, and result
                 results.append({"result": result})
                 self.tool_call_history.append(
