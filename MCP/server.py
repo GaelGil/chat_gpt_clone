@@ -1,17 +1,18 @@
 import json
 import requests
 import wikipedia
-import datetime
 from mcp.server.fastmcp import FastMCP
 import xml.etree.ElementTree as ET
 from mcp.server.fastmcp.utilities.logging import get_logger
 from openai import OpenAI
 from dotenv import load_dotenv
-from pathlib import Path
+
+# from pathlib import Path
 import os
+from utils.schemas import AssembledResponse, ReviewResponse, WriteResponse
 
-load_dotenv(Path("../.env"))
-
+load_dotenv()
+# run using python -m MCP.server
 
 ARXIV_NAMESPACE = "{http://www.w3.org/2005/Atom}"
 LLM = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -70,8 +71,7 @@ def wiki_search(query: str, sentences: int = 2) -> str:
 )
 def save_txt(text: str, filename: str = "output.txt") -> str:
     """Saves the provided text to a .txt file."""
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    formatted_text = f"--- Research Output ---\nTimestamp: {timestamp}\n\n{text}\n\n"
+    formatted_text = f"--- Research Output ---\nTimestamp: \n\n{text}\n\n"
 
     with open(filename, "a", encoding="utf-8") as f:
         f.write(formatted_text)
@@ -91,8 +91,19 @@ def writer_tool(query: str, context: str) -> str:
             {
                 "role": "developer",
                 "content": f"""
-                        You are an expert essay writer, you take in essay writing request on a given topic and write it.
-                        Here is some useful information about the request:
+                        You are an expert essay writer, you take in essay writing request on a given topic and write it. 
+                        You MUST effectively communicate the topic in a clear and engaging manner.
+                        You MUST use the context provided to inform your response.
+                        You will be given some context in the format of the list of dictionaries.
+                        Here is an example context:
+                        [
+                       dict('name': tool_call_name, 'arguments': dict(argument: value), 'result': result, error: boolean), 
+                       dict('name': tool_call_name, 'arguments': dict(argument: value), 'result': result, error: boolean), 
+                       dict('name': tool_call_name, 'arguments': dict(argument: value), 'result': result, error: boolean), 
+                        ]
+                        Within the context FOCUS ONLY on using the results of the tools to inform your response.
+                        
+                        Here is the context.
                         {context}
                         """,
             },
@@ -101,16 +112,16 @@ def writer_tool(query: str, context: str) -> str:
                 "content": query,
             },
         ],
-        text_format=str,
+        text_format=WriteResponse,
     )
-    return response
+    return response.output_parsed.content
 
 
 @mcp.tool(
     name="review_tool",
     description="Reviews content on a given topic",
 )
-def review_tool(content: str, context: str) -> str:
+def review_tool(content: str) -> str:
     """"""
     response = LLM.responses.parse(
         model="gpt-4.1-mini",
@@ -118,25 +129,26 @@ def review_tool(content: str, context: str) -> str:
             {
                 "role": "developer",
                 "content": f"""
-                        You are an expert essay reviewer, you take in essay and previous tool results (context) and review it.
-                        Here is the context: {context}
+                        You are an expert content reviewer, you take in some content and review it for quality and update anything you see fit.
+                        Here is the content: {content}
                         """,
             },
             {
                 "role": "user",
-                "content": content,
+                "content": "Ensure the content is quality and well written and communicates a point effectively. Update my content only if needed.",
             },
         ],
-        text_format=str,
+        text_format=ReviewResponse,
     )
-    return response
+    logger.info(f"THOUGHT: {response.output_parsed.thought}")
+    return response.output_parsed.content
 
 
 @mcp.tool(
     name="assemble_content",
-    description="Assamble content from previous tools (context) and current content state",
+    description="Assamble content from previous tasks",
 )
-def assemble_content(content: str, context: str) -> str:
+def assemble_content(content: str) -> str:
     """"""
     response = LLM.responses.parse(
         model="gpt-4.1-mini",
@@ -155,17 +167,17 @@ def assemble_content(content: str, context: str) -> str:
                         ]
                         You must assmple the context into something like this:
                         "A intro paragraph written on a topic, A paragraph written on a topic with previous task results ..."
-                        Here is the context: {context}
+                        Here is the context: {content}
                         """,
             },
             {
                 "role": "user",
-                "content": "Assemble the context into",
+                "content": "Assemble the context into a clear and coherent narrative.",
             },
         ],
-        text_format=str,
+        text_format=AssembledResponse,
     )
-    return response
+    return response.output_parsed.content
 
 
 @mcp.tool(name="arxiv_search", description="Search arxiv")
