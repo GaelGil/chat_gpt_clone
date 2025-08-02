@@ -34,6 +34,9 @@ class PlannerTask(BaseModel):
     tool_suggestions: str = Field(
         description="A list of tool suggestions to be executed."
     )
+    thought: str = Field(
+        description="A explanation of what needs to be done and how. Includes description and tool calls."
+    )
     status: Optional[
         Literal[
             "input_required",
