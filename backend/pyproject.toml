@@ -1,0 +1,19 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "Flask-Bcrypt==1.0.1",
+    "flask-cors==6.0.1",
+    "Flask-JWT-Extended==4.7.1",
+    "Flask-Migrate==4.1.0",
+    "pipdeptree==2.26.1",
+    "psycopg2-binary==2.9.10",
+    "anthropic==0.60.0",
+    "flask_socketio==5.5.1",
+    "dotenv==0.9.9",
+    "composio==0.8.5",
+    "composio-anthropic==0.8.5"
+]
