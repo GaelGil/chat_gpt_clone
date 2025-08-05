@@ -89,8 +89,11 @@ class ChatService:
             print(
                 f"Starting conversation history with {len(conversation_history)} messages"
             )
-
-            final_response = self._handle_response_chain(response, conversation_history)
+            # create a plan
+            plan = self.planner.plan(user_message)
+            final_response = self._handle_response_chain(
+                plan, response, conversation_history
+            )
 
             print("\n=== CHAT SERVICE: Processing complete ===")
             print(f"Final response blocks: {len(final_response.get('blocks', []))}")
@@ -108,11 +111,12 @@ class ChatService:
             print(f"Traceback: {traceback.format_exc()}")
             return {"success": False, "error": str(e)}
 
-    def _handle_response_chain(self, response, conversation_history):
+    def _handle_response_chain(self, plan, response, conversation_history):
         """
         Handle the full response chain including tool calls, following agent.py logic.
         Returns structured response data.
         """
+
         print("\n--- Starting response chain handling ---")
         response_blocks = []
         iteration = 0
