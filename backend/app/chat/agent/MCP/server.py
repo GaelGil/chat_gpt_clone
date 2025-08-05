@@ -9,7 +9,12 @@ from dotenv import load_dotenv
 
 # from pathlib import Path
 import os
-from utils.schemas import AssembledResponse, ReviewResponse, WriteResponse
+from app.chat.schemas import (
+    AssembledResponse,
+    ReviewResponse,
+    WriteResponse,
+    FinalResponse,
+)
 
 load_dotenv()
 # run using python -m MCP.server
@@ -25,18 +30,6 @@ mcp = FastMCP(
     host="0.0.0.0",  # only used for SSE transport (localhost)
     port=8050,  # only used for SSE transport (set this to any port)
 )
-
-
-@mcp.tool(
-    name="get_weather",
-    description="Get current temperature for provided coordinates in celsius",
-)
-def get_weather(latitude, longitude):
-    response = requests.get(
-        f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
-    )
-    data = response.json()
-    return data["current"]
 
 
 @mcp.tool(
@@ -71,7 +64,41 @@ def wiki_search(query: str, sentences: int = 2) -> str:
 )
 def save_txt(text: str, filename: str = "output.txt") -> str:
     """Saves the provided text to a .txt file."""
-    formatted_text = f"--- Research Output ---\nTimestamp: \n\n{text}\n\n"
+    response = LLM.responses.parse(
+        model="gpt-4.1-mini",
+        input=[
+            {
+                "role": "developer",
+                "content": f"""
+                        You are an expert essay writer, you take in essay writing request on a given topic and write it. 
+                        You MUST effectively communicate the topic in a clear and engaging manner.
+                        You MUST use the context provided to inform your response.
+                        Here is an example context:
+                        
+                       task_id: 1
+                       task: Write a paragraph on topic
+                       results: A paragraph written on a topic
+
+                       task_id: 2
+                       task: Write a paragraph on topic
+                       results: A paragraph written on a topic
+
+                       ...
+                        You must assmple the context into something like this:
+                        "A intro paragraph written on a topic, A paragraph written on a topic with previous task results ..."
+                        {text}
+                        """,
+            },
+            {
+                "role": "user",
+                "content": "You must combine this into its final draft",
+            },
+        ],
+        text_format=FinalResponse,
+    )
+    formatted_text = (
+        f"--- Research Output ---\nTimestamp: \n\n{response.output_parsed.content}\n\n"
+    )
 
     with open(filename, "a", encoding="utf-8") as f:
         f.write(formatted_text)
@@ -94,14 +121,19 @@ def writer_tool(query: str, context: str) -> str:
                         You are an expert essay writer, you take in essay writing request on a given topic and write it. 
                         You MUST effectively communicate the topic in a clear and engaging manner.
                         You MUST use the context provided to inform your response.
-                        You will be given some context in the format of the list of dictionaries.
                         Here is an example context:
-                        [
-                       dict('name': tool_call_name, 'arguments': dict(argument: value), 'result': result, error: boolean), 
-                       dict('name': tool_call_name, 'arguments': dict(argument: value), 'result': result, error: boolean), 
-                       dict('name': tool_call_name, 'arguments': dict(argument: value), 'result': result, error: boolean), 
-                        ]
-                        Within the context FOCUS ONLY on using the results of the tools to inform your response.
+                        
+                       task_id: 1
+                       task: Write a paragraph on topic
+                       results: A paragraph written on a topic
+
+                       task_id: 2
+                       task: Write a paragraph on topic
+                       results: A paragraph written on a topic
+
+                       ...
+                        
+                        YOU MUST USE THE CONTEXT PROVIDED TO INFORM YOUR RESPONSE
                         
                         Here is the context.
                         {context}
@@ -158,13 +190,17 @@ def assemble_content(content: str) -> str:
                 "content": f"""
                         You are an expert content assembler, you take in some content at its current state
                         and assemble it into well written content to effectively communitcate an idea.
-                        You will be given some context in the format of a list of dictionaries. Here is an
-                        example context:
-                        [
-                        dict('task_id': 1, 'task': "write a intro paragraph on topic", 'results': "A intro paragraph written on a topic"),
-                        dict('task_id': 2, 'task': "write a paragraph on topic with previous task results", 'results': "A paragraph written on a topic with previous task results"),
-                        ...
-                        ]
+                        Here is an example context:
+                        
+                       task_id: 1
+                       task: Write a paragraph on topic
+                       results: A paragraph written on a topic
+
+                       task_id: 2
+                       task: Write a paragraph on topic
+                       results: A paragraph written on a topic
+
+                       ...
                         You must assmple the context into something like this:
                         "A intro paragraph written on a topic, A paragraph written on a topic with previous task results ..."
                         Here is the context: {content}

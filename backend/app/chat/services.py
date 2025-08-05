@@ -13,6 +13,7 @@ from backend.app.chat.agent.PlannerAgent import PlannerAgent  # type: ignore
 from app.chat.prompts import PLANNER_AGENT_PROMPT
 from app.chat.agent.OpenAIClient import OpenAIClient
 from app.chat.agent.MCP.client import MCPClient
+from app.chat.agent.Executor import Executor
 from app.chat.schemas import InitialResponse
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -111,16 +112,19 @@ class ChatService:
             print(f"Traceback: {traceback.format_exc()}")
             return {"success": False, "error": str(e)}
 
-    def _handle_response_chain(self, plan, response, conversation_history):
+    async def _handle_response_chain(self, plan, response, conversation_history):
         """
         Handle the full response chain including tool calls, following agent.py logic.
         Returns structured response data.
         """
-
+        executor = Executor(self.mcp_client)
         print("\n--- Starting response chain handling ---")
         response_blocks = []
         iteration = 0
 
+        res = await executor.execute_plan(plan)
+
+        print(f"Response content blocks: {len(res)}")
         while response.stop_reason == "tool_use":
             iteration += 1
             print(f"\n*** ITERATION {iteration} ***")
