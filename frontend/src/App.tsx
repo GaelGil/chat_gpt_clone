@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
-import Home from "./pages/Home";
+// import Home from "./pages/Home";
 import AuthPage from "./pages/Auth";
 import ProfilePage from "./pages/Profile";
 import ChatInterface from "./components/Chat/ChatInterface";
@@ -12,8 +12,8 @@ function App() {
 
       <main className="flex-grow">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/chat" element={<ChatInterface />} />
+          <Route path="/" element={<ChatInterface />} />
+          {/* <Route path="/chat" element={<ChatInterface />} /> */}
           <Route path="/login" element={<AuthPage />} />
           <Route element={<PrivateRoute />}>
             <Route path="/profile/:userId" element={<ProfilePage />} />
