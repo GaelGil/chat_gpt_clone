@@ -48,34 +48,6 @@ class Executor:
               Previous Task Results: {self.previous_task_results}
         """)
 
-    def format_tool_results_to_markdown(tool_results: list[dict]) -> str:
-        output = []
-        for i in range(len(tool_results)):
-            tool_result = tool_results[i]
-            tool_results_formated = f""" 
-                ## Tool: {tool_result["name"]}
-                - **Arguments:** {tool_result["arguments"]}
-                - **Result:** {tool_result["result"]}  
-                - **Error:** {tool_result["error"]}                    
-                """
-
-            output.append(tool_results_formated)
-
-        return "\n".join(output)
-
-    def format_tool_calls_to_markdown(tool_calls: list[dict]) -> str:
-        output = []
-        for i in range(len(tool_calls)):
-            tool_result = tool_calls[i]
-            tool_results_formated = f""" 
-                ## Tool: {tool_result["name"]}
-                - **Arguments:** {tool_result["arguments"]}
-                - **Result:** {tool_result["result"]}  
-                - **Error:** {tool_result["error"]}                    
-                """
-            output.append(tool_results_formated)
-        return "\n".join(output)
-
     def format_tasks_results_markdown(self) -> str:
         output = []
         for i in range(len(self.previous_task_results)):
@@ -224,15 +196,11 @@ class Executor:
         for key, value in zip(keys, values):
             # --- Tool-specific overrides ---
             if name in ("review_tool", "assemble_content") and key == "content":
-                tool["arguments"]["content"] = self.format_tasks_results_markdown(
-                    self.previous_task_results
-                )
+                tool["arguments"]["content"] = self.format_tasks_results_markdown()
 
             elif name == "writer_tool":
                 if key == "content":
-                    tool["arguments"]["context"] = self.format_tasks_results_markdown(
-                        self.previous_task_results
-                    )
+                    tool["arguments"]["context"] = self.format_tasks_results_markdown()
                 elif key == "query":
                     tool["arguments"]["query"] = value
                 else:
@@ -261,6 +229,9 @@ class Executor:
         Returns:
             A list of results
         """
+        print(f"Executing plan: {plan}")
+        print(f"plan dir: {dir(plan)}")
+        print()
         self.print_plan(plan)  # print the plan
         results = [
             {
