@@ -1,6 +1,4 @@
-import anthropic  # type: ignore
 import json
-from app.agent.tools.example import weather  # type: ignore
 from app.agent.tools.functions import (  # type: ignore
     analyze_results,
     analyze_user_account,
@@ -10,41 +8,60 @@ from app.agent.tools.functions import (  # type: ignore
     parse_composio_event_search_results,
 )
 from app.agent.tools.definitions import tool_definitions  # type: ignore
-from app.chat.schemas import Plan  # type: ignore
 from composio import Composio  # type: ignore
 from backend.app.chat.agent.PlannerAgent import PlannerAgent  # type: ignore
 from app.chat.prompts import PLANNER_AGENT_PROMPT
 from app.chat.agent.OpenAIClient import OpenAIClient
+from app.chat.agent.MCP.client import MCPClient
+from app.chat.schemas import InitialResponse
+from openai import OpenAI
 from dotenv import load_dotenv
+from typing import Tuple
 from pathlib import Path
 import os
 
 load_dotenv(Path("../../.env"))
 
 
-planner = PlannerAgent(
-    dev_prompt=PLANNER_AGENT_PROMPT,
-    llm=OpenAIClient(api_key=os.getenv("OPENAI_API_KEY")).get_client(),
-    messages=[],
-    tools=tools,
-    model_name="gpt-4.1-mini",
-)
-
-
 class ChatService:
     def __init__(self):
-        # Initialize the Anthropic client
-        self.client = anthropic.Anthropic()
-        self.model_name = "claude-sonnet-4-20250514"
-        self.max_tokens = 4000
-        self.thinking_budget_tokens = 2000
-
-        # Initialize Composio
+        self.planner: PlannerAgent = None
+        self.mcp_client: MCPClient = None
+        self.llm: OpenAI = None
+        self.model_name: str = "gpt-4.1-mini"
         self.composio = Composio()
         self.user_id = "0000-1111-2222"
-
-        # Define tools (same as agent.py)
         self.tools = tool_definitions
+
+    @classmethod
+    async def create(cls) -> "ChatService":
+        self = cls()
+        planner, mcp_client = await self.initialize_utils()
+        self.planner = planner
+        self.mcp_client = mcp_client
+        return self
+
+    async def initialize_utils(self) -> Tuple[PlannerAgent, MCPClient]:
+        print("Initializing OpenAI client ...")
+        llm = OpenAIClient(api_key=os.getenv("OPENAI_API_KEY")).get_client()
+
+        print("Initializing Planner Agent ...")
+        planner = PlannerAgent(
+            dev_prompt=PLANNER_AGENT_PROMPT,
+            llm=llm,
+            messages=[],
+            tools=self.tools,
+            model_name="gpt-4.1-mini",
+        )
+
+        print("Initializing MCP client ...")
+        mcp_client = MCPClient()
+        await mcp_client.connect()
+
+        print("Getting tools from MCP ...")
+        tools = await mcp_client.get_tools()
+        print(f"Loaded {len(tools)} tools from MCP")
+        return planner, mcp_client
 
     def process_message(self, user_message):
         """
@@ -54,24 +71,18 @@ class ChatService:
         print("\n=== CHAT SERVICE: Processing new message ===")
         print(f"User message: {user_message}")
         print(f"Model: {self.model_name}")
-        print(f"Max tokens: {self.max_tokens}")
 
         try:
             # Initial request (same structure as agent.py)
             print("\n--- Making initial API call to Claude ---")
-            response = self.client.messages.create(
+
+            response = self.llm.responses.parse(
                 model=self.model_name,
-                max_tokens=self.max_tokens,
-                thinking={
-                    "type": "enabled",
-                    "budget_tokens": self.thinking_budget_tokens,
-                },
-                tools=self.tools,
-                messages=[{"role": "user", "content": user_message}],
+                input=[{"role": "user", "content": user_message}],
+                text_format=InitialResponse,
             )
 
-            print(f"Initial response stop_reason: {response.stop_reason}")
-            print(f"Initial response content blocks: {len(response.content)}")
+            print(f"Initial response content blocks: {len(response.output)}")
 
             # Process the response and handle tool calls
             conversation_history = [{"role": "user", "content": user_message}]
