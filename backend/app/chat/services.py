@@ -2,15 +2,33 @@ import anthropic  # type: ignore
 import json
 from app.agent.tools.example import weather  # type: ignore
 from app.agent.tools.functions import (  # type: ignore
-    analyze_results, 
+    analyze_results,
     analyze_user_account,
     parse_composio_search_results,
     parse_composio_finance_search_results,
     parse_composio_news_search_results,
-    parse_composio_event_search_results
+    parse_composio_event_search_results,
 )
 from app.agent.tools.definitions import tool_definitions  # type: ignore
+from app.chat.schemas import Plan  # type: ignore
 from composio import Composio  # type: ignore
+from backend.app.chat.agent.PlannerAgent import PlannerAgent  # type: ignore
+from app.chat.prompts import PLANNER_AGENT_PROMPT
+from app.chat.agent.OpenAIClient import OpenAIClient
+from dotenv import load_dotenv
+from pathlib import Path
+import os
+
+load_dotenv(Path("../../.env"))
+
+
+planner = PlannerAgent(
+    dev_prompt=PLANNER_AGENT_PROMPT,
+    llm=OpenAIClient(api_key=os.getenv("OPENAI_API_KEY")).get_client(),
+    messages=[],
+    tools=tools,
+    model_name="gpt-4.1-mini",
+)
 
 
 class ChatService:
