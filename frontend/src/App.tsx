@@ -1,9 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
-// import Home from "./pages/Home";
 import AuthPage from "./pages/Auth";
 import ProfilePage from "./pages/Profile";
-import ChatInterface from "./components/Chat/ChatInterface";
+import ChatPage from "./pages/Chat";
 
 function App() {
   return (
@@ -12,7 +11,7 @@ function App() {
 
       <main className="flex-grow">
         <Routes>
-          <Route path="/" element={<ChatInterface />} />
+          <Route path="/" element={<ChatPage />} />
           {/* <Route path="/chat" element={<ChatInterface />} /> */}
           <Route path="/login" element={<AuthPage />} />
           <Route element={<PrivateRoute />}>
