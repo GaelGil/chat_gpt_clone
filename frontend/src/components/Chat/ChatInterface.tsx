@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import ChatMessage from "../Chat/ChatMessage";
 import ChatInput from "../Chat/ChatInput";
-import Logo from "../Logo";
+import Logo from "../../data/Logo";
 import { BASE_URL } from "../../api/const";
+import { PROJECT_NAME } from "../../api/const";
 
 export interface ChatBlock {
   type: "thinking" | "redacted_thinking" | "text" | "tool_use" | "tool_result";
@@ -136,7 +137,7 @@ const ChatInterface = () => {
               <Logo size="sm" className="" />
             </div>
             <p className="text-xl p-0 m-0 font-semibold text-gray-900">
-              Rocket Agent
+              {PROJECT_NAME}
             </p>
           </div>
           <div className="flex items-center space-x-3">
@@ -170,19 +171,12 @@ const ChatInterface = () => {
         <div className="max-w-4xl mx-auto px-8 py-6 space-y-6">
           {messages.length === 0 && (
             <div className="text-center py-16">
-              <div className="w-32 h-32 mx-auto mb-6 flex items-center justify-center p-0">
-                <Logo className=" w-48 h-48 " />
-              </div>
               <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                Your Personal Financial Assistant
+                Your Personal Essay Writing Assistant
               </h2>
               <p className="text-gray-600 mb-2 max-w-md mx-auto">
-                I can help you analyze your finances, plan budgets, and make
-                smart financial decisions.
-              </p>
-              <p className="text-sm text-gray-500 mb-8">
-                Ask me about your spending patterns, savings goals, or
-                investment advice!
+                I can help you write an essay on any topic or review an existing
+                essay.
               </p>
             </div>
           )}
