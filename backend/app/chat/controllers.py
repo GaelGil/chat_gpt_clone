@@ -1,7 +1,5 @@
-from flask import Blueprint, jsonify, request # type: ignore
-from app.chat.services import ChatService # type: ignore
-from app.chat.accounts.data import mock_user_data # type: ignore
-import json
+from flask import Blueprint, jsonify, request 
+from app.chat.services import ChatService 
 
 chat = Blueprint("chat", __name__)
 chat_service = ChatService()
