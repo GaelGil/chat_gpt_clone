@@ -37,23 +37,35 @@ const ChatInterface = () => {
   const socket = useRef<Socket | null>(null);
 
   useEffect(() => {
-    socket.current = io("http://localhost:8080/chat");
-
+    socket.current = io("http://localhost:8080", {
+      transports: ["websocket"],
+    });
     socket.current.on("connect", () => {
       console.log("Connected");
     });
 
     socket.current.on("log", (data: { message: string }) => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          role: "assistant",
-          content: data.message,
-          timestamp: new Date(),
-          isLoading: true,
-        },
-      ]);
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        for (let i = newMessages.length - 1; i >= 0; i--) {
+          if (newMessages[i].role === "assistant" && newMessages[i].isLoading) {
+            newMessages[i].content += `\n${data.message}`;
+            return newMessages;
+          }
+        }
+
+        // No loading assistant message found; create one
+        return [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            role: "assistant",
+            content: data.message,
+            timestamp: new Date(),
+            isLoading: true,
+          },
+        ];
+      });
     });
 
     socket.current.on("final_response", (data) => {
@@ -63,8 +75,7 @@ const ChatInterface = () => {
           if (newMessages[i].role === "assistant" && newMessages[i].isLoading) {
             newMessages[i] = {
               ...newMessages[i],
-              content: "Assistant response", // or data.response content
-              response: data.response,
+              content: newMessages[i].content + "\n\n" + data.response,
               isLoading: false,
               timestamp: new Date(),
             };
@@ -82,6 +93,12 @@ const ChatInterface = () => {
       socket.current?.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   // Replace fetch with socket emit:
   const sendMessage = (content: string) => {
