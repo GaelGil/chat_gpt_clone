@@ -7,8 +7,6 @@ from app.chat.agent.Executor import Executor
 from app.chat.agent.schemas import InitialResponse
 from openai import OpenAI
 from dotenv import load_dotenv
-
-# from typing import Tuple
 from pathlib import Path
 import os
 
