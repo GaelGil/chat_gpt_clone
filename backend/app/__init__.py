@@ -3,6 +3,7 @@ from app.config import Config  # type: ignore
 from app.extensions import db, bcrypt, jwt, migrate, socketio, blacklist  # type: ignore
 from app.routes import register_routes  # type: ignore
 from flask_cors import CORS  # type: ignore
+from app.socket_events import ChatNamespace
 
 
 @jwt.token_in_blocklist_loader
@@ -25,6 +26,7 @@ def create_app():
         resources={r"/*": {"origins": "http://localhost:5173"}},
         supports_credentials=True,
     )
+    socketio.on_namespace(ChatNamespace("/chat"))
 
     with app.app_context():
         from app.user import models as user_models  # type: ignore
