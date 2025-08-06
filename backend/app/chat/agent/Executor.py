@@ -7,9 +7,21 @@ class Executor:
     """Executor Class.
 
     Methods:
+        __init__(self, mcp_client: MCPClient)
+        execute_plan(self, plan: Plan)
+        execute_task(self, task: PlannerTask)
+        print_plan(self, plan: Plan)
+        print_task(self, task: PlannerTask)
+        print_tool_calll(self, tool_call: dict)
+        format_tasks_results_markdown(self)
+        extract_tools(self, tool_call: ToolCall)
+        call_tools(self, tool_calls: list)
 
 
     Attributes:
+        mcp_client: MCPClient
+        tool_call_history: list
+        previous_task_results: list[dict]
 
 
     """
@@ -17,6 +29,10 @@ class Executor:
     def __init__(self, mcp_client: MCPClient):
         """
         Initialize the orchestrator
+        Args:
+            mcp_client: MCPClient
+        Returns:
+            None
         """
         self.mcp_client = mcp_client
         self.tool_call_history: list = []
@@ -78,6 +94,14 @@ class Executor:
         self.logs.append(log)
 
     def format_tasks_results_markdown(self) -> str:
+        """Format the task results as markdown
+
+        Args:
+            task_results: The task results to format.
+
+        Returns:
+            str: The formatted task results as markdown.
+        """
         output = []
         for i in range(len(self.previous_task_results)):
             task_result = self.previous_task_results[i]
@@ -208,7 +232,11 @@ class Executor:
     def extract_tools(self, tool_call: ToolCall) -> dict:
         """
         Extracts tool name and its arguments from a tool_call object,
-        applying special rules for known tools like review_tool, writer_tool, and save_txt.
+        and returns a dictionary with the tool name and arguments
+        Args:
+            tool_call: ToolCall object
+        Returns:
+            dict: Dictionary with tool name and arguments
         """
         name = tool_call.name.split(".")[-1]
 
