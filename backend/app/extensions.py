@@ -5,7 +5,6 @@ from flask_bcrypt import Bcrypt
 from flask_socketio import SocketIO
 
 db = SQLAlchemy()
-migrate = Migrate()
 jwt = JWTManager()
 bcrypt = Bcrypt()
 migrate = Migrate()

@@ -1,11 +1,10 @@
-from app.agent.tools.definitions import tool_definitions  # type: ignore
 from composio import Composio  # type: ignore
 from app.chat.agent.PlannerAgent import PlannerAgent  # type: ignore
-from backend.app.chat.agent.prompts import PLANNER_AGENT_PROMPT
+from app.chat.agent.prompts import PLANNER_AGENT_PROMPT
 from app.chat.agent.OpenAIClient import OpenAIClient
 from app.chat.agent.MCP.client import MCPClient
 from app.chat.agent.Executor import Executor
-from backend.app.chat.agent.schemas import InitialResponse
+from app.chat.agent.schemas import InitialResponse
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -21,10 +20,10 @@ class ChatService:
         self.planner: PlannerAgent = None
         self.mcp_client: MCPClient = None
         self.llm: OpenAI = None
+        self.tools = None
         self.model_name: str = "gpt-4.1-mini"
         self.composio = Composio()
         self.user_id = "0000-1111-2222"
-        self.tools = tool_definitions
 
     async def process_message(self, user_message):
         """
