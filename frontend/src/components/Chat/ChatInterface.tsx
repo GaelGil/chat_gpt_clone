@@ -4,7 +4,7 @@ import ChatInput from "../Chat/ChatInput";
 import Logo from "../../data/Logo";
 import { BASE_URL } from "../../api/const";
 import { PROJECT_NAME } from "../../api/const";
-
+import { io, Socket } from "socket.io-client";
 export interface ChatBlock {
   type: "thinking" | "redacted_thinking" | "text" | "tool_use" | "tool_result";
   content?: string;
@@ -36,7 +36,7 @@ const ChatInterface = () => {
   const [showFinancialPanel, setShowFinancialPanel] = useState(true);
   const [isFinancialCollapsed, setIsFinancialCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  const socket = useRef<Socket | null>(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -44,6 +44,35 @@ const ChatInterface = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    // Only run once to connect to socket
+    socket.current = io("http://localhost:8080/chat");
+
+    socket.current.on("connect", () => {
+      console.log("🔌 Connected to WebSocket server");
+    });
+    socket.current.on("log", (data: { message: string }) => {
+      const streamedMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: data.message,
+        timestamp: new Date(),
+        isLoading: true, // optional – you can use this to style it differently
+      };
+
+      setMessages((prev) => [...prev, streamedMessage]);
+    });
+
+    socket.current.on("disconnect", () => {
+      console.log("❌ Disconnected from WebSocket server");
+    });
+
+    return () => {
+      socket.current?.off("log");
+      socket.current?.disconnect();
+    };
+  }, []);
 
   const sendMessage = async (content: string) => {
     if (!content.trim() || isLoading) return;
@@ -189,6 +218,7 @@ const ChatInterface = () => {
       </div>
 
       {/* Input */}
+
       <div className="border-t border-gray-100 bg-white">
         <div className="max-w-4xl mx-auto px-8 py-6">
           <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
