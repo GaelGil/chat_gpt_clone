@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 # from pathlib import Path
 import os
-from app.chat.schemas import (
+from backend.app.chat.agent.schemas import (
     AssembledResponse,
     ReviewResponse,
     WriteResponse,

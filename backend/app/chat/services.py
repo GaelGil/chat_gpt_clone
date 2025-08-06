@@ -1,11 +1,11 @@
 from app.agent.tools.definitions import tool_definitions  # type: ignore
 from composio import Composio  # type: ignore
 from app.chat.agent.PlannerAgent import PlannerAgent  # type: ignore
-from app.chat.prompts import PLANNER_AGENT_PROMPT
+from backend.app.chat.agent.prompts import PLANNER_AGENT_PROMPT
 from app.chat.agent.OpenAIClient import OpenAIClient
 from app.chat.agent.MCP.client import MCPClient
 from app.chat.agent.Executor import Executor
-from app.chat.schemas import InitialResponse
+from backend.app.chat.agent.schemas import InitialResponse
 from openai import OpenAI
 from dotenv import load_dotenv
 
