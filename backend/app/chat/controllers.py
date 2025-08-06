@@ -1,28 +1,29 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, Response, stream_with_context
 from app.chat.services import ChatService
-import asyncio
 
 chat = Blueprint("chat", __name__)
 chat_service = ChatService()
 
 
 @chat.route("/message", methods=["POST"])
-def send_message():
-    """Send a message to the AI agent and get a streaming response."""
-    try:
-        data = request.get_json()
-        message = data.get("message")
+def send_message_stream():
+    data = request.get_json()
+    message = data.get("message")
 
-        if not message:
-            return jsonify({"error": "Message is required"}), 400
+    if not message:
+        return jsonify({"error": "Message is required"}), 400
 
-        # Get response from agent
-        response_data = asyncio.run(chat_service.process_message(message))
+    async def process_stream():
+        try:
+            async for line in chat_service.stream_message(message):
+                yield f"data: {line}\n\n"
+        except Exception as e:
+            yield f"data: ERROR: {str(e)}\n\n"
 
-        return jsonify(response_data), 200
-
-    except Exception as e:
-        return jsonify({"error": f"Failed to process message: {str(e)}"}), 500
+    return Response(
+        stream_with_context(process_stream()),
+        mimetype="text/event-stream",
+    )
 
 
 @chat.route("/health", methods=["GET"])
