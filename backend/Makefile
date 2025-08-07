@@ -19,4 +19,4 @@ run:
 .PHONY: mcp
 mcp:
 	@echo "Starting application..."
-	.venv/bin/python -m app.chat.agent.mcp_client_server.server
+	.venv/bin/python -m app.chat.agent.MCP.server

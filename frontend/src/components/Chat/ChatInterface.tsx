@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import ChatMessage from "../Chat/ChatMessage";
 import ChatInput from "../Chat/ChatInput";
 import Logo from "../../data/Logo";
-// import { BASE_URL } from "../../api/const";
+import { BASE_URL } from "../../api/const";
 import { PROJECT_NAME } from "../../api/const";
 import { io, Socket } from "socket.io-client";
 export interface ChatBlock {
@@ -33,75 +33,48 @@ export interface Message {
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showFinancialPanel, setShowFinancialPanel] = useState(true);
+  const [isFinancialCollapsed, setIsFinancialCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socket = useRef<Socket | null>(null);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    socket.current = io("http://localhost:8080", {
-      transports: ["websocket"],
-    });
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    // Only run once to connect to socket
+    socket.current = io("http://localhost:8080/chat");
+
     socket.current.on("connect", () => {
-      console.log("Connected");
+      console.log("🔌 Connected to WebSocket server");
     });
-
     socket.current.on("log", (data: { message: string }) => {
-      setMessages((prev) => {
-        const newMessages = [...prev];
-        for (let i = newMessages.length - 1; i >= 0; i--) {
-          if (newMessages[i].role === "assistant" && newMessages[i].isLoading) {
-            newMessages[i].content += `\n${data.message}`;
-            return newMessages;
-          }
-        }
+      const streamedMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: data.message,
+        timestamp: new Date(),
+        isLoading: true, // optional – you can use this to style it differently
+      };
 
-        // No loading assistant message found; create one
-        return [
-          ...prev,
-          {
-            id: Date.now().toString(),
-            role: "assistant",
-            content: data.message,
-            timestamp: new Date(),
-            isLoading: true,
-          },
-        ];
-      });
+      setMessages((prev) => [...prev, streamedMessage]);
     });
 
-    socket.current.on("final_response", (data) => {
-      setMessages((prev) => {
-        const newMessages = [...prev];
-        for (let i = newMessages.length - 1; i >= 0; i--) {
-          if (newMessages[i].role === "assistant" && newMessages[i].isLoading) {
-            newMessages[i] = {
-              ...newMessages[i],
-              content: newMessages[i].content + "\n\n" + data.response,
-              isLoading: false,
-              timestamp: new Date(),
-            };
-            break;
-          }
-        }
-        return newMessages;
-      });
-      setIsLoading(false);
+    socket.current.on("disconnect", () => {
+      console.log("❌ Disconnected from WebSocket server");
     });
 
     return () => {
       socket.current?.off("log");
-      socket.current?.off("final_response");
       socket.current?.disconnect();
     };
   }, []);
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-
-  // Replace fetch with socket emit:
-  const sendMessage = (content: string) => {
+  const sendMessage = async (content: string) => {
     if (!content.trim() || isLoading) return;
 
     const userMessage: Message = {
@@ -111,10 +84,75 @@ const ChatInterface = () => {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const loadingMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      role: "assistant",
+      content: "Thinking...",
+      timestamp: new Date(),
+      isLoading: true,
+    };
+
+    setMessages((prev) => [...prev, userMessage, loadingMessage]);
     setIsLoading(true);
 
-    socket.current?.emit("user_message", { message: content });
+    try {
+      const response = await fetch(`${BASE_URL}/api/chat/message`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: content }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        const assistantMessage: Message = {
+          id: (Date.now() + 2).toString(),
+          role: "assistant",
+          content: "Assistant response",
+          response: data.response,
+          timestamp: new Date(),
+        };
+
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = assistantMessage;
+          return newMessages;
+        });
+      } else {
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = {
+            ...newMessages[newMessages.length - 1],
+            content: `Error: ${data.error}`,
+            isLoading: false,
+          };
+          return newMessages;
+        });
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        newMessages[newMessages.length - 1] = {
+          ...newMessages[newMessages.length - 1],
+          content: `Error: Failed to send message`,
+          isLoading: false,
+        };
+        return newMessages;
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleFinancialPanel = () => {
+    if (isFinancialCollapsed) {
+      setIsFinancialCollapsed(false);
+    } else {
+      setShowFinancialPanel(!showFinancialPanel);
+    }
   };
 
   return (
@@ -130,6 +168,29 @@ const ChatInterface = () => {
             <p className="text-xl p-0 m-0 font-semibold text-gray-900">
               {PROJECT_NAME}
             </p>
+          </div>
+          <div className="flex items-center space-x-3">
+            {!showFinancialPanel && (
+              <button
+                onClick={toggleFinancialPanel}
+                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 border border-gray-200"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+                <span>Show Dashboard</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
