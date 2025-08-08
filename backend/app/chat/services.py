@@ -4,7 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from composio import Composio  # type: ignore
 from app.chat.agent.PlannerAgent import PlannerAgent  # type: ignore
-from app.chat.agent.prompts import PLANNER_AGENT_PROMPT, DECIDER_PROMPT
+from app.chat.agent.prompts import PLANNER_AGENT_PROMPT
 from app.chat.agent.OpenAIClient import OpenAIClient
 from app.chat.agent.MCP.client import MCPClient
 from app.chat.agent.schemas import Plan, ToolCall, PlannerTask
@@ -63,18 +63,7 @@ class ChatService:
         try:
             print("\n--- Making initial API call to OpenAI ---")
             # response: ParsedResponse[Plan] = self.planner.plan(user_message)
-            response: ParsedResponse[Plan] = self.llm.responses.parse(
-                model=self.model_name,
-                input=[
-                    {
-                        "role": "developer",
-                        "content": DECIDER_PROMPT,
-                    },
-                    {"role": "user", "content": user_message},
-                ],
-                tools=self.tools,
-                text_format=Plan,
-            )
+            response: ParsedResponse[Plan] = self.planner.plan(user_message)
 
             print(
                 f"Initial response content blocks: {len(response.output_parsed.tasks)}"
