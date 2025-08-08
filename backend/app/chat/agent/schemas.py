@@ -53,6 +53,10 @@ class PlannerTask(BaseModel):
             "not_started",
         ]
     ] = Field(default="input_required", description="Status of the task")
+    stop: Literal[
+        True,
+        False,
+    ] = Field(default=False, description="If this is the last task in the plan")
 
 
 class Plan(BaseModel):

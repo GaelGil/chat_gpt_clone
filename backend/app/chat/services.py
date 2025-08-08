@@ -10,7 +10,7 @@ from app.chat.agent.OpenAIClient import OpenAIClient
 from app.chat.agent.MCP.client import MCPClient
 
 # from app.chat.agent.Executor import Executor
-from app.chat.agent.schemas import Plan, ToolCall, PlannerTask, NextStep
+from app.chat.agent.schemas import Plan, ToolCall, PlannerTask
 from openai.types.responses import ParsedResponse
 
 load_dotenv(Path("../../.env"))
@@ -26,6 +26,7 @@ class ChatService:
         self.model_name: str = "gpt-4.1-mini"
         self.composio = Composio()
         self.user_id = "0000-1111-2222"
+        self.plan_copy = None
 
     async def init_chat_services(self):
         print("Initializing MCP client ...")
@@ -60,7 +61,7 @@ class ChatService:
         try:
             print("\n--- Making initial API call to OpenAI ---")
             # response: ParsedResponse[Plan] = self.planner.plan(user_message)
-            response: ParsedResponse[NextStep] = self.llm.responses.parse(
+            response: ParsedResponse[Plan] = self.llm.responses.parse(
                 model=self.model_name,
                 input=[
                     {
@@ -70,7 +71,7 @@ class ChatService:
                     {"role": "user", "content": user_message},
                 ],
                 tools=self.tools,
-                text_format=NextStep,
+                text_format=Plan,
             )
 
             print(f"Initial response content blocks: {len(response.output_parsed)}")
@@ -80,8 +81,9 @@ class ChatService:
             print(
                 f"Starting conversation history with {len(conversation_history)} messages"
             )
+            self.plan_copy = response.output_parsed
             final_response = await self._handle_response_chain(
-                response.output_parsed, conversation_history, user_message
+                response.output_parsed, conversation_history
             )
 
             print("\n=== CHAT SERVICE: Processing complete ===")
@@ -101,7 +103,7 @@ class ChatService:
             return {"success": False, "error": str(e)}
 
     async def _handle_response_chain(
-        self, response: NextStep, conversation_history: list[dict], user_message: str
+        self, plan: Plan, conversation_history: list[dict]
     ):
         """
         Handle the full response chain including tool calls, following agent.py logic.
@@ -110,14 +112,8 @@ class ChatService:
         print("\n--- Starting response chain handling ---")
         response_blocks = []
         iteration = 0
-        while response.step != "stop":
-            plan: Plan = self.planner.plan(user_message=user_message)
-            results = [
-                {
-                    "task": "No task yet",
-                    "results": "No task results yet",
-                }
-            ]  # list to hold results of each task execution.
+        while plan.tasks:
+            iteration += 1
             for i in range(len(plan.tasks)):  # iterate through tasks
                 task: PlannerTask = plan.tasks[i]  # select the task
                 current_blocks = []
@@ -125,7 +121,7 @@ class ChatService:
                     {
                         "type": "thinking",
                         "content": task.thought,
-                        "iteration": i,
+                        "iteration": iteration,
                     }
                 )
                 current_blocks.append(
@@ -133,7 +129,7 @@ class ChatService:
                         "type": "tool_calls",
                         "task": task.description,
                         "tool_name": task.tool_calls,
-                        "iteration": i,
+                        "iteration": iteration,
                     }
                 )
 
@@ -183,10 +179,13 @@ class ChatService:
                         print(f"Tool input: {arguments}")
 
                         if not name:
-                            results.append(
+                            response_blocks.append(
                                 {
-                                    "error": True,
-                                    "message": "Tool call missing 'name' field",
+                                    "type": "tool_result",
+                                    "tool_name": "None",
+                                    "tool_input": "None",
+                                    "tool_result": "None",
+                                    "iteration": iteration,
                                 }
                             )
                             continue
@@ -200,6 +199,7 @@ class ChatService:
                                 "tool_name": name,
                                 "tool_input": arguments,
                                 "tool_result": result,
+                                "iteration": iteration,
                             }
                         )
 
@@ -226,48 +226,40 @@ class ChatService:
                     )
 
                     # Continue the conversation
-                    print("*** CONTINUING CONVERSATION AFTER TOOL USE ***")
-                    response = self.llm.responses.parse(
-                        model=self.model_name,
-                        tools=self.tools,
-                        system=DECIDER_PROMPT,
-                        input=conversation_history,
-                        text_format=NextStep,
-                    )
+                    # print("*** CONTINUING CONVERSATION AFTER TOOL USE ***")
+                    # response = self.llm.responses.parse(
+                    #     model=self.model_name,
+                    #     tools=self.tools,
+                    #     system=DECIDER_PROMPT,
+                    #     input=conversation_history,
+                    #     text_format=NextStep,
+                    # )
+                    del plan.tasks[iteration]
                 else:
                     print("No tool_use block found, breaking loop")
                     break
 
         # Handle final response (no more tool use)
         print("\n*** FINAL RESPONSE PROCESSING ***")
-        print(f"Final stop reason: {response}")
-        if response.step == "stop":
+        print(f"Final stop reason: {len(plan.tasks)} tasks remaining")
+        if len(plan.tasks) == 0:
             final_blocks = []
-            for block in response.output_parsed:
-                if block.type == "thinking":
-                    final_blocks.append(
-                        {
-                            "type": "thinking",
-                            "content": block.thinking,
-                            "iteration": iteration + 1,
-                        }
-                    )
-                elif block.type == "redacted_thinking":
-                    final_blocks.append(
-                        {
-                            "type": "redacted_thinking",
-                            "content": "[Thinking content redacted]",
-                            "iteration": iteration + 1,
-                        }
-                    )
-                elif block.type == "text":
-                    final_blocks.append(
-                        {
-                            "type": "text",
-                            "content": block.text,
-                            "iteration": iteration + 1,
-                        }
-                    )
+            for task in self.plan_copy.tasks:
+                final_blocks.append(
+                    {
+                        "type": "thinking",
+                        "content": task.thought,
+                        "iteration": iteration,
+                    }
+                )
+                final_blocks.append(
+                    {
+                        "type": "tool_calls",
+                        "task": task.description,
+                        "tool_name": task.tool_calls,
+                        "iteration": iteration,
+                    }
+                )
 
             response_blocks.extend(final_blocks)
             print(f"Added {len(final_blocks)} final blocks to response")
@@ -278,7 +270,7 @@ class ChatService:
 
         return {
             "blocks": response_blocks,
-            "stop_reason": response.stop_reason,
+            "stop_reason": f"{len(plan.tasks)} tasks remaining",
             "total_iterations": iteration + 1,
         }
 
