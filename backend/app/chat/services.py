@@ -8,8 +8,10 @@ from app.chat.agent.PlannerAgent import PlannerAgent  # type: ignore
 from app.chat.agent.prompts import PLANNER_AGENT_PROMPT
 from app.chat.agent.OpenAIClient import OpenAIClient
 from app.chat.agent.MCP.client import MCPClient
-from app.chat.agent.Executor import Executor
+
+# from app.chat.agent.Executor import Executor
 from app.chat.agent.schemas import Plan
+from openai.types.responses import ParsedResponse
 
 load_dotenv(Path("../../.env"))
 
@@ -56,12 +58,12 @@ class ChatService:
         print(f"User message: {user_message}")
         print(f"Model: {self.model_name}")
         try:
-            # Initial request (same structure as agent.py)
             print("\n--- Making initial API call to OpenAI ---")
-            response: Plan = self.planner.plan(user_message)
+            response: ParsedResponse[Plan] = self.planner.plan(user_message)
 
-            print(f"Initial response stop_reason: {response.stop_reason}")
-            print(f"Initial response content blocks: {len(response.content)}")
+            print(
+                f"Initial response content blocks: {len(response.output_parsed.tasks)}"
+            )
 
             # Process the response and handle tool calls
             conversation_history = [{"role": "user", "content": user_message}]
