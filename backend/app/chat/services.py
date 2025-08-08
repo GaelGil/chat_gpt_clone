@@ -10,7 +10,7 @@ from app.chat.agent.OpenAIClient import OpenAIClient
 from app.chat.agent.MCP.client import MCPClient
 
 # from app.chat.agent.Executor import Executor
-from app.chat.agent.schemas import Plan
+from app.chat.agent.schemas import Plan, ToolCall
 from openai.types.responses import ParsedResponse
 
 load_dotenv(Path("../../.env"))
@@ -352,3 +352,119 @@ class ChatService:
 
             print(f"Traceback: {traceback.format_exc()}")
             return {"error": error_msg}
+
+    async def call_tools(self, tool_calls: list[dict]) -> list[dict]:
+        """Receives a list of tool calls and calls the tools
+
+        Args:
+            tool_calls: Either a list of tool call dicts or a string error message
+
+        Returns:
+            list[dict]: The results of the tool calls or error information
+        """
+        # If we received an error message instead of tool calls
+        if isinstance(tool_calls, str):
+            return [{"error": True, "message": tool_calls}]
+
+        # # Ensure tool_calls is a list
+        if not isinstance(tool_calls, list):
+            return [
+                {
+                    "error": True,
+                    "message": f"Expected list of tool calls, got {type(tool_calls).__name__}",
+                }
+            ]
+        results = []  # Tool call results
+        print("CALLING_TOOLS ... ")
+        for tool in tool_calls:  # For each tool
+            try:  # Try to call the tool
+                if not isinstance(tool, dict):  # If tool is not a dict return error
+                    results.append(
+                        {
+                            "error": True,
+                            "message": f"Expected dict, got {type(tool).__name__}",
+                        }
+                    )
+                    continue
+                # Extract tool name and arguments
+                name = tool["name"]
+                arguments = tool["arguments"]
+                self.print_tool_calll(tool)
+                if not name:
+                    results.append(
+                        {"error": True, "message": "Tool call missing 'name' field"}
+                    )
+                    continue
+
+                # Call the tool through MCP client
+                result = await self.mcp_client.call_tool(name, arguments)
+                # append tool call reults. Includes name, arguments, and result
+                results.append({"result": result})
+                self.tool_call_history.append(
+                    {
+                        "name": name,
+                        "arguments": arguments,
+                        "result": result,
+                        "error": False,
+                    }
+                )
+
+            # Handle exceptions
+            except Exception as e:
+                results.append(
+                    {
+                        "error": True,
+                        "name": name if "name" in locals() else "unknown",
+                        "message": f"Error calling tool: {str(e)}",
+                    }
+                )
+        print(f"TOOL CALL RESULTS: {results}")
+        return results
+
+    def extract_tools(self, tool_call: ToolCall) -> dict:
+        """
+        Extracts tool name and its arguments from a tool_call object,
+        and returns a dictionary with the tool name and arguments
+        Args:
+            tool_call: ToolCall object
+        Returns:
+            dict: Dictionary with tool name and arguments
+        """
+        name = tool_call.name.split(".")[-1]
+
+        tool = {"name": name, "arguments": {}}
+
+        keys = tool_call.arguments.keys
+        values = tool_call.arguments.values
+
+        if len(keys) != len(values):
+            raise ValueError(
+                f"Tool call argument mismatch: keys={keys}, values={values}"
+            )
+
+        for key, value in zip(keys, values):
+            # --- Tool-specific overrides ---
+            if name in ("review_tool", "assemble_content") and key == "content":
+                tool["arguments"]["content"] = self.format_tasks_results_markdown()
+
+            elif name == "writer_tool":
+                if key == "content":
+                    tool["arguments"]["context"] = self.format_tasks_results_markdown()
+                elif key == "query":
+                    tool["arguments"]["query"] = value
+                else:
+                    tool["arguments"][key] = value
+
+            elif name == "save_txt":
+                if key == "text":
+                    tool["arguments"]["text"] = str(self.previous_task_results)
+                elif key == "filename":
+                    tool["arguments"]["filename"] = value
+                else:
+                    tool["arguments"][key] = value
+
+            # --- Default fallback ---
+            else:
+                tool["arguments"][key] = value
+
+        return tool
