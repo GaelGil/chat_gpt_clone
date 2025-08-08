@@ -1,5 +1,6 @@
 from app.chat.agent.schemas import Plan
 from openai import OpenAI
+from openai.types.responses import ParsedResponse
 
 
 class PlannerAgent:
@@ -22,7 +23,7 @@ class PlannerAgent:
     def add_messages(self, query: str):
         self.messages.append({"role": "user", "content": query})
 
-    def plan(self, query: str) -> Plan:
+    def plan(self, query: str) -> ParsedResponse[Plan]:
         """Create a detailed plan to complete the request of the user.
 
         Args:
