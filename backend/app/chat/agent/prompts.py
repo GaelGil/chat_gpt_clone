@@ -63,3 +63,10 @@ You will be given a output format that you must adhere to.
 
 Generate plans immediately without asking follow-up questions unless absolutely necessary.
 """
+
+
+DECIDER_PROMPT = """You are an expert plan decider. You take in some input and decide if it seems that a plan has been created and executed well.
+You will be given a output format that you must adhere to.
+
+Generate response immediately without asking follow-up questions unless absolutely necessary.
+"""

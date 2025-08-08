@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from composio import Composio  # type: ignore
 from app.chat.agent.PlannerAgent import PlannerAgent  # type: ignore
-from app.chat.agent.prompts import PLANNER_AGENT_PROMPT
+from app.chat.agent.prompts import PLANNER_AGENT_PROMPT, DECIDER_PROMPT
 from app.chat.agent.OpenAIClient import OpenAIClient
 from app.chat.agent.MCP.client import MCPClient
 
@@ -62,7 +62,13 @@ class ChatService:
             # response: ParsedResponse[Plan] = self.planner.plan(user_message)
             response: ParsedResponse[NextStep] = self.llm.responses.parse(
                 model=self.model_name,
-                input=self.planner.messages,
+                input=[
+                    {
+                        "role": "developer",
+                        "content": DECIDER_PROMPT,
+                    },
+                    {"role": "user", "content": user_message},
+                ],
                 tools=self.tools,
                 text_format=NextStep,
             )
@@ -75,7 +81,7 @@ class ChatService:
                 f"Starting conversation history with {len(conversation_history)} messages"
             )
             final_response = await self._handle_response_chain(
-                response.output_parsed, conversation_history
+                response.output_parsed, conversation_history, user_message
             )
 
             print("\n=== CHAT SERVICE: Processing complete ===")
@@ -95,7 +101,7 @@ class ChatService:
             return {"success": False, "error": str(e)}
 
     async def _handle_response_chain(
-        self, response: Plan, conversation_history: list[dict]
+        self, response: NextStep, conversation_history: list[dict], user_message: str
     ):
         """
         Handle the full response chain including tool calls, following agent.py logic.
@@ -104,136 +110,140 @@ class ChatService:
         print("\n--- Starting response chain handling ---")
         response_blocks = []
         iteration = 0
-
-        results = [
-            {
-                "task": "No task yet",
-                "results": "No task results yet",
-            }
-        ]  # list to hold results of each task execution.
-        for i in range(len(response.tasks)):  # iterate through tasks
-            task: PlannerTask = response.tasks[i]  # select the task
-            current_blocks = []
-            current_blocks.append(
+        while response.step != "stop":
+            plan: Plan = self.planner.plan(user_message=user_message)
+            results = [
                 {
-                    "type": "thinking",
-                    "content": task.thought,
-                    "iteration": i,
+                    "task": "No task yet",
+                    "results": "No task results yet",
                 }
-            )
-            current_blocks.append(
-                {
-                    "type": "tool_calls",
-                    "task": task.description,
-                    "tool_name": task.tool_calls,
-                    "iteration": i,
-                }
-            )
-
-            response_blocks.extend(current_blocks)
-            print(f"Added {len(current_blocks)} blocks to response")
-
-            assistant_blocks = []
-
-            for j in range(len(response.tasks)):  # iterate through tasks
-                task: PlannerTask = response.tasks[j]  # select the task
-                assistant_blocks.append(task.thought, task.tool_calls)
-
-            conversation_history.append(
-                {"role": "assistant", "content": assistant_blocks}
-            )
-
-            tool_use_blocks: list[dict] = []
-
-            for x in range(len(response.tasks)):  # iterate through tasks
-                task: PlannerTask = response.tasks[x]  # select the task
-                for y in range(len(task.tool_calls)):  # iterate through tools calls
-                    tool_call = task.tool_calls[y]  # seelct the tool call
-                    tool: dict = self.extract_tools(tool_call)
-                    tool_use_blocks.append(tool)  # add tool call to tool use blocks
-
-            if tool_use_blocks:
-                print(f"*** TOOL EXECUTION ({len(tool_use_blocks)} tools) ***")
-                # If we received an error message instead of tool calls
-                if isinstance(tool_use_blocks, str):
-                    return [{"error": True, "message": tool_use_blocks}]
-
-                # # Ensure tool_calls is a list
-                if not isinstance(tool_use_blocks, list):
-                    return [
-                        {
-                            "error": True,
-                            "message": f"Expected list of tool calls, got {type(tool_use_blocks).__name__}",
-                        }
-                    ]
-                    # Collect all tool results
-                tool_results_content = []
-
-                for tool_use_block in tool_use_blocks:
-                    name = tool_use_block["name"]
-                    arguments = tool_use_block["arguments"]
-                    print(f"Tool name: {name}")
-                    print(f"Tool input: {arguments}")
-
-                    if not name:
-                        results.append(
-                            {"error": True, "message": "Tool call missing 'name' field"}
-                        )
-                        continue
-
-                    # Call the tool through MCP client
-                    result = await self.mcp_client.call_tool(name, arguments)
-
-                    response_blocks.append(
-                        {
-                            "type": "tool_result",
-                            "tool_name": name,
-                            "tool_input": arguments,
-                            "tool_result": result,
-                        }
-                    )
-
-                    # Collect tool result for conversation history
-                    tool_results_content.append(
-                        {
-                            "type": "tool_result",
-                            "tool_use_id": tool_use_block.id,
-                            "content": json.dumps(result),
-                        }
-                    )
-
-                print("Added all tool results to response blocks")
-
-                # Add ALL tool results to conversation in a single message
-                conversation_history.append(
+            ]  # list to hold results of each task execution.
+            for i in range(len(plan.tasks)):  # iterate through tasks
+                task: PlannerTask = plan.tasks[i]  # select the task
+                current_blocks = []
+                current_blocks.append(
                     {
-                        "role": "user",
-                        "content": tool_results_content,
+                        "type": "thinking",
+                        "content": task.thought,
+                        "iteration": i,
                     }
                 )
-                print(
-                    f"Added {len(tool_results_content)} tool results to conversation history. Total messages: {len(conversation_history)}"
+                current_blocks.append(
+                    {
+                        "type": "tool_calls",
+                        "task": task.description,
+                        "tool_name": task.tool_calls,
+                        "iteration": i,
+                    }
                 )
 
-                # Continue the conversation
-                print("*** CONTINUING CONVERSATION AFTER TOOL USE ***")
-                response = self.llm.responses.create(
-                    model=self.model_name,
-                    tools=self.tools,
-                    system=PLANNER_AGENT_PROMPT,
-                    input=conversation_history,
-                    text_format=NextStep,
+                response_blocks.extend(current_blocks)
+                print(f"Added {len(current_blocks)} blocks to response")
+
+                assistant_blocks = []
+
+                for j in range(len(plan.tasks)):  # iterate through tasks
+                    task: PlannerTask = plan.tasks[j]  # select the task
+                    assistant_blocks.append(task.thought, task.tool_calls)
+
+                conversation_history.append(
+                    {"role": "assistant", "content": assistant_blocks}
                 )
-            else:
-                print("No tool_use block found, breaking loop")
-                break
+
+                tool_use_blocks: list[dict] = []
+
+                for x in range(len(plan.tasks)):  # iterate through tasks
+                    task: PlannerTask = plan.tasks[x]  # select the task
+                    for y in range(len(task.tool_calls)):  # iterate through tools calls
+                        tool_call = task.tool_calls[y]  # seelct the tool call
+                        tool: dict = self.extract_tools(tool_call)
+                        tool_use_blocks.append(tool)  # add tool call to tool use blocks
+
+                if tool_use_blocks:
+                    print(f"*** TOOL EXECUTION ({len(tool_use_blocks)} tools) ***")
+                    # If we received an error message instead of tool calls
+                    if isinstance(tool_use_blocks, str):
+                        return [{"error": True, "message": tool_use_blocks}]
+
+                    # # Ensure tool_calls is a list
+                    if not isinstance(tool_use_blocks, list):
+                        return [
+                            {
+                                "error": True,
+                                "message": f"Expected list of tool calls, got {type(tool_use_blocks).__name__}",
+                            }
+                        ]
+                        # Collect all tool results
+                    tool_results_content = []
+
+                    for tool_use_block in tool_use_blocks:
+                        name = tool_use_block["name"]
+                        arguments = tool_use_block["arguments"]
+                        print(f"Tool name: {name}")
+                        print(f"Tool input: {arguments}")
+
+                        if not name:
+                            results.append(
+                                {
+                                    "error": True,
+                                    "message": "Tool call missing 'name' field",
+                                }
+                            )
+                            continue
+
+                        # Call the tool through MCP client
+                        result = await self.mcp_client.call_tool(name, arguments)
+
+                        response_blocks.append(
+                            {
+                                "type": "tool_result",
+                                "tool_name": name,
+                                "tool_input": arguments,
+                                "tool_result": result,
+                            }
+                        )
+
+                        # Collect tool result for conversation history
+                        tool_results_content.append(
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": tool_use_block.id,
+                                "content": json.dumps(result),
+                            }
+                        )
+
+                    print("Added all tool results to response blocks")
+
+                    # Add ALL tool results to conversation in a single message
+                    conversation_history.append(
+                        {
+                            "role": "user",
+                            "content": tool_results_content,
+                        }
+                    )
+                    print(
+                        f"Added {len(tool_results_content)} tool results to conversation history. Total messages: {len(conversation_history)}"
+                    )
+
+                    # Continue the conversation
+                    print("*** CONTINUING CONVERSATION AFTER TOOL USE ***")
+                    response = self.llm.responses.parse(
+                        model=self.model_name,
+                        tools=self.tools,
+                        system=DECIDER_PROMPT,
+                        input=conversation_history,
+                        text_format=NextStep,
+                    )
+                else:
+                    print("No tool_use block found, breaking loop")
+                    break
 
         # Handle final response (no more tool use)
         print("\n*** FINAL RESPONSE PROCESSING ***")
-        print(f"Final stop reason: {response.stop_reason}")
-        if response.step != "continue":
+        print(f"Final stop reason: {response}")
+        if response.step == "stop":
             final_blocks = []
-            for block in response.content:
+            for block in response.output_parsed:
                 if block.type == "thinking":
                     final_blocks.append(
                         {
