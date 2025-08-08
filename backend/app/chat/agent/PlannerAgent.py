@@ -9,7 +9,7 @@ class PlannerAgent:
         dev_prompt,
         llm,
         messages,
-        tools,
+        tools: list[dict] = [],
         model_name: str = "gpt-4.1-mini",
     ):
         self.model_name: str = model_name
@@ -19,6 +19,9 @@ class PlannerAgent:
         self.tools = tools
         if self.dev_prompt:
             self.messages.append({"role": "developer", "content": self.dev_prompt})
+
+    def set_tools(self, tools: list[dict]):
+        self.tools = tools
 
     def add_messages(self, query: str):
         self.messages.append({"role": "user", "content": query})
