@@ -314,7 +314,7 @@ class ChatService:
                 tool["arguments"]["content"] = self.format_tasks_results_markdown()
 
             elif name == "writer_tool":
-                if key == "content":
+                if key == "context":
                     tool["arguments"]["context"] = self.format_tasks_results_markdown()
                 elif key == "query":
                     tool["arguments"]["query"] = value
