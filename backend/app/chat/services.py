@@ -10,7 +10,7 @@ from app.chat.agent.OpenAIClient import OpenAIClient
 from app.chat.agent.MCP.client import MCPClient
 
 # from app.chat.agent.Executor import Executor
-from app.chat.agent.schemas import Plan, ToolCall
+from app.chat.agent.schemas import Plan, ToolCall, PlannerTask
 from openai.types.responses import ParsedResponse
 
 load_dotenv(Path("../../.env"))
@@ -70,7 +70,9 @@ class ChatService:
             print(
                 f"Starting conversation history with {len(conversation_history)} messages"
             )
-            final_response = self._handle_response_chain(response, conversation_history)
+            final_response = self._handle_response_chain(
+                response.output_parsed, conversation_history
+            )
 
             print("\n=== CHAT SERVICE: Processing complete ===")
             print(f"Final response blocks: {len(final_response.get('blocks', []))}")
@@ -88,7 +90,7 @@ class ChatService:
             print(f"Traceback: {traceback.format_exc()}")
             return {"success": False, "error": str(e)}
 
-    def _handle_response_chain(self, response, conversation_history):
+    def _handle_response_chain(self, response: Plan, conversation_history: list[dict]):
         """
         Handle the full response chain including tool calls, following agent.py logic.
         Returns structured response data.
@@ -97,6 +99,52 @@ class ChatService:
         response_blocks = []
         iteration = 0
 
+        results = [
+            {
+                "task": "No task yet",
+                "results": "No task results yet",
+            }
+        ]  # list to hold results of each task execution.
+        for i in range(len(response.tasks)):  # iterate through tasks
+            task: PlannerTask = response.tasks[i]  # select the task
+            current_blocks = []
+            current_blocks.append(
+                {
+                    "type": "thinking",
+                    "content": task.thought,
+                    "iteration": i,
+                }
+            )
+            current_blocks.append(
+                {
+                    "type": "tool_calls",
+                    "task": task.description,
+                    "tool_name": task.tool_calls,
+                    "iteration": i,
+                }
+            )
+
+            response_blocks.extend(current_blocks)
+            print(f"Added {len(current_blocks)} blocks to response")
+
+            assistant_blocks = []
+            for i in range(len(response.tasks)):  # iterate through tasks
+                task: PlannerTask = response.tasks[i]  # select the task
+                assistant_blocks.append(task.thought, task.tool_calls)
+
+            conversation_history.append(
+                {"role": "assistant", "content": assistant_blocks}
+            )
+
+            res = await self.execute_task(task)  # execute task
+            # append task execution results to list
+            self.previous_task_results.append(
+                {
+                    "task_id": task.id,
+                    "task": task.description,
+                    "results": res,
+                }
+            )
         while response.stop_reason == "tool_use":
             iteration += 1
             print(f"\n*** ITERATION {iteration} ***")

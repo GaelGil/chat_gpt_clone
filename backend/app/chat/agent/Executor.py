@@ -118,6 +118,8 @@ class Executor:
               Plan to execute is: \n
               Plan ID: {plan.original_query}
               Plan Description: {plan.description}
+              Plan Description: {len(plan.tasks)}
+
          """
         print(log)
         self.logs.append({"plan": log})
