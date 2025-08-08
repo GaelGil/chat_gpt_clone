@@ -10,7 +10,7 @@ from app.chat.agent.OpenAIClient import OpenAIClient
 from app.chat.agent.MCP.client import MCPClient
 
 # from app.chat.agent.Executor import Executor
-from app.chat.agent.schemas import Plan, ToolCall, PlannerTask
+from app.chat.agent.schemas import Plan, ToolCall, PlannerTask, NextStep
 from openai.types.responses import ParsedResponse
 
 load_dotenv(Path("../../.env"))
@@ -49,7 +49,7 @@ class ChatService:
             model_name="gpt-4.1-mini",
         )
 
-    def process_message(self, user_message: str):
+    async def process_message(self, user_message: str):
         """
         Process a user message using the agent's multiple_tool_calls_with_thinking logic.
         Returns structured response data for the frontend.
@@ -59,18 +59,22 @@ class ChatService:
         print(f"Model: {self.model_name}")
         try:
             print("\n--- Making initial API call to OpenAI ---")
-            response: ParsedResponse[Plan] = self.planner.plan(user_message)
-
-            print(
-                f"Initial response content blocks: {len(response.output_parsed.tasks)}"
+            # response: ParsedResponse[Plan] = self.planner.plan(user_message)
+            response: ParsedResponse[NextStep] = self.llm.responses.parse(
+                model=self.model_name,
+                input=self.planner.messages,
+                tools=self.tools,
+                text_format=NextStep,
             )
+
+            print(f"Initial response content blocks: {len(response.output_parsed)}")
 
             # Process the response and handle tool calls
             conversation_history = [{"role": "user", "content": user_message}]
             print(
                 f"Starting conversation history with {len(conversation_history)} messages"
             )
-            final_response = self._handle_response_chain(
+            final_response = await self._handle_response_chain(
                 response.output_parsed, conversation_history
             )
 
@@ -90,7 +94,9 @@ class ChatService:
             print(f"Traceback: {traceback.format_exc()}")
             return {"success": False, "error": str(e)}
 
-    def _handle_response_chain(self, response: Plan, conversation_history: list[dict]):
+    async def _handle_response_chain(
+        self, response: Plan, conversation_history: list[dict]
+    ):
         """
         Handle the full response chain including tool calls, following agent.py logic.
         Returns structured response data.
@@ -128,47 +134,62 @@ class ChatService:
             print(f"Added {len(current_blocks)} blocks to response")
 
             assistant_blocks = []
-            for i in range(len(response.tasks)):  # iterate through tasks
-                task: PlannerTask = response.tasks[i]  # select the task
+
+            for j in range(len(response.tasks)):  # iterate through tasks
+                task: PlannerTask = response.tasks[j]  # select the task
                 assistant_blocks.append(task.thought, task.tool_calls)
 
             conversation_history.append(
                 {"role": "assistant", "content": assistant_blocks}
             )
 
-            tool_use_blocks = []
+            tool_use_blocks: list[dict] = []
 
-            for i in range(len(response.tasks)):
-                task: PlannerTask = response.tasks[i]  # select the task
+            for x in range(len(response.tasks)):  # iterate through tasks
+                task: PlannerTask = response.tasks[x]  # select the task
+                for y in range(len(task.tool_calls)):  # iterate through tools calls
+                    tool_call = task.tool_calls[y]  # seelct the tool call
+                    tool: dict = self.extract_tools(tool_call)
+                    tool_use_blocks.append(tool)  # add tool call to tool use blocks
 
-            tool_use_blocks = [
-                block for block in response.content if block.type == "tool_use"
-            ]
             if tool_use_blocks:
                 print(f"*** TOOL EXECUTION ({len(tool_use_blocks)} tools) ***")
+                # If we received an error message instead of tool calls
+                if isinstance(tool_use_blocks, str):
+                    return [{"error": True, "message": tool_use_blocks}]
 
-                # Collect all tool results
+                # # Ensure tool_calls is a list
+                if not isinstance(tool_use_blocks, list):
+                    return [
+                        {
+                            "error": True,
+                            "message": f"Expected list of tool calls, got {type(tool_use_blocks).__name__}",
+                        }
+                    ]
+                    # Collect all tool results
                 tool_results_content = []
 
                 for tool_use_block in tool_use_blocks:
-                    print(f"Tool name: {tool_use_block.name}")
-                    print(f"Tool input: {tool_use_block.input}")
-                    print(f"Tool ID: {tool_use_block.id}")
+                    name = tool_use_block["name"]
+                    arguments = tool_use_block["arguments"]
+                    print(f"Tool name: {name}")
+                    print(f"Tool input: {arguments}")
 
-                    # Execute the tool
-                    tool_result = self._execute_tool(
-                        tool_use_block.name, tool_use_block.input
-                    )
-                    print(f"Tool execution result: {tool_result}")
+                    if not name:
+                        results.append(
+                            {"error": True, "message": "Tool call missing 'name' field"}
+                        )
+                        continue
 
-                    # Add tool result to response blocks
+                    # Call the tool through MCP client
+                    result = await self.mcp_client.call_tool(name, arguments)
+
                     response_blocks.append(
                         {
                             "type": "tool_result",
-                            "tool_name": tool_use_block.name,
-                            "tool_input": tool_use_block.input,
-                            "tool_result": tool_result,
-                            "iteration": iteration,
+                            "tool_name": name,
+                            "tool_input": arguments,
+                            "tool_result": result,
                         }
                     )
 
@@ -177,7 +198,7 @@ class ChatService:
                         {
                             "type": "tool_result",
                             "tool_use_id": tool_use_block.id,
-                            "content": json.dumps(tool_result),
+                            "content": json.dumps(result),
                         }
                     )
 
@@ -196,16 +217,12 @@ class ChatService:
 
                 # Continue the conversation
                 print("*** CONTINUING CONVERSATION AFTER TOOL USE ***")
-                response = self.client.messages.create(
+                response = self.llm.responses.create(
                     model=self.model_name,
-                    max_tokens=self.max_tokens,
-                    thinking={
-                        "type": "enabled",
-                        "budget_tokens": self.thinking_budget_tokens,
-                    },
                     tools=self.tools,
-                    system=self.system_prompt,
-                    messages=conversation_history,
+                    system=PLANNER_AGENT_PROMPT,
+                    input=conversation_history,
+                    text_format=NextStep,
                 )
             else:
                 print("No tool_use block found, breaking loop")
@@ -214,7 +231,7 @@ class ChatService:
         # Handle final response (no more tool use)
         print("\n*** FINAL RESPONSE PROCESSING ***")
         print(f"Final stop reason: {response.stop_reason}")
-        if response.stop_reason != "tool_use":
+        if response.step != "continue":
             final_blocks = []
             for block in response.content:
                 if block.type == "thinking":
@@ -254,157 +271,6 @@ class ChatService:
             "stop_reason": response.stop_reason,
             "total_iterations": iteration + 1,
         }
-
-    def _execute_tool(self, tool_name, tool_input):
-        """Execute a tool and return the result."""
-        print(f"\n+++ EXECUTING TOOL: {tool_name} +++")
-        print(f"Tool input: {tool_input}")
-        print(f"Tool input type: {type(tool_input)}")
-
-        try:
-            if tool_name == "analyze_user_account":
-                print(f"MOCK USER DATA: {mock_user_data[0]}")
-                result = analyze_user_account()
-                # Return structured artifact for frontend
-                user_analysis_data = result.model_dump()
-
-                # Calculate summary metrics from account data
-                total_balance = 0
-                for account in user_analysis_data.get("account_analysis", []):
-                    # Extract balance from analysis string
-                    analysis = account.get("analysis", "")
-                    balance_match = re.search(r"balance \$?([\d,]+\.?\d*)", analysis)
-                    if balance_match:
-                        balance = float(balance_match.group(1).replace(",", ""))
-                        total_balance += balance
-                        account["balance"] = balance
-
-                    # Extract counts from analysis string
-                    expense_match = re.search(r"(\d+) expenses?", analysis)
-                    if expense_match:
-                        account["expense_count"] = int(expense_match.group(1))
-
-                    deposit_match = re.search(r"(\d+) deposits?", analysis)
-                    if deposit_match:
-                        account["deposit_count"] = int(deposit_match.group(1))
-
-                user_analysis_data["total_balance"] = total_balance
-                user_analysis_data["total_accounts"] = len(
-                    user_analysis_data.get("account_analysis", [])
-                )
-
-                print(f"Structured user analysis data: {user_analysis_data}")
-                return {"user_analysis": user_analysis_data}
-            elif tool_name == "analyze_results":
-                result = analyze_results(tool_input["results"])
-                # Return the ToolResultsAnalysis object as a dict for JSON serialization
-                return {"analysis_results": result.model_dump()}
-            print("Executing Composio tool for non-weather request")
-            print(f"User ID: {self.user_id}")
-            composio = Composio()
-            result = composio.tools.execute(
-                slug=tool_name,
-                user_id=self.user_id,
-                arguments=tool_input,
-            )
-            print(f"Raw Composio result: {result}")
-            print(f"Composio result type: {type(result)}")
-
-            # Parse results using appropriate parser based on tool name
-            if "finance" in tool_name.lower():
-                parsed_result = parse_composio_finance_search_results(result)
-                print("Used finance search parser")
-            elif "news" in tool_name.lower():
-                parsed_result = parse_composio_news_search_results(result)
-                print("Used news search parser")
-            elif "event" in tool_name.lower():
-                parsed_result = parse_composio_event_search_results(result)
-                print("Used event search parser")
-            else:
-                # Default to general search parser
-                parsed_result = parse_composio_search_results(result)
-                print("Used general search parser")
-
-            print(f"Parsed result: {parsed_result}")
-            return {"search_results": parsed_result}
-
-        except Exception as e:
-            error_msg = f"Tool execution failed: {str(e)}"
-            print("!!! TOOL EXECUTION EXCEPTION !!!")
-            print(f"Error type: {type(e).__name__}")
-            print(f"Error message: {str(e)}")
-            import traceback
-
-            print(f"Traceback: {traceback.format_exc()}")
-            return {"error": error_msg}
-
-    async def call_tools(self, tool_calls: list[dict]) -> list[dict]:
-        """Receives a list of tool calls and calls the tools
-
-        Args:
-            tool_calls: Either a list of tool call dicts or a string error message
-
-        Returns:
-            list[dict]: The results of the tool calls or error information
-        """
-        # If we received an error message instead of tool calls
-        if isinstance(tool_calls, str):
-            return [{"error": True, "message": tool_calls}]
-
-        # # Ensure tool_calls is a list
-        if not isinstance(tool_calls, list):
-            return [
-                {
-                    "error": True,
-                    "message": f"Expected list of tool calls, got {type(tool_calls).__name__}",
-                }
-            ]
-        results = []  # Tool call results
-        print("CALLING_TOOLS ... ")
-        for tool in tool_calls:  # For each tool
-            try:  # Try to call the tool
-                if not isinstance(tool, dict):  # If tool is not a dict return error
-                    results.append(
-                        {
-                            "error": True,
-                            "message": f"Expected dict, got {type(tool).__name__}",
-                        }
-                    )
-                    continue
-                # Extract tool name and arguments
-                name = tool["name"]
-                arguments = tool["arguments"]
-                self.print_tool_calll(tool)
-                if not name:
-                    results.append(
-                        {"error": True, "message": "Tool call missing 'name' field"}
-                    )
-                    continue
-
-                # Call the tool through MCP client
-                result = await self.mcp_client.call_tool(name, arguments)
-                # append tool call reults. Includes name, arguments, and result
-                results.append({"result": result})
-                self.tool_call_history.append(
-                    {
-                        "name": name,
-                        "arguments": arguments,
-                        "result": result,
-                        "error": False,
-                    }
-                )
-
-            # Handle exceptions
-            except Exception as e:
-                results.append(
-                    {
-                        "error": True,
-                        "name": name if "name" in locals() else "unknown",
-                        "message": f"Error calling tool: {str(e)}",
-                    }
-                )
-        print(f"TOOL CALL RESULTS: {results}")
-        return results
 
     def extract_tools(self, tool_call: ToolCall) -> dict:
         """

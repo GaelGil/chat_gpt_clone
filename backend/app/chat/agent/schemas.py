@@ -129,3 +129,15 @@ class FinalResponse(BaseModel):
     """Represents the result of a tool execution."""
 
     content: str = Field(description="The Fully assembled response.")
+
+
+class NextStep(BaseModel):
+    step: Optional[
+        Literal[
+            "plan",
+            "stop",
+        ]
+    ] = Field(
+        default="input_required",
+        description="If we should continue or stop to plan and execute the plan",
+    )
