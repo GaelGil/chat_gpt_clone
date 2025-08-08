@@ -22,7 +22,7 @@ class PlannerAgent:
     def add_messages(self, query: str):
         self.messages.append({"role": "user", "content": query})
 
-    def plan(self, query: str):
+    def plan(self, query: str) -> Plan:
         """Create a detailed plan to complete the request of the user.
 
         Args:
