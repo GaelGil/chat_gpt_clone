@@ -136,74 +136,11 @@ class ChatService:
                 {"role": "assistant", "content": assistant_blocks}
             )
 
-            res = await self.execute_task(task)  # execute task
-            # append task execution results to list
-            self.previous_task_results.append(
-                {
-                    "task_id": task.id,
-                    "task": task.description,
-                    "results": res,
-                }
-            )
-        while response.stop_reason == "tool_use":
-            iteration += 1
-            print(f"\n*** ITERATION {iteration} ***")
-            print(f"Stop reason: {response.stop_reason}")
-            print(f"Content blocks in response: {len(response.content)}")
+            tool_use_blocks = []
 
-            # Log block types in this response
-            block_types = [block.type for block in response.content]
-            print(f"Block types: {block_types}")
+            for i in range(len(response.tasks)):
+                task: PlannerTask = response.tasks[i]  # select the task
 
-            # Extract blocks from current response
-            current_blocks = []
-            for block in response.content:
-                if block.type == "thinking":
-                    current_blocks.append(
-                        {
-                            "type": "thinking",
-                            "content": block.thinking,
-                            "iteration": iteration,
-                        }
-                    )
-                elif block.type == "redacted_thinking":
-                    current_blocks.append(
-                        {
-                            "type": "redacted_thinking",
-                            "content": "[Thinking content redacted]",
-                            "iteration": iteration,
-                        }
-                    )
-                elif block.type == "text":
-                    current_blocks.append(
-                        {"type": "text", "content": block.text, "iteration": iteration}
-                    )
-                elif block.type == "tool_use":
-                    current_blocks.append(
-                        {
-                            "type": "tool_use",
-                            "tool_name": block.name,
-                            "tool_input": block.input,
-                            "tool_id": block.id,
-                            "iteration": iteration,
-                        }
-                    )
-
-            response_blocks.extend(current_blocks)
-            print(f"Added {len(current_blocks)} blocks to response")
-
-            # Add assistant response to conversation history
-            assistant_blocks = []
-            for block in response.content:
-                if block.type in ["thinking", "redacted_thinking", "tool_use"]:
-                    assistant_blocks.append(block)
-
-            conversation_history.append(
-                {"role": "assistant", "content": assistant_blocks}
-            )
-            print("Added assistant message to conversation history")
-
-            # Execute ALL tool_use blocks if there are any
             tool_use_blocks = [
                 block for block in response.content if block.type == "tool_use"
             ]
