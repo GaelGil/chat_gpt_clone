@@ -15,7 +15,7 @@ load_dotenv(Path("../../.env"))
 
 class ChatService:
     def __init__(self):
-        # Initialize the Anthropic client
+        """Initialize the chat service"""
         self.planner: PlannerAgent = None
         self.mcp_client: MCPClient = None
         self.llm: OpenAI = None
