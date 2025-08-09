@@ -19,14 +19,6 @@ npm i
 npm run dev
 ```
 
-### Start the Frontend
-
-```
-cd frontend
-npm i
-npm run dev
-```
-
 Go to [localhost](http://localhost:5173/)
 
 ### Start the MCP server
