@@ -10,3 +10,19 @@ Creates Plan (ie, do research, write intro, ... return essay)
 Executes tasks in the Plan
 
 # How to run
+
+### Start the Frontend
+
+```
+cd frontend
+npm i
+npm run dev
+```
+
+### Start the Frontend
+
+```
+cd frontend
+npm i
+npm run dev
+```
