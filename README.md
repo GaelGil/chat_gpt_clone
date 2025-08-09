@@ -51,8 +51,8 @@ make run
 
 # Demo
 
-![Prompt Submitted]("./images/prompt.png "The Prompt")
+![Prompt Submitted](./images/prompt.png "The Prompt")
 
-![Second to Last Result]("./images/second_last_result.png "Second to Last Result")
+![Second to Last Result](./images/second_last_result.png "Second to Last Result")
 
-![Last Result]("./images/last_result.png "Last Result")
+![Last Result](./images/last_result.png "Last Result")
