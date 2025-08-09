@@ -1,13 +1,30 @@
 # Project Description
 
 This is an essay writing AI agent. The idea is that we send a call to the OpenAI model. We provide tools to it, prompt and query. It then returns a plan with tasks that we must execute. Each task is a tool call.
-Example workflow
+Here is an example workflow/plan:
 
 Query: Write an essay on the ...
+Plan:
 
-Agent:
-Creates Plan (ie, do research, write intro, ... return essay)
-Executes tasks in the Plan
+- Task 1
+
+  - id
+  - description
+  - tool_calls
+  - thought
+  - status
+  - stop
+    ...
+
+- Task n
+  - id
+  - description
+  - tool_calls
+  - thought
+  - status
+  - stop
+
+We then execute each task
 
 # How to run
 
