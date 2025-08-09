@@ -4,6 +4,7 @@ This is an essay writing AI agent. The idea is that we send a call to the OpenAI
 Here is an example workflow/plan:
 
 Query: Write an essay on the ...
+
 Plan:
 
 - Task 1
@@ -14,6 +15,7 @@ Plan:
   - thought
   - status
   - stop
+
     ...
 
 - Task n
