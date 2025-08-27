@@ -1,4 +1,4 @@
-import UserProfile from "../components/UserProfile";
+import UserProfile from "../components/User/UserProfile";
 import { useParams } from "react-router-dom";
 
 // home component

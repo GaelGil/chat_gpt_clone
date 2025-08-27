@@ -1,16 +1,17 @@
 import React, { useState } from "react";
-import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import AuthForm from "./AuthForm";
 import { login } from "../../api/auth";
+import { useUser } from "../../context/UserContext";
 
 const LogInForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState<boolean>(true);
+  const { setUser } = useUser();
   const navigate = useNavigate();
-  // function to handle if algorithm changes
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -31,26 +32,35 @@ const LogInForm = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("logging in");
-    console.log(loading);
+    setMessage("Logging in...");
     try {
       const data = await login(username, password);
-      setMessage(data.msg);
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      const userId = data.user.id;
-      navigate(`/profile/${userId}`);
+
+      if (!data.user) {
+        setMessage("Login failed: user not returned");
+        return;
+      }
+      setUser(data.user);
+      navigate(`/profile/${data.user.id}`);
     } catch (error) {
       console.error("Login Error", error);
-      setMessage("Error Logging in");
+      if (error instanceof Error) {
+        setMessage(error.message);
+      } else {
+        setMessage("Error Logging in");
+      }
     } finally {
       setLoading(false);
     }
   };
+
   return (
-    <Container className="d-flex flex-column justify-content-center align-items-center">
+    <div className="d-flex flex-column justify-content-center align-items-center">
+      <h3 className="text-primary-600">
+        <span className="text-secondary-300">Log In</span>
+      </h3>
+
       <div>
-        <h1> Log In</h1>
         <AuthForm
           isLogin={true}
           username={username}
@@ -60,7 +70,7 @@ const LogInForm = () => {
         />
         {message && <p className="text-danger">{message}</p>}
       </div>
-    </Container>
+    </div>
   );
 };
 

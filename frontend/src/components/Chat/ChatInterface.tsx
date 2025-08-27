@@ -1,42 +1,15 @@
 import { useState, useRef, useEffect } from "react";
-import ChatMessage from "../Chat/ChatMessage";
-import ChatInput from "../Chat/ChatInput";
-import Logo from "../../data/Logo";
-import { BASE_URL } from "../../api/const";
-import { PROJECT_NAME } from "../../api/const";
-import { io, Socket } from "socket.io-client";
-export interface ChatBlock {
-  type: "thinking" | "redacted_thinking" | "text" | "tool_use" | "tool_result";
-  content?: string;
-  tool_name?: string;
-  tool_input?: any;
-  tool_result?: any;
-  tool_id?: string;
-  iteration?: number;
-}
-
-export interface ChatResponse {
-  blocks: ChatBlock[];
-  stop_reason: string;
-  total_iterations: number;
-}
-
-export interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  response?: ChatResponse;
-  timestamp: Date;
-  isLoading?: boolean;
-}
+import ChatMessage from "./ChatMessage";
+import ChatInput from "./ChatInput";
+import { BASE_URL } from "../../api/url";
+import type { Message, ChatBlock } from "../../types/Chat";
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showFinancialPanel, setShowFinancialPanel] = useState(true);
-  const [isFinancialCollapsed, setIsFinancialCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const socket = useRef<Socket | null>(null);
+  const currentStreamAbortRef = useRef<AbortController | null>(null);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -45,167 +18,336 @@ const ChatInterface = () => {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    // Only run once to connect to socket
-    socket.current = io("http://localhost:8080/chat");
-
-    socket.current.on("connect", () => {
-      console.log("🔌 Connected to WebSocket server");
-    });
-    socket.current.on("log", (data: { message: string }) => {
-      const streamedMessage: Message = {
-        id: Date.now().toString(),
-        role: "assistant",
-        content: data.message,
-        timestamp: new Date(),
-        isLoading: true, // optional – you can use this to style it differently
-      };
-
-      setMessages((prev) => [...prev, streamedMessage]);
-    });
-
-    socket.current.on("disconnect", () => {
-      console.log("❌ Disconnected from WebSocket server");
-    });
-
-    return () => {
-      socket.current?.off("log");
-      socket.current?.disconnect();
-    };
-  }, []);
-
-  const sendMessage = async (content: string) => {
-    if (!content.trim() || isLoading) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: content.trim(),
-      timestamp: new Date(),
-    };
-
-    const loadingMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: "assistant",
-      content: "Thinking...",
-      timestamp: new Date(),
-      isLoading: true,
-    };
-
-    setMessages((prev) => [...prev, userMessage, loadingMessage]);
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(`${BASE_URL}/api/chat/message`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: content }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        const assistantMessage: Message = {
-          id: (Date.now() + 2).toString(),
-          role: "assistant",
-          content: "Assistant response",
-          response: data.response,
-          timestamp: new Date(),
-        };
-
-        setMessages((prev) => {
-          const newMessages = [...prev];
-          newMessages[newMessages.length - 1] = assistantMessage;
-          return newMessages;
-        });
+  const parseSSEEvent = (rawEvent: string) => {
+    // rawEvent is the block between two \n\n splits. Example:
+    // "data: {...}\n"
+    // or multiple data: lines
+    const lines = rawEvent.split(/\r?\n/);
+    const dataLines: string[] = [];
+    for (const line of lines) {
+      if (line.startsWith("data:")) {
+        dataLines.push(line.slice(5).trim());
+      } else if (line.startsWith(":")) {
+        // comment/heartbeat — ignore
+      } else if (line.trim() === "") {
+        // skip blanks
       } else {
-        setMessages((prev) => {
-          const newMessages = [...prev];
-          newMessages[newMessages.length - 1] = {
-            ...newMessages[newMessages.length - 1],
-            content: `Error: ${data.error}`,
-            isLoading: false,
-          };
-          return newMessages;
-        });
+        // other fields like event: or id:, ignore for now
       }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      setMessages((prev) => {
-        const newMessages = [...prev];
-        newMessages[newMessages.length - 1] = {
-          ...newMessages[newMessages.length - 1],
-          content: `Error: Failed to send message`,
-          isLoading: false,
-        };
-        return newMessages;
-      });
-    } finally {
-      setIsLoading(false);
+    }
+    if (dataLines.length === 0) return null;
+    const data = dataLines.join("\n");
+    try {
+      return JSON.parse(data);
+    } catch (err) {
+      // not JSON — return raw string
+      return { type: "raw", text: data };
     }
   };
 
-  const toggleFinancialPanel = () => {
-    if (isFinancialCollapsed) {
-      setIsFinancialCollapsed(false);
-    } else {
-      setShowFinancialPanel(!showFinancialPanel);
+  const readStreamAndHandleSSE = async (
+    reader: ReadableStreamDefaultReader<Uint8Array>,
+    onParsed: (ev: any) => void,
+    signal: AbortSignal
+  ) => {
+    const decoder = new TextDecoder();
+    let buf = "";
+
+    while (true) {
+      if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+      const res = await reader.read();
+      if (res.done) break;
+      buf += decoder.decode(res.value, { stream: true });
+
+      // split into events by double newline (\n\n or \r\n\r\n)
+      let idx;
+      while (
+        (idx = buf.indexOf("\n\n")) !== -1 ||
+        (idx = buf.indexOf("\r\n\r\n")) !== -1
+      ) {
+        const raw = buf.slice(0, idx);
+        buf = buf.slice(idx + (buf[idx + 1] === "\r" ? 4 : 2)); // advance past \r\n\r\n or \n\n
+        if (raw.trim().length === 0) continue;
+        const parsed = parseSSEEvent(raw);
+        if (parsed !== null) onParsed(parsed);
+      }
+      // continue reading more chunks
+    }
+
+    // handle any leftover buffer (final event)
+    if (buf.trim().length > 0) {
+      const parsed = parseSSEEvent(buf);
+      if (parsed !== null) onParsed(parsed);
+    }
+  };
+  // Append or upsert a streaming text block (uses type init_response while streaming;
+  // when isFinal=true we either convert that block to final_response or insert final_response)
+  const upsertTextBlock = (text: string, isFinal = false) => {
+    // update messages
+    // get current messages state
+    setMessages((prev) => {
+      if (prev.length === 0) return prev; // if messages array is empty return state
+      const newMessages = [...prev]; // make a copy of the messages array
+      const lastIndex = newMessages.length - 1; // get the last index
+      const last = { ...newMessages[lastIndex] }; // make a copy of the last message
+
+      if (!last.response) {
+        last.response = { blocks: [] };
+      }
+      const blocks = Array.isArray(last.response.blocks)
+        ? [...last.response.blocks]
+        : [];
+
+      // find last streaming/text block if exists (init_response or final_response)
+      const streamingIdx = (() => {
+        for (let i = blocks.length - 1; i >= 0; i--) {
+          if (
+            blocks[i].type === "init_response" ||
+            blocks[i].type === "final_response"
+          ) {
+            return i;
+          }
+        }
+        return -1;
+      })();
+
+      if (streamingIdx >= 0) {
+        // update existing text block
+        const existing = { ...blocks[streamingIdx] } as ChatBlock; // make a copy of last text block
+        existing.content = (existing.content || "") + text; // append text
+        // if final, mark as final_response
+        existing.type = isFinal ? "final_response" : "init_response";
+        blocks[streamingIdx] = existing;
+      } else {
+        // push new text block
+        const block: ChatBlock = {
+          type: isFinal ? "final_response" : "init_response",
+          content: text,
+        };
+        blocks.push(block);
+      }
+
+      last.response = { ...last.response, blocks };
+      // keep a quick content copy for fallback rendering
+      const latestText = blocks
+        .filter(
+          (b) => b.type === "final_response" || b.type === "init_response"
+        )
+        .map((b) => b.content || "")
+        .join("\n\n");
+      last.content = latestText;
+      last.isLoading = !isFinal;
+      last.timestamp = new Date();
+
+      newMessages[lastIndex] = last;
+      return newMessages;
+    });
+  };
+
+  // Append a tool block (tool_use / tool_result)
+  const appendToolBlock = (block: ChatBlock) => {
+    // update messages (prev is current state of messages array)
+    setMessages((prev) => {
+      if (prev.length === 0) return prev; // if empty array
+      const newMessages = [...prev]; // make a copy of messages array
+      const lastIndex = newMessages.length - 1; // get the index of the last message
+      const last = { ...newMessages[lastIndex] }; // make a copy of the last message
+
+      //
+      if (!last.response) {
+        last.response = { blocks: [] };
+      }
+      // append tool block
+      const blocks = Array.isArray(last.response.blocks)
+        ? [...last.response.blocks, block]
+        : [block];
+
+      // update last message
+      last.response = { ...last.response, blocks };
+      // mark timestamp as now
+      last.timestamp = new Date();
+      // add new message with the last index
+      newMessages[lastIndex] = last;
+      return newMessages; // return updated messages to callback function
+    });
+  };
+
+  // Finalize streaming text blocks (convert any remaining init_response to final_response)
+  const finalizeTextBlocks = () => {
+    setMessages((prev) => {
+      if (prev.length === 0) return prev;
+      const newMessages = [...prev];
+      const lastIndex = newMessages.length - 1;
+      const last = { ...newMessages[lastIndex] };
+
+      if (!last.response || !Array.isArray(last.response.blocks)) {
+        last.isLoading = false;
+        last.timestamp = new Date();
+        newMessages[lastIndex] = last;
+        return newMessages;
+      }
+
+      const blocks = last.response.blocks.map((b) => {
+        if (b.type === "init_response") {
+          return { ...b, type: "final_response" } as ChatBlock;
+        }
+        return b;
+      });
+
+      last.response = { ...last.response, blocks };
+      // keep content synced to final text if present
+      const finalText =
+        blocks
+          .filter((b) => b.type === "final_response")
+          .map((b) => b.content || "")
+          .join("\n\n") ||
+        blocks
+          .filter((b) => b.type === "init_response")
+          .map((b) => b.content || "")
+          .join("\n\n");
+      last.content = finalText;
+      last.isLoading = false;
+      last.timestamp = new Date();
+
+      newMessages[lastIndex] = last;
+      return newMessages;
+    });
+  };
+
+  // --- sendMessage with SSE ---
+  const sendMessage = async (message: string) => {
+    if (!message.trim() || isLoading) return;
+
+    // create user + assistant messages (same as you had)
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: message.trim(),
+      timestamp: new Date(),
+    };
+
+    const assistantMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      role: "assistant",
+      content: "",
+      timestamp: new Date(),
+      isLoading: true,
+      response: { blocks: [] },
+    };
+
+    setMessages((prev) => [...prev, userMessage, assistantMessage]);
+    setIsLoading(true);
+
+    // abort previous stream if any
+    currentStreamAbortRef.current?.abort();
+    const ac = new AbortController();
+    currentStreamAbortRef.current = ac;
+
+    try {
+      const streamUrl = `${BASE_URL}/api/chat/message/stream?t=${Date.now()}`;
+      const res = await fetch(streamUrl, {
+        method: "POST",
+        credentials: "include", // include cookies if your auth relies on them
+        headers: {
+          "Content-Type": "application/json", // tell server it's JSON
+          Accept: "text/event-stream", // optional but descriptive
+        },
+        body: JSON.stringify({
+          message: message,
+        }),
+        signal: ac.signal, // allows aborting the request
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Stream failed: ${res.status} ${text}`);
+      }
+
+      const reader = res.body?.getReader();
+      if (!reader) {
+        throw new Error("Readable stream not supported by this response");
+      }
+
+      // event handler mapping (mimics your fetchEventSource handlers)
+      const onParsed = (parsed: any) => {
+        if (!parsed || typeof parsed !== "object") return;
+        console.log("SSE chunk:", parsed);
+        console.log("SSE chunk type", parsed.type);
+        console.log("SSE chunk text", parsed.text);
+
+        switch (parsed.type) {
+          case "init_response":
+            upsertTextBlock(parsed.text ?? "", false);
+            break;
+          case "final_response":
+            upsertTextBlock(parsed.text ?? "", true);
+            break;
+          case "tool_use":
+            appendToolBlock({
+              type: "tool_use",
+              tool_name: parsed.tool_name,
+              tool_input: parsed.tool_input,
+            });
+            break;
+          case "tool_result":
+            appendToolBlock({
+              type: "tool_result",
+              tool_name: parsed.tool_name,
+              tool_input: parsed.tool_input,
+              tool_result: parsed.tool_result,
+            });
+            break;
+          default:
+            console.warn("Unknown SSE chunk type:", parsed.type, parsed);
+        }
+      };
+
+      // read & parse the stream
+      await readStreamAndHandleSSE(reader, onParsed, ac.signal);
+
+      // stream finished normally
+      finalizeTextBlocks();
+      setIsLoading(false);
+      setTimeout(scrollToBottom, 10);
+    } catch (err: any) {
+      if (err.name === "AbortError") {
+        console.log("Stream aborted by user");
+      } else {
+        console.error("Streaming failed", err);
+        // mark last message with error
+        setMessages((prev) => {
+          if (prev.length === 0) return prev;
+          const newMessages = [...prev];
+          const lastIndex = newMessages.length - 1;
+          const last = { ...newMessages[lastIndex] };
+          last.isLoading = false;
+          last.content = (last.content || "") + `\n\n[Error receiving stream]`;
+          last.timestamp = new Date();
+          newMessages[lastIndex] = last;
+          return newMessages;
+        });
+        setIsLoading(false);
+      }
+    } finally {
+      // cleanup abort controller
+      if (currentStreamAbortRef.current === ac)
+        currentStreamAbortRef.current = null;
     }
   };
 
   return (
-    <div className=" bg-white">
-      {/* Chat Section */}
-      {/* Chat Header */}
-      <div className="bg-white border-b border-gray-100 px-8 py-4">
-        <div className="flex flex-row items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#ffffff] to-[#eceaff] rounded-lg flex items-center justify-center p-1">
-              <Logo size="sm" className="" />
-            </div>
-            <p className="text-xl p-0 m-0 font-semibold text-gray-900">
-              {PROJECT_NAME}
-            </p>
-          </div>
-          <div className="flex items-center space-x-3">
-            {!showFinancialPanel && (
-              <button
-                onClick={toggleFinancialPanel}
-                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 border border-gray-200"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-                <span>Show Dashboard</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Messages */}
+    <div className="">
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-8 py-6 space-y-6">
           {messages.length === 0 && (
             <div className="text-center py-16">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                Your Personal Essay Writing Assistant
+              <h2 className="text-2xl font-semibold mb-3">
+                <span className="text-primary-600">
+                  I am your personal AI assistant
+                </span>
               </h2>
-              <p className="text-gray-600 mb-2 max-w-md mx-auto">
-                I can help you write an essay on any topic or review an existing
-                essay.
+              <p className="text-secondary-300 mb-2 max-w-md mx-auto">
+                Ask Anything
               </p>
             </div>
           )}
@@ -217,12 +359,8 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      {/* Input */}
-
-      <div className="border-t border-gray-100 bg-white">
-        <div className="max-w-4xl mx-auto px-8 py-6">
-          <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
-        </div>
+      <div className="max-w-4xl mx-auto px-8 py-6">
+        <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
       </div>
     </div>
   );

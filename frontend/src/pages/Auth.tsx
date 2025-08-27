@@ -3,19 +3,15 @@ import LogInForm from "../components/Auth/LoginForm";
 import SignUpForm from "../components/Auth/SignUpForm";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useUser } from "../context/UserContext";
 const AuthPage: React.FC = () => {
   const [selected, setSelected] = useState<"login" | "signup">("login"); // declare the default state as string
+  const { user } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log("Token from localStorage:", token);
-    if (token) {
-      console.log("Redirecting because token exists");
-      navigate("/", { replace: true }); // Or your route
-    } else {
-      console.log("No token — stay on auth page");
+    if (!user) {
+      console.log("No user found, stay on auth page");
     }
   }, [navigate]);
 
@@ -26,15 +22,15 @@ const AuthPage: React.FC = () => {
       <div className="mb-4 flex justify-center space-x-4">
         {selected === "login" ? (
           <>
-            <p>Don't have an account yet?</p>
-            <p className="text-blue-600" onClick={() => setSelected("signup")}>
+            <p className="text-secondary-300">Don't have an account yet?</p>
+            <p className="text-back-300" onClick={() => setSelected("signup")}>
               Sign Up
             </p>
           </>
         ) : (
           <>
-            <p>Already have an account?</p>
-            <p className="text-blue-600" onClick={() => setSelected("login")}>
+            <p className="text-secondary-300">Already have an account?</p>
+            <p className="text-back-300" onClick={() => setSelected("login")}>
               Log In
             </p>
           </>

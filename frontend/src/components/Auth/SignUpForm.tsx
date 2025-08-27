@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import AuthForm from "./AuthForm";
 import { login, signup } from "../../api/auth";
+import { useUser } from "../../context/UserContext"; // adjust path as needed
 
 const SignUpForm = () => {
   const [username, setUsername] = useState("");
@@ -10,6 +10,8 @@ const SignUpForm = () => {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState<boolean>();
+  const { setUser } = useUser();
+
   const navigate = useNavigate();
   // function to handle if algorithm changes
   const handleChange = (
@@ -39,15 +41,21 @@ const SignUpForm = () => {
     try {
       const data = await signup(username, email, password);
       setMessage(data.msg);
-      setMessage("logging in");
+      setMessage("Account created");
       setLoading(true);
-      const user = await login(username, password);
-      setMessage(user.msg);
-      localStorage.setItem("token", user.access_token);
-      localStorage.setItem("user", JSON.stringify(user.user));
-      const userId = user.user.id;
-      setLoading(false);
-      navigate(`/profile/${userId}`);
+      try {
+        setMessage("Logging in");
+        const user = await login(username, password);
+        setMessage(user.msg);
+        localStorage.setItem("token", data.access_token);
+        setUser(data.user);
+        const userId = user.user.id;
+        navigate(`/profile/${userId}`);
+      } catch (error) {
+        setMessage("error signing up");
+      } finally {
+        setLoading(false);
+      }
     } catch (error) {
       setMessage("error signing up");
     } finally {
@@ -56,8 +64,10 @@ const SignUpForm = () => {
   };
 
   return (
-    <Container className="d-flex flex-column justify-content-center align-items-center">
-      <h1> Sign Up</h1>
+    <div className="d-flex flex-column justify-content-center align-items-center">
+      <h3 className="text-primary-600">
+        <span className="text-secondary-300">Sign Up</span>
+      </h3>
       <div>
         {/* importing algorithm form component with sorting specific values */}
         <AuthForm
@@ -70,7 +80,7 @@ const SignUpForm = () => {
         />
         {message && <p className="text-danger">{message}</p>}
       </div>
-    </Container>
+    </div>
   );
 };
 

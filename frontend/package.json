@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "proxy": "http://localhost:8080",
+  "proxy": "http://localhost:5000",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,9 +11,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@tailwindcss/cli": "^4.1.11",
     "@tailwindcss/vite": "^4.1.11",
-    "@types/react-syntax-highlighter": "^15.5.13",
     "bootstrap": "^5.3.7",
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.10",
@@ -21,7 +21,6 @@
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.6.2",
     "react-syntax-highlighter": "^15.6.1",
-    "recharts": "^3.1.0",
     "remark-gfm": "^4.0.1",
     "socket.io-client": "^4.8.1"
   },

@@ -1,47 +1,36 @@
 import { Link } from "react-router-dom";
-import { PROJECT_NAME, PROJECT_LOGO } from "../../api/const";
+import { PROJECT_NAME } from "../../data/ProjectName";
+import { PROJECT_LOGO } from "../../data/ProjectLogo";
+import { useUser } from "../../context/UserContext";
 const HomeBanner = () => {
-  const token = localStorage.getItem("token");
+  const user = useUser();
   return (
     <>
-      <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-r from-[#e3f0ff] to-[#f8fafd]">
+      {/* <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-r from-[#e3f0ff] to-[#f8fafd]"> */}
+      <div className="min-h-[80vh] flex items-center justify-center ">
         <div className="max-w-7xl mx-auto px-4 w-full">
           <div className="flex flex-col-reverse md:flex-row items-center">
             {/* Left content */}
             <div className="w-full md:w-1/2 text-left">
-              <h1 className="font-extrabold text-4xl md:text-5xl mb-6 text-[#1a237e]">
-                {PROJECT_NAME}
+              <h1 className=" font-extrabold text-4xl md:text-5xl mb-6 text-[#1a237e]">
+                <span className="text-primary-600">{PROJECT_NAME}</span>
               </h1>
-              <p className="text-lg md:text-xl text-gray-700 mb-8">
+              <p className="text-lg md:text-xl text-secondary-300 mb-8">
                 Lorem ipsum, dolor sit amet consectetur adipisicing elit.
                 Itaque, quaerat minima ducimus doloribus dolore, inventore
                 impedit iste maxime temporibus earum beatae tenetur quisquam
                 enim reprehenderit rem necessitatibus eaque omnis deserunt.
               </p>
 
-              {!token ? (
-                <Link
-                  to="/login"
-                  className={`no-underline ${
-                    location.pathname === "/login"
-                      ? "text-blue-600"
-                      : "text-gray-700 hover:text-blue-600"
-                  }`}
-                >
-                  <button className="px-10 py-4 text-lg font-bold rounded-lg bg-[#1976d2] text-white border-none shadow-md hover:shadow-lg transition">
+              {user ? (
+                <Link to="/login">
+                  <button className="px-10 py-4 text-lg font-bold rounded bg-back-300 text-white shadow-md hover:shadow-lg transition">
                     View Content
                   </button>
                 </Link>
               ) : (
-                <Link
-                  to="/content"
-                  className={` no-underline${
-                    location.pathname === "/content"
-                      ? "text-blue-600"
-                      : "text-gray-700 hover:text-blue-600"
-                  }`}
-                >
-                  <button className="px-10 py-4 text-lg font-bold rounded-lg bg-[#1976d2] text-white border-none shadow-md hover:shadow-lg transition">
+                <Link to="/chat">
+                  <button className="px-10 py-4 text-lg font-bold rounded bg-back-300 text-white shadow-md hover:shadow-lg transition">
                     View Content
                   </button>
                 </Link>

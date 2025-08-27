@@ -1,7 +1,10 @@
 import ChatInterface from "../components/Chat/ChatInterface";
-
-const ChatPage = () => {
-  return <ChatInterface />;
+const ChatPage: React.FC = () => {
+  return (
+    <>
+      <ChatInterface />
+    </>
+  );
 };
 
 export default ChatPage;

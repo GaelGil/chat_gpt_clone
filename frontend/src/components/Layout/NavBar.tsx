@@ -1,29 +1,22 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { PROJECT_NAME, PROJECT_LOGO } from "../../api/const";
-import { BASE_URL } from "../../api/const";
-
+import { PROJECT_NAME } from "../../data/ProjectName";
+import { PROJECT_LOGO } from "../../data/ProjectLogo";
+import { useUser } from "../../context/UserContext";
+import { logout } from "../../api/auth";
 const Navigation = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
   const [loading, setLoading] = useState<boolean>();
-  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { user, setUser } = useUser();
 
   const handleLogout = async () => {
     localStorage.removeItem("token");
     try {
       setLoading(true);
-      const res = await fetch(`${BASE_URL}/auth/logout`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (res.ok) {
-        console.log(res.status);
-      }
+      await logout();
+      setUser(null);
     } catch (error) {
       alert(`error logging out: ${error}`);
     } finally {
@@ -34,15 +27,15 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="bg-white shadow-sm py-1">
+    <nav className=" py-1">
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 text-decoration-none">
           <img
             src={PROJECT_LOGO}
             alt="Logo"
             className="w-24 h-12 object-contain"
           />
-          <span className="font-bold text-xl text-gray-800 no-underline">
+          <span className="text-primary-600 font-bold text-xl text-gray-800 no-underline">
             {PROJECT_NAME}
           </span>
         </Link>
@@ -79,39 +72,31 @@ const Navigation = () => {
 
         {/* Desktop nav */}
         <div className="hidden md:flex md:items-center space-x-6 font-semibold text-lg">
-          <Link
-            to="/content"
-            className={`no-underline ${
-              location.pathname === "/content"
-                ? "text-blue-600"
-                : "text-gray-700 hover:text-blue-600"
-            }`}
-          >
-            AI Chat
-          </Link>
+          {!user ? (
+            <></>
+          ) : (
+            <Link className="text-decoration-none" to="/chat">
+              <span className="rounded border-2 border-back-300 px-4 py-2 bg-back-300 text-primary-600 hover:bg-primary-600 hover:text-white">
+                Chat
+              </span>
+            </Link>
+          )}
 
-          {!token ? (
-            <Link
-              to="/login"
-              className={`no-underline ${
-                location.pathname === "/login"
-                  ? "text-blue-600"
-                  : "text-gray-700 hover:text-blue-600"
-              }`}
-            >
-              Log In
+          {!user ? (
+            <Link className="text-decoration-none" to="/login">
+              <span className="rounded border-2 border-back-300 px-4 py-2 bg-back-300 text-primary-600 hover:bg-primary-600 hover:text-white">
+                Log In
+              </span>
             </Link>
           ) : (
             <Link
+              className="text-decoration-none "
               onClick={handleLogout}
               to="/"
-              className={`no-underline ${
-                location.pathname === "/login"
-                  ? "text-blue-600"
-                  : "text-gray-700 hover:text-blue-600"
-              }`}
             >
-              Log Out
+              <span className="rounded border border-back-300 px-4 py-2 bg-white text-primary-600 hover:bg-primary-600 hover:text-white">
+                Log Out
+              </span>
             </Link>
           )}
         </div>
@@ -120,30 +105,9 @@ const Navigation = () => {
       {/* Mobile nav */}
       {isOpen && (
         <div className="md:hidden px-4 pb-4 space-y-2 font-semibold text-lg">
-          <Link
-            to="/content"
-            onClick={() => setIsOpen(false)}
-            className={`block ${
-              location.pathname === "/content"
-                ? "text-blue-600"
-                : "text-gray-700 hover:text-blue-600"
-            }`}
-          >
-            AI Chat
+          <Link to="/orders" onClick={() => setIsOpen(false)}>
+            Orders
           </Link>
-          {!token && (
-            <Link
-              to="/login"
-              onClick={() => setIsOpen(false)}
-              className={`block ${
-                location.pathname === "/login"
-                  ? "text-blue-600"
-                  : "text-gray-700 hover:text-blue-600"
-              }`}
-            >
-              Log In
-            </Link>
-          )}
         </div>
       )}
     </nav>

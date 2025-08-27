@@ -1,18 +1,13 @@
 import { useState } from "react";
-
-interface ToolBlockProps {
-  type: "use" | "result";
-  toolName: string;
-  toolInput?: any;
-  toolResult?: any;
-  iteration?: number;
-}
-
-const ToolBlock = ({ type, toolName, toolInput, toolResult, iteration }: ToolBlockProps) => {
+import type { ToolBlockProps } from "../../types/Chat";
+const ToolBlock = ({
+  type,
+  toolName,
+  toolInput,
+  toolResult,
+}: ToolBlockProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  console.log('ToolBlock Iteration', iteration);
-  
   const getToolIcon = (name: string) => {
     switch (name) {
       case "weather":
@@ -30,11 +25,10 @@ const ToolBlock = ({ type, toolName, toolInput, toolResult, iteration }: ToolBlo
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2">
             <span className="text-xs font-medium text-blue-700 bg-blue-200 px-2 py-1 rounded">
-              {getToolIcon(toolName)} {type === "use" ? "TOOL USE" : "TOOL RESULT"}: {toolName.toUpperCase()}
+              {getToolIcon(toolName)}{" "}
+              {type === "tool_use" ? "TOOL USE" : "TOOL RESULT"}:{" "}
+              {toolName.toUpperCase()}
             </span>
-            {/* {iteration && (
-              <span className="text-xs text-gray-600">Iteration {iteration}</span>
-            )} */}
           </div>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -44,16 +38,19 @@ const ToolBlock = ({ type, toolName, toolInput, toolResult, iteration }: ToolBlo
           </button>
         </div>
 
-        {type === "use" && (
+        {type === "tool_use" && (
           <div className="text-sm text-blue-800">
-            <p className="font-medium mb-1">Calling {toolName} with:</p>
-            <div className="bg-white rounded border p-2 text-blue-900 font-mono text-xs">
-              {JSON.stringify(toolInput, null, 2)}
-            </div>
+            <p className="font-medium mb-1">Calling {toolName}</p>
+
+            {isExpanded && toolInput && (
+              <div className="bg-white rounded border p-2 text-blue-900 font-mono text-xs">
+                {JSON.stringify(toolInput, null, 2)}
+              </div>
+            )}
           </div>
         )}
 
-        {type === "result" && (
+        {type === "tool_result" && (
           <div className="text-sm text-blue-800">
             <p className="font-medium mb-1">Tool {toolName} returned:</p>
             {isExpanded && toolInput && (
@@ -62,11 +59,11 @@ const ToolBlock = ({ type, toolName, toolInput, toolResult, iteration }: ToolBlo
                 <div className="bg-white rounded border p-2 text-blue-700 font-mono text-xs">
                   {JSON.stringify(toolInput, null, 2)}
                 </div>
+                <div className="bg-white rounded border p-2 text-green-800 font-mono text-xs">
+                  {JSON.stringify(toolResult, null, 2)}
+                </div>
               </div>
             )}
-            <div className="bg-white rounded border p-2 text-green-800 font-mono text-xs">
-              {JSON.stringify(toolResult, null, 2)}
-            </div>
           </div>
         )}
       </div>
