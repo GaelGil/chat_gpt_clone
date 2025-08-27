@@ -18,4 +18,6 @@ dependencies = [
     "composio-anthropic==0.8.5",
     "fastmcp>=2.11.1",
     "wikipedia>=1.4.0",
+    "jupyter>=1.1.1",
+    "lab>=8.4",
 ]
