@@ -61,11 +61,8 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
                 block.type === "final_response"
               ) {
                 return (
-                  <div
-                    key={idx}
-                    className="px-4 py-3 border-t border-secondary-300"
-                  >
-                    <div className="text-primary-600 prose prose-sm max-w-none">
+                  <div key={idx} className="px-4 py-3">
+                    <div className=" prose prose-sm max-w-none">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {block.content || ""}
                       </ReactMarkdown>

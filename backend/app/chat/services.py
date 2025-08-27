@@ -4,11 +4,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from composio import Composio  # type: ignore
 from app.chat.agent.PlannerAgent import PlannerAgent  # type: ignore
-from app.chat.agent.prompts import PLANNER_AGENT_PROMPT
-from app.chat.agent.OpenAIClient import OpenAIClient
-from app.chat.agent.MCP.client import MCPClient
-from app.chat.agent.schemas import Plan, ToolCall, PlannerTask
-from openai.types.responses import ParsedResponse
 
 load_dotenv(Path("../../.env"))
 

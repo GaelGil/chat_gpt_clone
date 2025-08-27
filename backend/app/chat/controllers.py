@@ -3,12 +3,10 @@ from app.chat.services import ChatService
 import asyncio
 
 chat = Blueprint("chat", __name__)
-chat_service = ChatService()
-chat_service.init_chat_services()
 
 
 @chat.route("/message", methods=["POST"])
-def send_message():
+def send_message(chat_service: ChatService):
     """Send a message to the AI agent and get a streaming response."""
     try:
         data = request.get_json()
