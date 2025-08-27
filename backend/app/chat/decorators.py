@@ -12,7 +12,7 @@ def chat_service_required(func):
         # get chat session id
         chat_session_id = session.get("chat_session_id")
         # start chat service with user id and session id
-        chat_service = ChatService(user_id=user_id, ession_id=chat_session_id)
+        chat_service = ChatService(user_id=user_id, session_id=chat_session_id)
         # Store session_id in Flask session for future requests
         session["chat_session_id"] = chat_service.session_id
 

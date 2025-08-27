@@ -62,7 +62,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
               ) {
                 return (
                   <div key={idx} className="px-4 py-3">
-                    <div className=" prose prose-sm max-w-none">
+                    <div className=" prose prose-sm max-w-none text-primary-600">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {block.content || ""}
                       </ReactMarkdown>
@@ -76,8 +76,8 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
 
             {/* footer */}
             {!message.isLoading && (
-              <div className="px-4 py-2 border-t rounded border-secondary-300">
-                <p className="text-xs text-primary-600">
+              <div className="px-4 py-2 border-t rounded">
+                <p className="text-xs text-secondary-300">
                   {message.timestamp.toLocaleTimeString()}
                 </p>
               </div>
@@ -96,7 +96,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         ) : (
           // fallback: no blocks, show content
           <div className="px-4 py-3">
-            <div className="prose prose-sm max-w-none">
+            <div className="prose prose-sm max-w-none text-primary-600">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {message.content}
               </ReactMarkdown>
