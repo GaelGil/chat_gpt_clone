@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
-/* @layer base {
+@layer base {
   html {
     @apply text-white;
   }
-} */
+}
 
 @theme {
   --color-primary-600: oklch(98.5% 0.001 106.423);
   --color-secondary-300: oklch(70.5% 0.015 286.067);
-  --color-back-300: #414141;
+  --color-tertiary-600: #181818;
+  --color-quad-600: #414141;
 }
 
 body {

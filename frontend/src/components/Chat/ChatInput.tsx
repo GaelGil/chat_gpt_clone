@@ -27,7 +27,7 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
           onKeyPress={handleKeyPress}
           placeholder="Ask me anything... (Press Enter to send, Shift+Enter for new line)"
           disabled={disabled}
-          className="text-secondary-300 w-full px-4 py-3 border border-secondary-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="text-primary-600 w-full px-4 py-3 shadow bg-quad-600 rounded-xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
           rows={Math.min(Math.max(1, message.split("\n").length), 5)}
         />
       </div>
