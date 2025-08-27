@@ -49,8 +49,8 @@ const SignUpForm = () => {
         setMessage(user.msg);
         localStorage.setItem("token", data.access_token);
         setUser(data.user);
-        const userId = user.user.id;
-        navigate(`/profile/${userId}`);
+        // const userId = user.user.id;
+        navigate("/chat");
       } catch (error) {
         setMessage("error signing up");
       } finally {
