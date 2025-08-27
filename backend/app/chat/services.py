@@ -2,13 +2,6 @@ from app.chat.utils.tool_definitions import tool_definitions
 from app.chat.utils.prompts import AGENT_PROMPT
 from app.extensions import db
 from app.chat.models import ChatSession, ChatMessage, ToolHistory
-from app.chat.utils.tools import analyze_events
-from app.chat.utils.formaters import (
-    parse_composio_event_search_results,
-    format_free_slots_to_markdown,
-    format_events_to_markdown,
-    format_event_to_markdown,
-)
 from openai import OpenAI
 from pathlib import Path
 from dotenv import load_dotenv
@@ -28,8 +21,7 @@ load_dotenv(Path("../../.env"))
 
 
 class ChatService:
-    def __init__(self, user_id, calendar_service: CalendarService, session_id=None):
-        self.calendar_service = calendar_service
+    def __init__(self, user_id, session_id=None):
         self.user_id = user_id
         self.composio_user_id = "0000-1111-2222"
         self.session_id = session_id
@@ -39,7 +31,6 @@ class ChatService:
         self.composio = Composio()
         self.llm: OpenAI = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-        # with self.app.app_context():
         # Load existing chat session if session_id is provided
         if self.session_id:
             self.chat_session = ChatSession.query.get(self.session_id)
@@ -296,33 +287,33 @@ class ChatService:
 
         pass
 
-    def parse_tool_result(self, tool_name: str, tool_result: dict):
-        """Parse the tool result
+    # def parse_tool_result(self, tool_name: str, tool_result: dict):
+    #     """Parse the tool result
 
-        Args:
-            tool_name (str): The name of the tool
-            tool_result (str): The result of the tool
+    #     Args:
+    #         tool_name (str): The name of the tool
+    #         tool_result (str): The result of the tool
 
-        Returns:
-            Any: The parsed result
+    #     Returns:
+    #         Any: The parsed result
 
-        """
-        if tool_name == "analyze_events":
-            parsed_result = tool_result.model_dump()
-            logger.info("Parsing analyze events result")
-        elif tool_name == "get_events_in_month":
-            parsed_result = format_events_to_markdown(tool_result)
-            logger.info("Parsing get events in month result")
-        elif tool_name == "create_event" or tool_name == "update_event":
-            parsed_result = format_event_to_markdown(tool_result)
-            logger.info("Parsing create event result")
-        elif tool_name == "calender_availability":
-            parsed_result = format_free_slots_to_markdown(tool_result)
-            logger.info("Parsing calender availability result")
-        elif "event" in tool_name.lower():
-            parsed_result = parse_composio_event_search_results(tool_result)
-            logger.info("Used event search parser")
-        return parsed_result
+    #     """
+    #     if tool_name == "analyze_events":
+    #         parsed_result = tool_result.model_dump()
+    #         logger.info("Parsing analyze events result")
+    #     elif tool_name == "get_events_in_month":
+    #         parsed_result = format_events_to_markdown(tool_result)
+    #         logger.info("Parsing get events in month result")
+    #     elif tool_name == "create_event" or tool_name == "update_event":
+    #         parsed_result = format_event_to_markdown(tool_result)
+    #         logger.info("Parsing create event result")
+    #     elif tool_name == "calender_availability":
+    #         parsed_result = format_free_slots_to_markdown(tool_result)
+    #         logger.info("Parsing calender availability result")
+    #     elif "event" in tool_name.lower():
+    #         parsed_result = parse_composio_event_search_results(tool_result)
+    #         logger.info("Used event search parser")
+    #     return parsed_result
 
     def execute_tool(self, tool_name: str, tool_args: dict):
         """Execute a tool
@@ -339,33 +330,34 @@ class ChatService:
         logger.info(
             f"Tool Name Type {type(tool_name)}, Tool Args Type {type(tool_args)}"
         )
-        try:
-            if tool_name == "analyze_events":
-                if "get_events_in_month" not in self.tool_history:
-                    return "Please run get_events_in_month first"
-                result = analyze_events(**tool_args)
-            elif tool_name == "create_event":
-                result = self.calendar_service.create_event(tool_args)
-            elif tool_name == "update_event":
-                result = self.calendar_service.update_event(**tool_args)
-            elif tool_name == "delete_event":
-                result = self.calendar_service.delete_event(**tool_args)
-            elif tool_name == "get_events_in_month":
-                result = self.calendar_service.get_events_in_month()
-            else:
-                result = self.composio.tools.execute(
-                    slug=tool_name,
-                    user_id=self.composio_user_id,
-                    arguments=tool_args,
-                )
-            logger.info(f"Tool result: {result}")
-            logger.info(f"Result type: {type(result)}")
-            return result
-        except Exception as e:
-            error_msg = f"Tool execution failed: {str(e)}"
-            logger.info("!!! TOOL EXECUTION EXCEPTION !!!")
-            logger.info(f"Error type: {type(e).__name__}")
-            logger.info(f"Error message: {str(e)}")
-            logger.info(f"Traceback: {traceback.format_exc()}")
+        # try:
+        #     if tool_name == "analyze_events":
+        #         if "get_events_in_month" not in self.tool_history:
+        #             return "Please run get_events_in_month first"
+        #         result = analyze_events(**tool_args)
+        #     elif tool_name == "create_event":
+        #         result = self.calendar_service.create_event(tool_args)
+        #     elif tool_name == "update_event":
+        #         result = self.calendar_service.update_event(**tool_args)
+        #     elif tool_name == "delete_event":
+        #         result = self.calendar_service.delete_event(**tool_args)
+        #     elif tool_name == "get_events_in_month":
+        #         result = self.calendar_service.get_events_in_month()
+        #     else:
+        #         result = self.composio.tools.execute(
+        #             slug=tool_name,
+        #             user_id=self.composio_user_id,
+        #             arguments=tool_args,
+        #         )
+        #     logger.info(f"Tool result: {result}")
+        #     logger.info(f"Result type: {type(result)}")
+        #     return result
+        # except Exception as e:
+        #     error_msg = f"Tool execution failed: {str(e)}"
+        #     logger.info("!!! TOOL EXECUTION EXCEPTION !!!")
+        #     logger.info(f"Error type: {type(e).__name__}")
+        #     logger.info(f"Error message: {str(e)}")
+        #      logger.info(f"Traceback: {traceback.format_exc()}")
 
-            return {"error": error_msg}
+        #     return {"error": error_msg}
+        return "tool executed"
