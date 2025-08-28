@@ -52,24 +52,8 @@ export const theme = createTheme({
   /** Global styles (better place for text/background than `colors`) */
   globalStyles: (theme) => ({
     body: {
-      backgroundColor: theme.colors.gray[0],
-      color: theme.black,
+      backgroundColor: "#212121",
+      color: "red",
     },
   }),
-
-  /** Component overrides */
-  components: {
-    Button: {
-      styles: (theme, params) => ({
-        root: {
-          borderRadius: theme.radius.md,
-          fontWeight: 600,
-          ...(params.color === "brand" && {
-            backgroundColor: theme.colors.brand[5],
-            "&:hover": { backgroundColor: theme.colors.brand[6] },
-          }),
-        },
-      }),
-    },
-  },
 });

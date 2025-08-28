@@ -20,20 +20,18 @@ function App() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<AuthPage />} />
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<AuthPage />} />
 
-          <Route element={<PrivateRoute />}>
-            <Route path="/chat" element={<ChatPage />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/chat" element={<ChatPage />} />
 
-            <Route path="/profile/:userId" element={<ProfilePage />} />
-          </Route>
-        </Routes>
-      </main>
-    </div>
+          <Route path="/profile/:userId" element={<ProfilePage />} />
+        </Route>
+      </Routes>
+    </>
   );
 }
 
