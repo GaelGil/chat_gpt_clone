@@ -7,13 +7,17 @@ import { theme } from "../theme";
 const HomePage: React.FC = () => {
   return (
     <AppShell>
-      <AppShell.Header style={{ backgroundColor: theme.colors.brand[4] }}>
+      <AppShell.Header
+        style={{ backgroundColor: theme.colors.brand[4], borderBottom: "0px" }}
+      >
         <Navigation />
       </AppShell.Header>
       <AppShell.Main style={{ backgroundColor: theme.colors.brand[4] }}>
         <HomeBanner />
       </AppShell.Main>
-      <AppShell.Footer style={{ backgroundColor: theme.colors.brand[4] }}>
+      <AppShell.Footer
+        style={{ backgroundColor: theme.colors.brand[4], borderTop: "0px" }}
+      >
         <Footer />
       </AppShell.Footer>
     </AppShell>

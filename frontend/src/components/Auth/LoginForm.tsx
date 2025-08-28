@@ -41,7 +41,7 @@ const LogInForm = () => {
         return;
       }
       setUser(data.user);
-      navigate("/chat}");
+      navigate("/chat");
     } catch (error) {
       console.error("Login Error", error);
       if (error instanceof Error) {

@@ -1,6 +1,6 @@
 // import { Form } from "react-bootstrap";
 import type { AuthFormProps } from "../../types/AuthFormProp.ts";
-
+import { Button, TextInput } from "@mantine/core";
 const AuthForm: React.FC<AuthFormProps> = ({
   isLogin,
   username,
@@ -10,46 +10,53 @@ const AuthForm: React.FC<AuthFormProps> = ({
   onSubmit,
 }) => (
   <form onSubmit={onSubmit} className="p-6 space-y-4 max-w-md mx-auto">
-    <label className="block font-semibold text-primary-600">Username</label>
-    <input
+    <TextInput
+      label="Username"
       type="text"
       name="username"
       value={username}
       onChange={onChange}
       required
-      className=" text-secondary-300 w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-back-300"
+      placeholder="Enter Username"
     />
-
     {!isLogin && (
       <>
-        <label className="block font-semibold text-primary-600">Email</label>
-        <input
+        <TextInput
+          label="Email"
           type="text"
           name="email"
           value={email}
           onChange={onChange}
           required
-          className="text-secondary-300 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter Email"
         />
       </>
     )}
 
-    <label className="block font-semibold text-primary-600"> Password</label>
-    <input
+    <TextInput
+      label="Password"
       type="text"
       name="password"
       value={password}
       onChange={onChange}
       required
-      className="text-secondary-300 w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      placeholder="Enter password"
     />
 
-    <button
+    <Button
       type="submit"
-      className="mt-4 w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-700 transition"
+      variant="outline" // gives border only
+      radius="xl" // makes it oval
+      size="lg" // adjust size
+      styles={(theme) => ({
+        root: {
+          borderColor: theme.colors.brand[4], // border color
+          color: theme.colors.brand[4], // text color
+        },
+      })}
     >
       {isLogin ? "Login" : "Sign Up"}
-    </button>
+    </Button>
   </form>
 );
 
