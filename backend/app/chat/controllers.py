@@ -1,5 +1,8 @@
-from flask import Blueprint, jsonify, request, stream_with_context, Response
-from app.chat.services import ChatService  # type: ignore
+from flask import Blueprint, jsonify, request, stream_with_context, Response, session
+from app.chat.services import ChatService
+from app.chat.models import ChatSession
+from app.user.models import User
+from app.extensions import db
 from app.chat.decorators import chat_service_required
 from app.auth.decorators import login_required
 import sys
@@ -54,3 +57,53 @@ def send_message_stream():
 def health_check():
     """Simple health check for the chat service."""
     return jsonify({"status": "healthy", "service": "chat"}), 200
+
+
+@chat.route("/chats", methods=["GET"])
+@login_required
+def get_chats():
+    user_id = session.get("user_id")
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    chats = ChatSession.query.filter_by(user_id=user_id).all()
+
+    chats_data = [{"id": chat.id, "name": chat.name} for chat in chats]
+
+    return jsonify(chats_data), 200
+
+
+@chat.route("/chats", methods=["DELETE"])
+@login_required
+def delete_chat():
+    try:
+        data = request.get_json()
+        chat_id = data.get("id")
+
+        chat = ChatSession.query.get(chat_id)
+        if not chat:
+            return jsonify({"msg": "Chat not found"}), 404
+
+        db.session.delete(chat)
+        db.session.commit()
+    except Exception as e:
+        return jsonify({"error": f"Failed to delete chat: {str(e)}"}), 500
+
+    return jsonify({"msg": "Chat deleted successfully"}), 200
+
+
+@chat.route("/chats", methods=["POST"])
+@login_required
+def create_chat():
+    try:
+        data = request.get_json()
+        name = data.get("name")
+
+        chat = ChatSession(name=name, user_id=session.get("user_id"))
+        db.session.add(chat)
+        db.session.commit()
+    except Exception as e:
+        return jsonify({"error": f"Failed to create chat: {str(e)}"}), 500
+
+    return jsonify({"id": chat.id, "name": chat.name}), 201

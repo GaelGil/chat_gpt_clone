@@ -8,3 +8,7 @@ class User(db.Model):
     username = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
+
+    chat_sessions = db.relationship(
+        "ChatSession", back_populates="user", cascade="all, delete-orphan"
+    )
