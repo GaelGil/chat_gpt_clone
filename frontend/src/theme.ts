@@ -1,59 +1,36 @@
-// theme.ts
 import { createTheme } from "@mantine/core";
 
 export const theme = createTheme({
-  /** Brand colors (10 shades required) */
+  /** Define your brand colors */
   colors: {
     brand: [
-      "#e6f0ff", // 0 - lightest
-      "#cce0ff", // 1
-      "#99c2ff", // 2
-      "#66a3ff", // 3
-      "#3385ff", // 4
-      "#0066ff", // 5 - main brand
-      "#0052cc", // 6
-      "#003d99", // 7
-      "#002966", // 8
-      "#001433", // 9 - darkest
-    ],
-    secondary: [
-      "#fff9e6",
-      "#fff3cc",
-      "#ffe799",
-      "#ffdb66",
-      "#ffcf33",
-      "#ffc300", // main secondary
-      "#cc9c00",
-      "#997500",
-      "#664e00",
-      "#332700",
-    ],
-    success: [
-      "#e6fff2",
-      "#ccffe6",
-      "#99ffcc",
-      "#66ffb3",
-      "#33ff99",
-      "#00ff80", // main success
-      "#00cc66",
-      "#00994d",
-      "#006633",
-      "#00331a",
+      "#ffffff", // shade 0
+      "#9f9fa9", // shade 1
+      "#414141", // shade 2
+      "#181818", // shade 3
+      "#000000", // shade 4
+      "#0066ff", // shade 5
+      "#0044cc", // shade 6
+      "#003399", // shade 7
+      "#001966", // shade 8
+      "#000d33", // shade 9
     ],
   },
 
-  /** Which color palette to use as primary */
+  /** Set your primary color */
   primaryColor: "brand",
 
-  /** Global font + radius defaults */
-  fontFamily: "Inter, sans-serif",
-  defaultRadius: "md",
-
-  /** Global styles (better place for text/background than `colors`) */
-  globalStyles: (theme) => ({
-    body: {
-      backgroundColor: "#212121",
-      color: "red",
+  components: {
+    AppShell: {
+      defaultProps: {
+        padding: "md",
+        styles: (theme) => ({
+          main: {
+            // You can use a fixed background here or refer to CSS variables
+            backgroundColor: "#212121", // your default background
+          },
+        }),
+      },
     },
-  }),
+  }, // default theme (can be 'dark')
 });

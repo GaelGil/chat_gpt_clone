@@ -5,6 +5,8 @@ import { PROJECT_NAME } from "../../data/ProjectName";
 import { PROJECT_LOGO } from "../../data/ProjectLogo";
 import { useUser } from "../../context/UserContext";
 import { logout } from "../../api/auth";
+import { Anchor, Text, Group, Space, Button } from "@mantine/core";
+
 const Navigation = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>();
@@ -27,90 +29,181 @@ const Navigation = () => {
   };
 
   return (
-    <nav className=" py-1">
-      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-        <Link to="/" className="flex items-center gap-2 text-decoration-none">
-          <img
-            src={PROJECT_LOGO}
-            alt="Logo"
-            className="w-24 h-12 object-contain"
-          />
-          <span className="text-primary-600 font-bold text-xl text-gray-800 no-underline">
-            {PROJECT_NAME}
-          </span>
-        </Link>
-
-        {/* Mobile menu toggle */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-black focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+    <Group
+      align="center"
+      justify="space-between"
+      px="md"
+      py="sm"
+      style={{ maxWidth: 1200, margin: "0 auto" }}
+    >
+      <Anchor
+        component={Link}
+        to="/"
+        style={{
+          display: "flex",
+          alignItems: "center",
+        }}
+        underline="never"
+      >
+        <img
+          src={PROJECT_LOGO}
+          alt="Logo"
+          className="w-24 h-12 object-contain"
+        />
+        <Text
+          c="brand.0"
+          style={{
+            fontWeight: 700, // bold
+            marginLeft: 8, // spacing from logo
+            fontSize: "1.5rem",
+          }}
         >
-          <svg
-            className="h-6 w-6"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+          {PROJECT_NAME}
+        </Text>
+      </Anchor>
+      <Space />
+
+      {/* Desktop nav */}
+      <Group align="center" gap="md">
+        {!user ? (
+          <></>
+        ) : (
+          <Anchor
+            component={Link}
+            to="/chat"
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+            underline="never"
           >
-            {isOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 8h16M4 16h16"
-              />
-            )}
-          </svg>
-        </button>
-
-        {/* Desktop nav */}
-        <div className="hidden md:flex md:items-center space-x-6 font-semibold text-lg">
-          {!user ? (
-            <></>
-          ) : (
-            <Link className="text-decoration-none" to="/chat">
-              <span className="rounded border-2 border-back-300 px-4 py-2 bg-back-300 text-primary-600 hover:bg-primary-600 hover:text-white">
-                Chat
-              </span>
-            </Link>
-          )}
-
-          {!user ? (
-            <Link className="text-decoration-none" to="/login">
-              <span className="rounded border-2 border-back-300 px-4 py-2 bg-back-300 text-primary-600 hover:bg-primary-600 hover:text-white">
-                Log In
-              </span>
-            </Link>
-          ) : (
-            <Link
-              className="text-decoration-none "
-              onClick={handleLogout}
-              to="/"
+            <Button
+              variant="outline" // gives border only
+              radius="xl" // makes it oval
+              size="sm" // adjust size
+              px={20} // horizontal padding
+              styles={(theme) => ({
+                root: {
+                  borderColor: theme.colors.brand[0], // border color
+                  color: theme.colors.brand[0], // text color
+                  "&:hover": {
+                    backgroundColor: theme.colors.brand[0],
+                    color: "white",
+                  },
+                },
+              })}
             >
-              <span className="rounded border border-back-300 px-4 py-2 bg-white text-primary-600 hover:bg-primary-600 hover:text-white">
-                Log Out
-              </span>
-            </Link>
+              Chat
+            </Button>
+          </Anchor>
+        )}
+
+        {!user ? (
+          <Anchor
+            component={Link}
+            to="/login"
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+            underline="never"
+          >
+            <Button
+              variant="outline" // gives border only
+              radius="xl" // makes it oval
+              size="sm" // adjust size
+              px={20} // horizontal padding
+              styles={(theme) => ({
+                root: {
+                  borderColor: theme.colors.brand[0], // border color
+                  color: theme.colors.brand[0], // text color
+                  "&:hover": {
+                    backgroundColor: theme.colors.brand[0],
+                    color: "white",
+                  },
+                },
+              })}
+            >
+              Log In
+            </Button>
+          </Anchor>
+        ) : (
+          <Anchor
+            component={Link}
+            className="text-decoration-none "
+            onClick={handleLogout}
+            to="/"
+            underline="never"
+          >
+            <Button
+              variant="outline" // gives border only
+              radius="xl" // makes it oval
+              size="sm" // adjust size
+              px={20} // horizontal padding
+              styles={(theme) => ({
+                root: {
+                  borderColor: theme.colors.brand[0], // border color
+                  color: theme.colors.brand[0], // text color
+                  "&:hover": {
+                    backgroundColor: theme.colors.brand[0],
+                    color: "white",
+                  },
+                },
+              })}
+            >
+              Log Out
+            </Button>
+          </Anchor>
+        )}
+      </Group>
+
+      {/* Mobile menu toggle */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-black focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+      >
+        <svg
+          className="h-6 w-6"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          {isOpen ? (
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          ) : (
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 8h16M4 16h16"
+            />
           )}
-        </div>
-      </div>
+        </svg>
+      </button>
 
       {/* Mobile nav */}
       {isOpen && (
         <div className="md:hidden px-4 pb-4 space-y-2 font-semibold text-lg">
-          <Link to="/orders" onClick={() => setIsOpen(false)}>
-            Orders
-          </Link>
+          <Anchor
+            component={Link}
+            className="text-decoration-none "
+            onClick={handleLogout}
+            to="/chat"
+            underline="never"
+          >
+            <Text c="brand.0" style={{ padding: "0.5rem 1rem" }}>
+              Chat
+            </Text>
+          </Anchor>
         </div>
       )}
-    </nav>
+    </Group>
   );
 };
 

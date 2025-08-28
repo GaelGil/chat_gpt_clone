@@ -1,33 +1,19 @@
-import { AppShell, Burger } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { AppShell } from "@mantine/core";
 import HomeBanner from "../components/Home/HomeBanner";
 import Footer from "../components/Layout/Footer";
 import Navigation from "../components/Layout/NavBar";
+import { theme } from "../theme";
 
 const HomePage: React.FC = () => {
-  const [opened] = useDisclosure(false);
-
   return (
-    <AppShell
-      padding="md"
-      header={{ height: 60 }}
-      navbar={{
-        width: 300,
-        breakpoint: "sm",
-        collapsed: { mobile: !opened },
-      }}
-    >
-      <AppShell.Header>
-        <div>
-          <Navigation />
-        </div>
+    <AppShell>
+      <AppShell.Header style={{ backgroundColor: theme.colors.brand[4] }}>
+        <Navigation />
       </AppShell.Header>
-
-      <AppShell.Main>
+      <AppShell.Main style={{ backgroundColor: theme.colors.brand[4] }}>
         <HomeBanner />
       </AppShell.Main>
-
-      <AppShell.Footer>
+      <AppShell.Footer style={{ backgroundColor: theme.colors.brand[4] }}>
         <Footer />
       </AppShell.Footer>
     </AppShell>
