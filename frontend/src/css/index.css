@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@layer base {
+/* @layer base {
   html {
     @apply text-white;
   }
@@ -16,4 +16,4 @@
 body {
   background-color: #212121;
   font-family: "Roboto", sans-serif;
-}
+} */
