@@ -59,10 +59,12 @@ def health_check():
     return jsonify({"status": "healthy", "service": "chat"}), 200
 
 
-@chat.route("/chats", methods=["GET"])
+@chat.route("/users/<int:user_id>/chats", methods=["GET"])
 @login_required
-def get_chats():
-    user_id = session.get("user_id")
+def get_chats(user_id):
+    user_session_id = session.get("user_id")
+    if user_session_id != user_id:
+        return jsonify({"msg": "Unauthorized"}), 401
     user = User.query.get(user_id)
     if not user:
         return jsonify({"msg": "User not found"}), 404

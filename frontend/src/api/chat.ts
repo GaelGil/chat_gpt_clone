@@ -1,15 +1,12 @@
 import { BASE_URL } from "./url";
 
 export const getUserChats = async (userId: string) => {
-  const res = await fetch(`${BASE_URL}/api/chat/chats`, {
+  const res = await fetch(`${BASE_URL}/api/chat/users/${userId}/chats`, {
     method: "GET",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      id: userId,
-    }),
   });
   if (!res.ok) {
     return new Error("Error");
