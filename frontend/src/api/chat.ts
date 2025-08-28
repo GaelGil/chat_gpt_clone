@@ -50,3 +50,21 @@ export const deleteChat = async (chatId: string) => {
   const data = await res.json();
   return data;
 };
+
+export const sendMessage = async (message: string) => {
+  const res = await fetch(`${BASE_URL}/api/chat/send`, {
+    method: "POST",
+    credentials: "include", // include cookies if your auth relies on them
+    headers: {
+      "Content-Type": "application/json", // tell server it's JSON
+    },
+    body: JSON.stringify({
+      id: message,
+    }),
+  });
+  if (!res.ok) {
+    return new Error("Error");
+  }
+  const data = await res.json();
+  return data;
+};

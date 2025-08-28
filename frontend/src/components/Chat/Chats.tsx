@@ -11,6 +11,7 @@ const Chats = () => {
 
     try {
       const data = await getUserChats(user.user.id);
+      console.log(data);
       setChats(data);
     } catch (error) {
       console.error("Error fetching chats:", error);
@@ -18,6 +19,7 @@ const Chats = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchChats();
   }, [user]);
@@ -29,13 +31,22 @@ const Chats = () => {
       ) : (
         <div className="">
           <h4>
-            <span className="text-secondary-300">Chats</span>
+            <span className="text-secondary-300 text-md">Chats</span>
           </h4>
-          <ul>
-            {chats.map((chat: any) => (
-              <li key={chat.id}>{chat.name}</li>
-            ))}
-          </ul>
+
+          {chats.map((chat: any) => (
+            <div className="flex items-center justify-between group hover:bg-quad-600 rounded">
+              <p
+                className="text-primary-600 text-sm display: inline-block"
+                key={chat.id}
+              >
+                {chat.name}
+              </p>
+              <span className="hidden group-hover:inline-block text-gray-500 cursor-pointer">
+                ...
+              </span>
+            </div>
+          ))}
         </div>
       )}
     </div>
