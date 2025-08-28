@@ -74,7 +74,7 @@ def get_chats():
     return jsonify(chats_data), 200
 
 
-@chat.route("/chats", methods=["DELETE"])
+@chat.route("/delete", methods=["DELETE"])
 @login_required
 def delete_chat():
     try:
@@ -93,7 +93,7 @@ def delete_chat():
     return jsonify({"msg": "Chat deleted successfully"}), 200
 
 
-@chat.route("/chats", methods=["POST"])
+@chat.route("/craete", methods=["POST"])
 @login_required
 def create_chat():
     try:
