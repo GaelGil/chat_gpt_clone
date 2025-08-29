@@ -3,7 +3,7 @@ import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { BASE_URL } from "../../api/url";
 import type { Message, ChatBlock } from "../../types/Chat";
-import { Text, Box, Flex, Title } from "@mantine/core";
+import { Text, Box, Flex, Title, Group } from "@mantine/core";
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -332,7 +332,7 @@ const ChatInterface = () => {
       align="center" // center horizontally
       gap="md"
     >
-      <Box>
+      <Box bg={"red"} w="100%" mih={"100px"}>
         {/* no messages */}
         {messages.length === 0 && (
           <Box c="brand.0" p="md" ta="center">
@@ -343,7 +343,9 @@ const ChatInterface = () => {
 
         {/* load messages */}
         {messages.map((message) => (
-          <ChatMessage key={message.id} message={message} />
+          <Group w="100%" justify="center">
+            <ChatMessage key={message.id} message={message} />
+          </Group>
         ))}
         <div ref={messagesEndRef} />
       </Box>

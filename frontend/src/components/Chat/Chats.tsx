@@ -2,7 +2,8 @@ import { PROJECT_LOGO } from "../../data/ProjectLogo";
 import { getUserChats } from "../../api/chat";
 import { useUser } from "../../context/UserContext";
 import { useState, useEffect } from "react";
-import { Text, Group, Box } from "@mantine/core";
+import { Text, Group, Box, NavLink } from "@mantine/core";
+import { Link } from "react-router-dom";
 const Chats = () => {
   const user = useUser();
   const [chats, setChats] = useState([]);
@@ -37,14 +38,21 @@ const Chats = () => {
         <p>Loading chats...</p>
       ) : (
         <>
-          <Text c="brand.8">Chats</Text>
+          <Text pl={"sm"} c="brand.8">
+            Chats
+          </Text>
 
           {chats.map((chat: any) => (
             <Group c="brand.0">
-              <Text c="brand.0" key={chat.id}>
-                {chat.name}
-              </Text>
-              <Text>...</Text>
+              <NavLink
+                component={Link}
+                to={`/chat/${chat.id}`}
+                label={chat.name}
+                c="brand.0"
+                key={chat.id}
+                variant="filled"
+                active
+              />
             </Group>
           ))}
         </>

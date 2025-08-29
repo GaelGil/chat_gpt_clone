@@ -28,9 +28,7 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
         placeholder="Ask me anything... (Press Enter to send, Shift+Enter for new line)"
         disabled={disabled}
         w={"50%"}
-        color="brand.6"
-        radius="md"
-        size="md"
+        radius="xl"
       />
       <Button
         bg="brand.1"
