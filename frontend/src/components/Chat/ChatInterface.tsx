@@ -3,7 +3,7 @@ import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { BASE_URL } from "../../api/url";
 import type { Message, ChatBlock } from "../../types/Chat";
-import { Text, Box, Flex } from "@mantine/core";
+import { Text, Box, Flex, Title } from "@mantine/core";
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -335,9 +335,9 @@ const ChatInterface = () => {
       <Box>
         {/* no messages */}
         {messages.length === 0 && (
-          <Box c="brand.0" p="md" ta="center" fw="200" fs="200px" fz="h1">
-            <Text>I am your personal AI assistant</Text>
-            <Text>Ask Anything</Text>
+          <Box c="brand.0" p="md" ta="center">
+            <Title>I am your personal AI assistant</Title>
+            <Text fw={500}>Ask Anything</Text>
           </Box>
         )}
 

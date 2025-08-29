@@ -137,7 +137,7 @@ class ChatService:
             # if there is text, print it
             if event.type == "response.output_text.delta":
                 # yield the text
-                yield json.dumps({"type": "init_response", "text": event.delta})
+                yield json.dumps({"type": "response", "text": event.delta})
                 logger.info(f"response.output_text.delta: {event.delta}")
                 init_response += event.delta
                 # print(event.delta, end="", flush=True)
@@ -283,7 +283,7 @@ class ChatService:
                 )
                 # if there is text, print it/yield it
                 if ev.type == "response.output_text.delta":
-                    yield json.dumps({"type": "final_response", "text": ev.delta})
+                    yield json.dumps({"type": "response", "text": ev.delta})
                     logger.info(f"response.output_text.delta: {ev.delta}")
                     final_response += ev.delta
 
