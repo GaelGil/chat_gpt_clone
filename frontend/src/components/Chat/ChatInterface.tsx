@@ -332,7 +332,15 @@ const ChatInterface = () => {
       align="center" // center horizontally
       gap="md"
     >
-      <Box bg={"red"} w="100%" mih={"100px"}>
+      <Box
+        w="100%"
+        mih={"100px"}
+        style={{
+          flex: 1, // take remaining height
+          overflowY: "auto", // enable vertical scroll
+          padding: "1rem",
+        }}
+      >
         {/* no messages */}
         {messages.length === 0 && (
           <Box c="brand.0" p="md" ta="center">
@@ -349,9 +357,7 @@ const ChatInterface = () => {
         ))}
         <div ref={messagesEndRef} />
       </Box>
-      {/* <Box style={{ maxWidth: "600px", width: "100%" }}> */}
       <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
-      {/* </Box> */}
     </Flex>
   );
 };

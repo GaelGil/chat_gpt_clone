@@ -8,8 +8,8 @@ import { Text, Flex, Box } from "@mantine/core";
 const ChatMessage = ({ message }: ChatMessageProps) => {
   if (message.role === "user") {
     return (
-      <Flex w="50%" direction="column" mb="sm" bg={"brand.1"}>
-        <Box bg="brand.2" p="sm" c="brand.0" ml="auto" w="fit-content">
+      <Flex w="60%" direction="column" mb="sm" bg={"brand.1"}>
+        <Box bg="brand.2" p="lg" c="brand.0" ml="auto" w="fit-content">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.content}
           </ReactMarkdown>
@@ -26,7 +26,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
   const hasBlocks = blocks.length > 0;
 
   return (
-    <Flex w="50%" direction="column" mb="sm">
+    <Flex w="60%" direction="column" mb="sm">
       {hasBlocks ? (
         <Box>
           {blocks.map((block, idx) => {
@@ -56,7 +56,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             // if respose block, render text blocks
             if (block.type === "response") {
               return (
-                <Box bg="brand.2" p="sm" c="brand.0" ml="auto" w="fit-content">
+                <Box p="sm" c="brand.0">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {message.content}
                   </ReactMarkdown>

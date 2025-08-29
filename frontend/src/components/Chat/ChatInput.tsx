@@ -20,7 +20,7 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
   };
 
   return (
-    <Group w="100%" justify="center">
+    <Group w="100%" justify="center" p="md">
       <Textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
