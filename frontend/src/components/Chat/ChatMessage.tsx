@@ -3,22 +3,23 @@ import ToolBlock from "./ToolBlock";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ChatMessageProps } from "../../types/Chat";
+import { Text, Flex, Box } from "@mantine/core";
 
 const ChatMessage = ({ message }: ChatMessageProps) => {
   if (message.role === "user") {
     return (
-      <div className="flex justify-end">
-        <div className="max-w-[70%] bg-quad-600 text-primary-600 rounded-lg px-4 py-2">
-          <div className="prose prose-sm prose-invert max-w-none">
+      <Flex display="flex" bg={"brand.2"} w="100%" p="md">
+        <Box c="brand.0">
+          <Box>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {message.content}
             </ReactMarkdown>
-          </div>
-          <p className="text-xs text-blue-100 mt-1">
+          </Box>
+          <Text className="text-xs text-blue-100 mt-1">
             {message.timestamp.toLocaleTimeString()}
-          </p>
-        </div>
-      </div>
+          </Text>
+        </Box>
+      </Flex>
     );
   }
 
@@ -27,10 +28,10 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
   const hasBlocks = blocks.length > 0;
 
   return (
-    <div className="flex justify-start">
-      <div className="max-w-[85%]rounded-lg rounded border-secondary-300 overflow-hidden">
+    <Flex>
+      <Flex>
         {hasBlocks ? (
-          <div className="space-y-0">
+          <Box>
             {blocks.map((block, idx) => {
               if (block.type === "tool_use") {
                 return (
@@ -55,19 +56,16 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
                 );
               }
 
-              // init_response and final_response are both text blocks
-              if (
-                block.type === "init_response" ||
-                block.type === "final_response"
-              ) {
+              // if respose block, render text blocks
+              if (block.type === "response") {
                 return (
-                  <div key={idx} className="px-4 py-3">
-                    <div className=" prose prose-sm max-w-none text-primary-600">
+                  <Box key={idx} c="brand.0">
+                    <Box c="brand.0">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {block.content || ""}
                       </ReactMarkdown>
-                    </div>
-                  </div>
+                    </Box>
+                  </Box>
                 );
               }
 
@@ -76,23 +74,23 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
 
             {/* footer */}
             {!message.isLoading && (
-              <div className="px-4 py-2 border-t rounded">
-                <p className="text-xs text-secondary-300">
+              <Box>
+                <Text c="brand.0">
                   {message.timestamp.toLocaleTimeString()}
-                </p>
-              </div>
+                </Text>
+              </Box>
             )}
 
             {/* spinner while loading */}
             {message.isLoading && (
-              <div className="px-4 py-3 border-t border-secondary-300">
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <Box className="px-4 py-3 border-t border-secondary-300">
+                <Box className="flex items-center space-x-2">
+                  <Box className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></Box>
                   <span className="text-primary-600">Thinking...</span>
-                </div>
-              </div>
+                </Box>
+              </Box>
             )}
-          </div>
+          </Box>
         ) : (
           // fallback: no blocks, show content
           <div className="px-4 py-3">
@@ -116,8 +114,8 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             )}
           </div>
         )}
-      </div>
-    </div>
+      </Flex>
+    </Flex>
   );
 };
 

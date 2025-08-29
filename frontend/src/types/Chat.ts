@@ -4,7 +4,7 @@ export interface ChatInputProps {
 }
 
 export interface ChatBlock {
-  type: "init_response" | "final_response" | "tool_use" | "tool_result";
+  type: "response" | "tool_use" | "tool_result";
   content?: string;
   tool_name?: string;
   tool_input?: any;

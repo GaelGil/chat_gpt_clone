@@ -103,10 +103,7 @@ const ChatInterface = () => {
       // find last streaming/text block if exists (init_response or final_response)
       const streamingIdx = (() => {
         for (let i = blocks.length - 1; i >= 0; i--) {
-          if (
-            blocks[i].type === "init_response" ||
-            blocks[i].type === "final_response"
-          ) {
+          if (blocks[i].type === "response") {
             return i;
           }
         }
@@ -118,12 +115,12 @@ const ChatInterface = () => {
         const existing = { ...blocks[streamingIdx] } as ChatBlock; // make a copy of last text block
         existing.content = (existing.content || "") + text; // append text
         // if final, mark as final_response
-        existing.type = isFinal ? "final_response" : "init_response";
+        existing.type = "response";
         blocks[streamingIdx] = existing;
       } else {
         // push new text block
         const block: ChatBlock = {
-          type: isFinal ? "final_response" : "init_response",
+          type: "response",
           content: text,
         };
         blocks.push(block);
@@ -132,9 +129,7 @@ const ChatInterface = () => {
       last.response = { ...last.response, blocks };
       // keep a quick content copy for fallback rendering
       const latestText = blocks
-        .filter(
-          (b) => b.type === "final_response" || b.type === "init_response"
-        )
+        .filter((b) => b.type === "response")
         .map((b) => b.content || "")
         .join("\n\n");
       last.content = latestText;
@@ -190,23 +185,18 @@ const ChatInterface = () => {
       }
 
       const blocks = last.response.blocks.map((b) => {
-        if (b.type === "init_response") {
-          return { ...b, type: "final_response" } as ChatBlock;
+        if (b.type === "response") {
+          return { ...b, type: "response" } as ChatBlock;
         }
         return b;
       });
 
       last.response = { ...last.response, blocks };
       // keep content synced to final text if present
-      const finalText =
-        blocks
-          .filter((b) => b.type === "final_response")
-          .map((b) => b.content || "")
-          .join("\n\n") ||
-        blocks
-          .filter((b) => b.type === "init_response")
-          .map((b) => b.content || "")
-          .join("\n\n");
+      const finalText = blocks
+        .filter((b) => b.type === "response")
+        .map((b) => b.content || "")
+        .join("\n\n");
       last.content = finalText;
       last.isLoading = false;
       last.timestamp = new Date();
@@ -278,10 +268,7 @@ const ChatInterface = () => {
         console.log("SSE chunk text", parsed.text);
 
         switch (parsed.type) {
-          case "init_response":
-            upsertTextBlock(parsed.text ?? "", false);
-            break;
-          case "final_response":
+          case "response":
             upsertTextBlock(parsed.text ?? "", true);
             break;
           case "tool_use":
