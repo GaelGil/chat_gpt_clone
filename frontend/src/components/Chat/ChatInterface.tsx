@@ -331,20 +331,11 @@ const ChatInterface = () => {
       justify="center" // center vertically
       align="center" // center horizontally
       gap="md"
-      bg="red"
     >
-      <Box
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+      <Box>
         {/* no messages */}
         {messages.length === 0 && (
-          <Box c={"brand.0"}>
+          <Box c="brand.0" p="md" ta="center" fw="200" fs="200px" fz="h1">
             <Text>I am your personal AI assistant</Text>
             <Text>Ask Anything</Text>
           </Box>
