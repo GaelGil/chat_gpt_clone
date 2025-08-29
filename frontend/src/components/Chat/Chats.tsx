@@ -2,7 +2,7 @@ import { PROJECT_LOGO } from "../../data/ProjectLogo";
 import { getUserChats } from "../../api/chat";
 import { useUser } from "../../context/UserContext";
 import { useState, useEffect } from "react";
-import { Text, Group } from "@mantine/core";
+import { Text, Group, Flex, Box } from "@mantine/core";
 const Chats = () => {
   const user = useUser();
   const [chats, setChats] = useState([]);
@@ -25,7 +25,7 @@ const Chats = () => {
     fetchChats();
   }, [user]);
   return (
-    <Group>
+    <Box>
       <Group style={{ width: "100%", padding: "0.5rem" }}>
         <img
           src={PROJECT_LOGO}
@@ -37,21 +37,19 @@ const Chats = () => {
         <p>Loading chats...</p>
       ) : (
         <>
-          <Text c="brand.0">Chats</Text>
+          <Text c="brand.8">Chats</Text>
 
           {chats.map((chat: any) => (
-            <Group className="flex items-center justify-between group hover:bg-quad-600 rounded">
-              <Text c="brand.1" key={chat.id}>
+            <Group c="brand.0">
+              <Text c="brand.0" key={chat.id}>
                 {chat.name}
               </Text>
-              <Text className="hidden group-hover:inline-block text-gray-500 cursor-pointer">
-                ...
-              </Text>
+              <Text>...</Text>
             </Group>
           ))}
         </>
       )}
-    </Group>
+    </Box>
   );
 };
 

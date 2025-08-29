@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ChatInputProps } from "../../types/Chat";
+import { Textarea, Button, Group } from "@mantine/core";
 
 const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
   const [message, setMessage] = useState("");
@@ -19,32 +20,32 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
   };
 
   return (
-    <div className="flex space-x-3">
-      <div className="flex-1 relative">
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Ask me anything... (Press Enter to send, Shift+Enter for new line)"
-          disabled={disabled}
-          className="text-primary-600 w-full px-4 py-3 shadow bg-quad-600 rounded-xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-          rows={Math.min(Math.max(1, message.split("\n").length), 5)}
-        />
-      </div>
-      <button
+    <Group w="100%" justify="center">
+      <Textarea
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={handleKeyPress}
+        placeholder="Ask me anything... (Press Enter to send, Shift+Enter for new line)"
+        disabled={disabled}
+        w={"50%"}
+        color="brand.6"
+        radius="md"
+        size="md"
+      />
+      <Button
+        bg="brand.1"
         onClick={handleSend}
         disabled={!message.trim() || disabled}
-        className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-back-300 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
       >
         {disabled ? (
-          <div className="flex items-center space-x-2">
+          <Group>
             <div className="animate-spin rounded h-4 w-4 border-b-2 border-secondary-300"></div>
-          </div>
+          </Group>
         ) : (
           "Send"
         )}
-      </button>
-    </div>
+      </Button>
+    </Group>
   );
 };
 

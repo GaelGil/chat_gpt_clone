@@ -2,22 +2,17 @@ import { AppShell } from "@mantine/core";
 import HomeBanner from "../components/Home/HomeBanner";
 import Footer from "../components/Layout/Footer";
 import Navigation from "../components/Layout/NavBar";
-import { theme } from "../theme";
 
 const HomePage: React.FC = () => {
   return (
     <AppShell>
-      <AppShell.Header
-        style={{ backgroundColor: theme.colors.brand[4], borderBottom: "0px" }}
-      >
+      <AppShell.Header bg="brand.7" withBorder={false}>
         <Navigation />
       </AppShell.Header>
-      <AppShell.Main style={{ backgroundColor: theme.colors.brand[4] }}>
+      <AppShell.Main bg="brand.7">
         <HomeBanner />
       </AppShell.Main>
-      <AppShell.Footer
-        style={{ backgroundColor: theme.colors.brand[4], borderTop: "0px" }}
-      >
+      <AppShell.Footer bg="brand.7" withBorder={false}>
         <Footer />
       </AppShell.Footer>
     </AppShell>

@@ -3,6 +3,8 @@ import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { BASE_URL } from "../../api/url";
 import type { Message, ChatBlock } from "../../types/Chat";
+import { Text, Box, Group, Flex } from "@mantine/core";
+import { theme } from "../../theme";
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -336,33 +338,40 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="">
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto px-8 py-6 space-y-6">
-          {messages.length === 0 && (
-            <div className="text-center py-16">
-              <h2 className="text-2xl font-semibold mb-3">
-                <span className="text-primary-600">
-                  I am your personal AI assistant
-                </span>
-              </h2>
-              <p className="text-secondary-300 mb-2 max-w-md mx-auto">
-                Ask Anything
-              </p>
-            </div>
-          )}
+    <Flex
+      direction="column"
+      w="100%"
+      h="100vh"
+      justify="center" // center vertically
+      align="center" // center horizontally
+      gap="md"
+      style={{ padding: "1rem" }}
+    >
+      <Box
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        {messages.length === 0 && (
+          <Box c={"brand.0"}>
+            <Text>I am your personal AI assistant</Text>
+            <Text>Ask Anything</Text>
+          </Box>
+        )}
 
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-8 py-6">
+        {messages.map((message) => (
+          <ChatMessage key={message.id} message={message} />
+        ))}
+        <div ref={messagesEndRef} />
+      </Box>
+      <Box style={{ maxWidth: "600px", width: "100%" }}>
         <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
-      </div>
-    </div>
+      </Box>
+    </Flex>
   );
 };
 

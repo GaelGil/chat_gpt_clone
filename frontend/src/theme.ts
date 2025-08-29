@@ -1,18 +1,25 @@
 import { createTheme } from "@mantine/core";
-
+// --bg-primary: #212121;
+//   --bg-primary-inverted: #fff;
+//   --bg-secondary: #303030;
+//   --bg-tertiary: #414141;
+//   --bg-scrim: #0d0d0d80;
+//   --bg-elevated-primary: #303030;
+//   --bg-elevated-secondary: #181818;
+//   --bg-status-warning: #4a2206;
 export const theme = createTheme({
   /** Define your brand colors */
   colors: {
     brand: [
       "#ffffff", // shade 0
-      "#9f9fa9", // shade 1
-      "#414141", // shade 2
-      "#181818", // shade 3
-      "#000000", // shade 4
-      "#0066ff", // shade 5
-      "#0044cc", // shade 6
-      "#003399", // shade 7
-      "#001966", // shade 8
+      "#212121", // shade 1
+      "#303030", // shade 2
+      "#414141", // shade 3
+      "#0d0d0d80", // shade 4
+      "#303030", // shade 5
+      "#181818", // shade 6
+      "#000000", // shade 7
+      "#afafaf", // shade 8
       "#000d33", // shade 9
     ],
   },
