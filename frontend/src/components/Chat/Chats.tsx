@@ -2,6 +2,7 @@ import { PROJECT_LOGO } from "../../data/ProjectLogo";
 import { getUserChats } from "../../api/chat";
 import { useUser } from "../../context/UserContext";
 import { useState, useEffect } from "react";
+import { Text, Group } from "@mantine/core";
 const Chats = () => {
   const user = useUser();
   const [chats, setChats] = useState([]);
@@ -24,32 +25,33 @@ const Chats = () => {
     fetchChats();
   }, [user]);
   return (
-    <div className="text-primary-600 p-2">
-      <img src={PROJECT_LOGO} alt="Logo" className="w-10 h-10" />
+    <Group>
+      <Group style={{ width: "100%", padding: "0.5rem" }}>
+        <img
+          src={PROJECT_LOGO}
+          alt="Logo"
+          style={{ width: "25px", height: "25px" }}
+        />
+      </Group>
       {loading ? (
         <p>Loading chats...</p>
       ) : (
-        <div className="">
-          <h4>
-            <span className="text-secondary-300 text-md">Chats</span>
-          </h4>
+        <>
+          <Text c="brand.0">Chats</Text>
 
           {chats.map((chat: any) => (
-            <div className="flex items-center justify-between group hover:bg-quad-600 rounded">
-              <p
-                className="text-primary-600 text-sm display: inline-block"
-                key={chat.id}
-              >
+            <Group className="flex items-center justify-between group hover:bg-quad-600 rounded">
+              <Text c="brand.1" key={chat.id}>
                 {chat.name}
-              </p>
-              <span className="hidden group-hover:inline-block text-gray-500 cursor-pointer">
+              </Text>
+              <Text className="hidden group-hover:inline-block text-gray-500 cursor-pointer">
                 ...
-              </span>
-            </div>
+              </Text>
+            </Group>
           ))}
-        </div>
+        </>
       )}
-    </div>
+    </Group>
   );
 };
 
