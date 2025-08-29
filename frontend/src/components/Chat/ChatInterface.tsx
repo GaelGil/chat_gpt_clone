@@ -3,8 +3,7 @@ import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { BASE_URL } from "../../api/url";
 import type { Message, ChatBlock } from "../../types/Chat";
-import { Text, Box, Group, Flex } from "@mantine/core";
-import { theme } from "../../theme";
+import { Text, Box, Flex } from "@mantine/core";
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -332,7 +331,7 @@ const ChatInterface = () => {
       justify="center" // center vertically
       align="center" // center horizontally
       gap="md"
-      style={{ padding: "1rem" }}
+      bg="red"
     >
       <Box
         style={{
@@ -343,6 +342,7 @@ const ChatInterface = () => {
           alignItems: "center",
         }}
       >
+        {/* no messages */}
         {messages.length === 0 && (
           <Box c={"brand.0"}>
             <Text>I am your personal AI assistant</Text>
@@ -350,14 +350,15 @@ const ChatInterface = () => {
           </Box>
         )}
 
+        {/* load messages */}
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
         ))}
         <div ref={messagesEndRef} />
       </Box>
-      <Box style={{ maxWidth: "600px", width: "100%" }}>
-        <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
-      </Box>
+      {/* <Box style={{ maxWidth: "600px", width: "100%" }}> */}
+      <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
+      {/* </Box> */}
     </Flex>
   );
 };
