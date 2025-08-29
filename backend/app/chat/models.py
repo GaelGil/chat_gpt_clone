@@ -19,6 +19,20 @@ class ChatSession(db.Model):
         "ToolHistory", back_populates="session", cascade="all, delete-orphan"
     )
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "messages": [
+                {
+                    "role": msg.role,
+                    "content": msg.content,
+                    "timestamp": msg.created_at.isoformat(),
+                }
+                for msg in self.messages
+            ],
+        }
+
 
 class ChatMessage(db.Model):
     __tablename__ = "chat_messages"

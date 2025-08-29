@@ -109,3 +109,16 @@ def create_chat():
         return jsonify({"error": f"Failed to create chat: {str(e)}"}), 500
 
     return jsonify({"id": chat.id, "name": chat.name}), 201
+
+
+@chat.route("/users/<int:chat_id>/get", methods=["GET"])
+@login_required
+def get_chat(chat_id):
+    try:
+        chat = ChatSession.query.get(chat_id)
+        if not chat:
+            return jsonify({"msg": "Chat not found"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Failed to get chat: {str(e)}"}), 500
+
+    return jsonify(chat.to_dict()), 200

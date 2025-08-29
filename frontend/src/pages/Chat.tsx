@@ -23,7 +23,12 @@ const ChatPage: React.FC = () => {
 
     try {
       const messages = await getChat(chatId); // API call to fetch messages
-      setChatMessages(messages);
+      console.log(messages.messages);
+      const messagesWithDates = messages.messages.map((msg: any) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp),
+      }));
+      setChatMessages(messagesWithDates);
     } catch (err) {
       console.error("Failed to load chat messages:", err);
       setChatMessages([]);

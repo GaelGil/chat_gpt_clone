@@ -34,7 +34,7 @@ export const createChat = async (name: string) => {
 };
 
 export const getChat = async (chatId: string) => {
-  const res = await fetch(`${BASE_URL}/api/chat/${chatId}`, {
+  const res = await fetch(`${BASE_URL}/api/chat/users/${chatId}/get`, {
     method: "GET",
     credentials: "include", // include cookies if your auth relies on them
     headers: {

@@ -10,7 +10,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   isLoadingMessages,
   currentChatId,
 }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(currentMessages || []);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -18,6 +18,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  useEffect(() => {
+    setMessages(currentMessages || []);
+  }, [currentMessages]);
+
+  useEffect(() => {
+    setIsLoading(isLoadingMessages);
+  }, [isLoadingMessages]);
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
