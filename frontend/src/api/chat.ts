@@ -33,6 +33,21 @@ export const createChat = async (name: string) => {
   return data;
 };
 
+export const getChat = async (chatId: string) => {
+  const res = await fetch(`${BASE_URL}/api/chat/${chatId}`, {
+    method: "GET",
+    credentials: "include", // include cookies if your auth relies on them
+    headers: {
+      "Content-Type": "application/json", // tell server it's JSON
+    },
+  });
+  if (!res.ok) {
+    return new Error("Error");
+  }
+  const data = await res.json();
+  return data;
+};
+
 export const deleteChat = async (chatId: string) => {
   const res = await fetch(`${BASE_URL}/api/chat/delete`, {
     method: "DELETE",
@@ -51,20 +66,23 @@ export const deleteChat = async (chatId: string) => {
   return data;
 };
 
-export const sendMessage = async (message: string) => {
-  const res = await fetch(`${BASE_URL}/api/chat/send`, {
+export const sendChatMessage = async (message: string) => {
+  const streamUrl = `${BASE_URL}/api/chat/message/stream?t=${Date.now()}`;
+  const res = await fetch(streamUrl, {
     method: "POST",
     credentials: "include", // include cookies if your auth relies on them
     headers: {
       "Content-Type": "application/json", // tell server it's JSON
+      Accept: "text/event-stream", // optional but descriptive
     },
     body: JSON.stringify({
-      id: message,
+      message: message,
     }),
   });
+
   if (!res.ok) {
-    return new Error("Error");
+    const text = await res.text();
+    throw new Error(`Stream failed: ${res.status} ${text}`);
   }
-  const data = await res.json();
-  return data;
+  return res;
 };

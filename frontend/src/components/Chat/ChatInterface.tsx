@@ -1,15 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
-import { BASE_URL } from "../../api/url";
-import type { Message, ChatBlock } from "../../types/Chat";
+import { sendChatMessage } from "../../api/chat";
+import type { Message, ChatBlock, ChatInterfaceProps } from "../../types/Chat";
 import { Text, Box, Flex, Title, Group } from "@mantine/core";
 
-const ChatInterface = () => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({
+  currentMessages,
+  isLoadingMessages,
+  currentChatId,
+}) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const currentStreamAbortRef = useRef<AbortController | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -48,14 +51,12 @@ const ChatInterface = () => {
 
   const readStreamAndHandleSSE = async (
     reader: ReadableStreamDefaultReader<Uint8Array>,
-    onParsed: (ev: any) => void,
-    signal: AbortSignal
+    onParsed: (ev: any) => void
   ) => {
     const decoder = new TextDecoder();
     let buf = "";
 
     while (true) {
-      if (signal.aborted) throw new DOMException("Aborted", "AbortError");
       const res = await reader.read();
       if (res.done) break;
       buf += decoder.decode(res.value, { stream: true });
@@ -230,30 +231,9 @@ const ChatInterface = () => {
     setIsLoading(true);
 
     // abort previous stream if any
-    currentStreamAbortRef.current?.abort();
-    const ac = new AbortController();
-    currentStreamAbortRef.current = ac;
 
     try {
-      const streamUrl = `${BASE_URL}/api/chat/message/stream?t=${Date.now()}`;
-      const res = await fetch(streamUrl, {
-        method: "POST",
-        credentials: "include", // include cookies if your auth relies on them
-        headers: {
-          "Content-Type": "application/json", // tell server it's JSON
-          Accept: "text/event-stream", // optional but descriptive
-        },
-        body: JSON.stringify({
-          message: message,
-        }),
-        signal: ac.signal, // allows aborting the request
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Stream failed: ${res.status} ${text}`);
-      }
-
+      const res = await sendChatMessage(message);
       const reader = res.body?.getReader();
       if (!reader) {
         throw new Error("Readable stream not supported by this response");
@@ -291,7 +271,7 @@ const ChatInterface = () => {
       };
 
       // read & parse the stream
-      await readStreamAndHandleSSE(reader, onParsed, ac.signal);
+      await readStreamAndHandleSSE(reader, onParsed);
 
       // stream finished normally
       finalizeTextBlocks();
@@ -318,8 +298,6 @@ const ChatInterface = () => {
       }
     } finally {
       // cleanup abort controller
-      if (currentStreamAbortRef.current === ac)
-        currentStreamAbortRef.current = null;
     }
   };
 

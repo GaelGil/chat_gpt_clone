@@ -79,7 +79,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             <Box className="px-4 py-3 border-t border-secondary-300">
               <Box className="flex items-center space-x-2">
                 <Box className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></Box>
-                <Text>Thinking...</Text>
+                <Text c="brand.0">Thinking...</Text>
               </Box>
             </Box>
           )}
@@ -97,7 +97,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             <Box className="mt-2">
               <Box className="flex items-center space-x-2">
                 <Box className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></Box>
-                <Text>Thinking...</Text>
+                <Text c="brand.0">Thinking...</Text>
               </Box>
             </Box>
           ) : (
