@@ -56,7 +56,7 @@ const ChatPage: React.FC = () => {
   }, [user]);
   return (
     <AppShell>
-      <AppShell.Navbar bg={"brand.6"} p={"xs"}>
+      <AppShell.Navbar bg={"brand.6"} p={"xs"} withBorder={false}>
         <Box flex="1">
           <Flex>
             <Image

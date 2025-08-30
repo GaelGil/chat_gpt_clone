@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ChatInputProps } from "../../types/Chat";
-import { Textarea, Button, Group, Flex } from "@mantine/core";
+import { Textarea, Button, Group, Box } from "@mantine/core";
 
 const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
   const [message, setMessage] = useState("");
@@ -20,20 +20,20 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
   };
 
   return (
-    <Flex justify={"center"}>
+    <Box display={"flex"}>
       <Textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyPress}
         placeholder="Ask me anything... (Press Enter to send, Shift+Enter for new line)"
         disabled={disabled}
-        w={"50%"}
+        w={"80%"}
         radius="xl"
         ta={"center"}
-        c="brand.1"
       />
       <Button
-        bg="brand.1"
+        radius="xl"
+        size="lg"
         onClick={handleSend}
         disabled={!message.trim() || disabled}
       >
@@ -45,7 +45,7 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
           "Send"
         )}
       </Button>
-    </Flex>
+    </Box>
   );
 };
 
