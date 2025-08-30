@@ -13,8 +13,8 @@ import {
 const HomeBanner = () => {
   const user = useUser();
   return (
-    <Container size="lg" mih={"80vh"} display={"flex"}>
-      <Group align="center" justify="space-between" gap="xl">
+    <Container size="lg" mih={"100vh"} display={"flex"}>
+      <Group gap="xl" justify="center" align="center">
         <Box flex={1}>
           <Text fz="lg" c="brand.0" mb="xl">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque,

@@ -33,7 +33,7 @@ def send_message_stream():
     try:
         data = request.get_json()
         message = data.get("message")
-        chat_id = data.get("chat_id")
+        chat_id = data.get("chatId")
 
         chat = ChatSession.query.get(chat_id)
         if not chat:

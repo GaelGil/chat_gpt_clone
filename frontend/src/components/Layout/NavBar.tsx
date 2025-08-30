@@ -33,11 +33,12 @@ const Navigation = () => {
       justify="space-between"
       px="md"
       py="sm"
-      style={{ maxWidth: 1200, margin: "0 auto" }}
+      maw={1200}
+      m={"0 auto"}
     >
       <Anchor component={Link} to="/" display={"flex"} underline="never">
         <Image src={PROJECT_LOGO} alt="Logo" />
-        <Text c="brand.0" fz={"xl"} fw={700}>
+        <Text c="brand.0" fz={"xl"} fw={700} ml="sm">
           {PROJECT_NAME}
         </Text>
       </Anchor>
@@ -45,15 +46,16 @@ const Navigation = () => {
       {/* Desktop nav */}
       <Group align="center" gap="md">
         {!user ? (
-          <></>
+          <></> // load nothing if no user
         ) : (
+          // load chat option
           <Anchor component={Link} to="/chat" underline="never">
             <Button
-              variant="outline" // gives border only
-              radius="xl" // makes it oval
-              size="sm" // adjust size
-              px={20} // horizontal padding
-              bd="2px solid brand.0" // border width
+              variant="outline"
+              radius="xl"
+              size="sm"
+              px={20}
+              bd="2px solid brand.0"
               c={"brand.0"}
             >
               Chat

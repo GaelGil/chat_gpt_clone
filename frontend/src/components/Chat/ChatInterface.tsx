@@ -239,6 +239,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
     // abort previous stream if any
 
+    console.log("Sending message:", message);
+    console.log("Sending chat ID:", currentChatId);
     try {
       const res = await sendChatMessage(message, currentChatId);
       const reader = res.body?.getReader();
@@ -311,24 +313,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   return (
     <Flex
       direction="column"
+      align="center" // centers children horizontally
+      justify="center" // centers vertically if there's space
       w="100%"
-      h="100vh"
-      justify="center" // center vertically
-      align="center" // center horizontally
-      gap="md"
+      h="100%"
     >
-      <Box
-        w="100%"
-        mih={"100px"}
-        style={{
-          flex: 1, // take remaining height
-          overflowY: "auto", // enable vertical scroll
-          padding: "1rem",
-        }}
-      >
+      <Box flex={1} p={"md"} w="100%" maw={"80%"}>
         {/* no messages */}
         {messages.length === 0 && (
-          <Box c="brand.0" p="md" ta="center">
+          <Box c="brand.0" ta="center">
             <Title>I am your personal AI assistant</Title>
             <Text fw={500}>Ask Anything</Text>
           </Box>
@@ -342,7 +335,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         ))}
         <div ref={messagesEndRef} />
       </Box>
-      <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
+      <Box w="100%" maw={600}>
+        <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
+      </Box>
     </Flex>
   );
 };

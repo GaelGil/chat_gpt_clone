@@ -19,8 +19,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         </Box>
       </Flex>
     );
-  }
-  if (message.role === "assistant" || message.role === "developer") {
+  } else if (message.role === "assistant") {
     return (
       <Flex w="60%" direction="column" mb="sm" bg={"brand.1"}>
         <Box p="sm" c="brand.0">
@@ -31,6 +30,8 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         </Box>
       </Flex>
     );
+  } else if (message.role === "system" || message.role === "developer") {
+    return <></>;
   }
 
   // assistant
