@@ -3,7 +3,7 @@ import ChatInterface from "../components/Chat/ChatInterface";
 import { Link } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { getDefaultPhoto } from "../api/helper";
-import { Flex, Box, Text, Anchor, Group } from "@mantine/core";
+import { Flex, Box, Text, Anchor, AppShell, Image } from "@mantine/core";
 import { PROJECT_LOGO } from "../data/ProjectLogo";
 import { getUserChats, getChat } from "../api/chat";
 import { useState, useEffect } from "react";
@@ -13,7 +13,7 @@ const ChatPage: React.FC = () => {
   const { user } = useUser();
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [currentChatId, setCurrentChatId] = useState<string | "">("");
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
@@ -55,32 +55,26 @@ const ChatPage: React.FC = () => {
     fetchChats();
   }, [user]);
   return (
-    <Flex h="100vh">
-      {/* Left: Chats Section (25%) */}
-      <Box
-        w="20%"
-        bg="brand.6"
-        display="flex"
-        style={{ flexDirection: "column" }}
-      >
-        <Box flex="1" style={{ overflowY: "auto" }}>
-          <Group style={{ width: "100%", padding: "0.5rem" }}>
-            <img
+    <AppShell>
+      <AppShell.Navbar bg={"brand.6"} p={"xs"}>
+        <Box flex="1">
+          <Flex>
+            <Image
               src={PROJECT_LOGO}
               alt="Logo"
-              style={{ width: "25px", height: "25px" }}
+              w={"25px"}
+              h={"25px"}
+              width={"100%"}
             />
-          </Group>
+          </Flex>
           {loading ? (
-            <p>Loading chats...</p>
+            <Text c="brand.8">Loading chats ...</Text>
           ) : (
-            <>
-              <Text pl={"sm"} c="brand.8">
-                Chats
-              </Text>
+            <Box>
+              <Text c="brand.8">Chats</Text>
 
               {chats.map((chat: any) => (
-                <Group c="brand.0">
+                <Flex c="brand.0">
                   <Text
                     onClick={() => handleChatClick(chat.id)}
                     c="brand.0"
@@ -88,52 +82,41 @@ const ChatPage: React.FC = () => {
                   >
                     {chat.name}
                   </Text>
-                </Group>
+                </Flex>
               ))}
-            </>
+            </Box>
           )}
         </Box>
 
-        {/* Footer with profile link */}
-        <Box
-          style={{
-            padding: "0.5rem",
-          }}
-        >
+        <Box>
           <Anchor
             component={Link}
             to={`/profile/${user.id}`}
             display="flex"
-            style={{
-              alignItems: "center",
-            }}
+            className="hover:bg-red-600"
           >
-            <img
+            <Image
               src={user.pfp || getDefaultPhoto()}
               alt="Profile Avatar"
-              width="10%"
-              height="10%"
-              style={{
-                marginRight: "0.5rem",
-                borderRadius: "50%",
-              }}
+              w="10%"
+              h="10%"
+              radius={"xl"}
             />
             <Text c="brand.0" size="sm">
               {user.username}
             </Text>
           </Anchor>
         </Box>
-      </Box>
+      </AppShell.Navbar>
 
-      {/* Right: Chat Interface (75%) */}
-      <Box w="80%" bg="brand.1" style={{ overflowY: "auto" }}>
+      <AppShell.Main bg="brand.1">
         <ChatInterface
           currentMessages={chatMessages}
           isLoadingMessages={isLoadingMessages}
           currentChatId={currentChatId}
         />
-      </Box>
-    </Flex>
+      </AppShell.Main>
+    </AppShell>
   );
 };
 

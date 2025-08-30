@@ -20,6 +20,18 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
       </Flex>
     );
   }
+  if (message.role === "assistant" || message.role === "developer") {
+    return (
+      <Flex w="60%" direction="column" mb="sm" bg={"brand.1"}>
+        <Box p="sm" c="brand.0">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {message.content}
+          </ReactMarkdown>
+          <Text c="brand.0">{message.timestamp.toLocaleTimeString()}</Text>
+        </Box>
+      </Flex>
+    );
+  }
 
   // assistant
   const blocks = message.response?.blocks ?? [];

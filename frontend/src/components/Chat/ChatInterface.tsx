@@ -240,7 +240,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     // abort previous stream if any
 
     try {
-      const res = await sendChatMessage(message);
+      const res = await sendChatMessage(message, currentChatId);
       const reader = res.body?.getReader();
       if (!reader) {
         throw new Error("Readable stream not supported by this response");

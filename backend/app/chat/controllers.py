@@ -33,6 +33,12 @@ def send_message_stream():
     try:
         data = request.get_json()
         message = data.get("message")
+        chat_id = data.get("chat_id")
+
+        chat = ChatSession.query.get(chat_id)
+        if not chat:
+            return jsonify({"error": "Chat not found"}), 404
+        session["chat_session_id"] = chat_id
 
         if not message:
             return jsonify({"error": "Message is required"}), 400
