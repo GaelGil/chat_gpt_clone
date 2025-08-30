@@ -5,7 +5,7 @@ import { PROJECT_NAME } from "../../data/ProjectName";
 import { PROJECT_LOGO } from "../../data/ProjectLogo";
 import { useUser } from "../../context/UserContext";
 import { logout } from "../../api/auth";
-import { Anchor, Text, Group, Space, Button } from "@mantine/core";
+import { Anchor, Text, Group, Button, Image } from "@mantine/core";
 
 const Navigation = () => {
   const navigate = useNavigate();
@@ -14,7 +14,6 @@ const Navigation = () => {
   const { user, setUser } = useUser();
 
   const handleLogout = async () => {
-    localStorage.removeItem("token");
     try {
       setLoading(true);
       await logout();
@@ -36,62 +35,26 @@ const Navigation = () => {
       py="sm"
       style={{ maxWidth: 1200, margin: "0 auto" }}
     >
-      <Anchor
-        component={Link}
-        to="/"
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
-        underline="never"
-      >
-        <img
-          src={PROJECT_LOGO}
-          alt="Logo"
-          className="w-24 h-12 object-contain"
-        />
-        <Text
-          c="brand.0"
-          style={{
-            fontWeight: 700, // bold
-            marginLeft: 8, // spacing from logo
-            fontSize: "1.5rem",
-          }}
-        >
+      <Anchor component={Link} to="/" display={"flex"} underline="never">
+        <Image src={PROJECT_LOGO} alt="Logo" />
+        <Text c="brand.0" fz={"xl"} fw={700}>
           {PROJECT_NAME}
         </Text>
       </Anchor>
-      <Space />
 
       {/* Desktop nav */}
       <Group align="center" gap="md">
         {!user ? (
           <></>
         ) : (
-          <Anchor
-            component={Link}
-            to="/chat"
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
-            underline="never"
-          >
+          <Anchor component={Link} to="/chat" underline="never">
             <Button
               variant="outline" // gives border only
               radius="xl" // makes it oval
               size="sm" // adjust size
               px={20} // horizontal padding
-              styles={(theme) => ({
-                root: {
-                  borderColor: theme.colors.brand[0], // border color
-                  color: theme.colors.brand[0], // text color
-                  "&:hover": {
-                    backgroundColor: theme.colors.brand[0],
-                    color: "white",
-                  },
-                },
-              })}
+              bd="2px solid brand.0" // border width
+              c={"brand.0"}
             >
               Chat
             </Button>
@@ -99,30 +62,14 @@ const Navigation = () => {
         )}
 
         {!user ? (
-          <Anchor
-            component={Link}
-            to="/login"
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
-            underline="never"
-          >
+          <Anchor component={Link} to="/login" underline="never">
             <Button
               variant="outline" // gives border only
               radius="xl" // makes it oval
               size="sm" // adjust size
               px={20} // horizontal padding
-              styles={(theme) => ({
-                root: {
-                  borderColor: theme.colors.brand[0], // border color
-                  color: theme.colors.brand[0], // text color
-                  "&:hover": {
-                    backgroundColor: theme.colors.brand[0],
-                    color: "white",
-                  },
-                },
-              })}
+              bd="2px solid brand.0" // border width
+              c={"brand.0"}
             >
               Log In
             </Button>
@@ -140,16 +87,8 @@ const Navigation = () => {
               radius="xl" // makes it oval
               size="sm" // adjust size
               px={20} // horizontal padding
-              styles={(theme) => ({
-                root: {
-                  borderColor: theme.colors.brand[0], // border color
-                  color: theme.colors.brand[0], // text color
-                  "&:hover": {
-                    backgroundColor: theme.colors.brand[0],
-                    color: "white",
-                  },
-                },
-              })}
+              bd="2px solid brand.0" // border width
+              c={"brand.0"}
             >
               Log Out
             </Button>

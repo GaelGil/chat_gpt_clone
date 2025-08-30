@@ -1,17 +1,21 @@
 import { Link } from "react-router-dom";
 import { PROJECT_LOGO } from "../../data/ProjectLogo";
 import { useUser } from "../../context/UserContext";
-import { Text, Button, Container, Group, Image, Anchor } from "@mantine/core";
+import {
+  Text,
+  Button,
+  Container,
+  Group,
+  Image,
+  Anchor,
+  Box,
+} from "@mantine/core";
 const HomeBanner = () => {
   const user = useUser();
   return (
-    <Container
-      size="lg"
-      style={{ minHeight: "80vh", display: "flex", alignItems: "center" }}
-    >
+    <Container size="lg" mih={"80vh"} display={"flex"}>
       <Group align="center" justify="space-between" gap="xl">
-        {/* Left content */}
-        <div style={{ flex: 1 }}>
+        <Box flex={1}>
           <Text fz="lg" c="brand.0" mb="xl">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque,
             quaerat minima ducimus doloribus dolore, inventore impedit iste
@@ -22,30 +26,22 @@ const HomeBanner = () => {
           <Anchor
             component={Link}
             to={user ? "/chat" : "/login"}
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
             underline="never"
           >
             <Button
-              variant="outline" // gives border only
-              radius="xl" // makes it oval
-              size="lg" // adjust size
-              styles={(theme) => ({
-                root: {
-                  borderColor: theme.colors.brand[0], // border color
-                  color: theme.colors.brand[0], // text color
-                },
-              })}
+              variant="outline"
+              radius="xl"
+              size="lg"
+              bg={"brand.0"}
+              c={"brand.2"}
             >
               Chat
             </Button>
           </Anchor>
-        </div>
+        </Box>
 
         {/* Right image */}
-        <div style={{ flex: 1, textAlign: "center" }}>
+        <Box flex={1}>
           <Image
             src={PROJECT_LOGO}
             alt="Order Agent"
@@ -53,7 +49,7 @@ const HomeBanner = () => {
             radius="xl"
             mx="auto"
           />
-        </div>
+        </Box>
       </Group>
     </Container>
   );
