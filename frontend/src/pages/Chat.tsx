@@ -18,6 +18,12 @@ const ChatPage: React.FC = () => {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
   const handleChatClick = async (chatId: string) => {
+    if (!chatId) {
+      setCurrentChatId(""); // reset current chat
+      setChatMessages([]); // clear messages
+      setIsLoadingMessages(false); // reset loading
+      return;
+    }
     setCurrentChatId(chatId);
     setIsLoadingMessages(true);
 
@@ -74,7 +80,12 @@ const ChatPage: React.FC = () => {
           <Flex>
             <Image src={PROJECT_LOGO} alt="Logo" w="10%" h="10%" />
           </Flex>
-          <Anchor component={Link} to="/" underline="never">
+          <Anchor
+            component={Link}
+            to="/chat"
+            underline="never"
+            onClick={() => handleChatClick("")}
+          >
             <Text c="var(--mantine-color-text-primary)">New Chat</Text>
           </Anchor>
           {loading ? (
@@ -94,7 +105,6 @@ const ChatPage: React.FC = () => {
                     pt={"10px"}
                     underline="never"
                     style={{ cursor: "pointer" }}
-                    // style={{ cursor: "pointer", paddingTop: "10px" }}
                   >
                     {chat.name}
                   </Anchor>

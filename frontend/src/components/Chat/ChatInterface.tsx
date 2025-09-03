@@ -3,7 +3,7 @@ import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { sendChatMessage } from "../../api/chat";
 import type { Message, ChatBlock, ChatInterfaceProps } from "../../types/Chat";
-import { Text, Box, Flex, Title, Group } from "@mantine/core";
+import { Text, Box, Flex, Title } from "@mantine/core";
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({
   currentMessages,
@@ -313,11 +313,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   return (
     <Flex direction="column" justify="flex-start" w="100%">
       {/* Messages container */}
-      <Box w="80%" mx="auto" mb="md">
+      <Box w="80%" mb="md" p={"xl"}>
         {" "}
         {/* width same as input, centered */}
         {messages.length === 0 && (
-          <Box c="var(--mantine-color-text-primary)" ta="center">
+          <Box c="var(--mantine-color-text-primary)" ta="center" m={"xl"}>
             <Title>I am your personal AI assistant</Title>
             <Text fw={500}>Ask Anything</Text>
           </Box>
@@ -335,12 +335,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </Box>
 
       {/* Input */}
-      <Box w="80%" mx="auto" mb="md">
+      <Box w="80%" mb="md">
         <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
       </Box>
 
       {/* Footer */}
-      <Box flex={1} p="md" ta={"center"}>
+      <Box w="80%" mb="md" ta={"center"}>
         <Text c="var(--mantine-color-text-tertiary)">Be Responsible</Text>
       </Box>
     </Flex>

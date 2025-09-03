@@ -10,7 +10,6 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
     return (
       <Flex
         justify="flex-end" // 👈 user messages go to the left
-        w="100%"
         m="md"
       >
         <Box
@@ -33,14 +32,12 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
     return (
       <Flex
         justify="flex-start" // 👈 assistant messages go to the right
-        w="100%"
         mb="sm"
       >
         <Box
           bg="var(--mantine-color-background-secondary)"
           p="lg"
           bdrs="md"
-          // maw="80%"
           c={"var(--mantine-color-text-primary)"}
         >
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
