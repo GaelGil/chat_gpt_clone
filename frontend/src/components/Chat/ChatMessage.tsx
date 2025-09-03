@@ -9,24 +9,21 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
   if (message.role === "user") {
     return (
       <Flex
-        w="60%"
-        mah={"300px"}
-        direction="column"
-        mb="sm"
-        bg={"var(--mantine-color-text-tertiary)"}
-        bdrs={"md"}
+        justify="flex-end" // 👈 user messages go to the left
+        w="100%"
+        m="md"
       >
         <Box
-          // bg="brand.2"
+          bg="var(--mantine-color-text-quaternary)"
           p="lg"
-          c="var(--mantine-color-text-primary)"
-          ml="auto"
-          w="fit-content"
+          bdrs="md"
+          c={"var(--mantine-color-text-primary)"}
+          ta={"right"}
         >
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.content}
           </ReactMarkdown>
-          <Text size="xs" c="var(--mantine-color-text-primary)" mt="xs">
+          <Text size="xs" mt="xs">
             {message.timestamp.toLocaleTimeString()}
           </Text>
         </Box>
@@ -34,19 +31,29 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
     );
   } else if (message.role === "assistant") {
     return (
-      <Flex w="60%" direction="column" mb="sm">
-        <Box p="sm" c="var(--mantine-color-text-primary)">
+      <Flex
+        justify="flex-start" // 👈 assistant messages go to the right
+        w="100%"
+        mb="sm"
+      >
+        <Box
+          bg="var(--mantine-color-background-secondary)"
+          p="lg"
+          bdrs="md"
+          // maw="80%"
+          c={"var(--mantine-color-text-primary)"}
+        >
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.content}
           </ReactMarkdown>
-          <Text c="var(--mantine-color-text-primary)">
+          <Text size="xs" mt="xs">
             {message.timestamp.toLocaleTimeString()}
           </Text>
         </Box>
       </Flex>
     );
   } else if (message.role === "system" || message.role === "developer") {
-    return <></>;
+    return null; // hide
   }
 
   // assistant

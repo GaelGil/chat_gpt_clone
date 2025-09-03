@@ -32,7 +32,7 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
         ta={"center"}
         styles={{
           input: {
-            backgroundColor: "var(--mantine-color-text-tertiary)", // Replace with your desired background color
+            backgroundColor: "var(--mantine-color-text-quaternary)", // Replace with your desired background color
             color: "var(--mantine-color-text-primary)", // Replace with your desired text color
             border: "0",
             padding: "0.5rem",
@@ -47,15 +47,15 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
         disabled={!message.trim() || disabled}
         c={
           !message.trim() || disabled
-            ? "var(--mantine-color-text-tertiary)"
+            ? "var(--mantine-color-text-quaternary)"
             : "black"
         }
         bg={
           !message.trim() || disabled
-            ? "var(--mantine-color-text-tertiary)"
+            ? "var(--mantine-color-text-quaternary)"
             : "var(--mantine-color-text-primary)"
         }
-        bd={`1px solid var(--mantine-color-text-tertiary)`}
+        bd={`1px solid var(--mantine-color-text-quaternary)`}
       >
         {disabled ? (
           <Group>

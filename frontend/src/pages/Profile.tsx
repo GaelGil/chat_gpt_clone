@@ -6,9 +6,7 @@ const ProfilePage: React.FC = () => {
   const { userId } = useParams();
 
   return (
-    <div className="home">
-      {userId ? <UserProfile userId={userId} /> : <p>User ID not found.</p>}{" "}
-    </div>
+    <>{userId ? <UserProfile userId={userId} /> : <p>User ID not found.</p>} </>
   );
 };
 

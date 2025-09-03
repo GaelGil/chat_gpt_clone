@@ -311,34 +311,36 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   return (
-    <Flex
-      direction="column"
-      align="center" // centers children horizontally
-      justify="center" // centers vertically if there's space
-      w="100%"
-      h="100%"
-    >
-      <Box flex={1} p={"md"} w="100%" maw={"80%"}>
-        {/* no messages */}
+    <Flex direction="column" justify="flex-start" w="100%">
+      {/* Messages container */}
+      <Box w="80%" mx="auto" mb="md">
+        {" "}
+        {/* width same as input, centered */}
         {messages.length === 0 && (
           <Box c="var(--mantine-color-text-primary)" ta="center">
             <Title>I am your personal AI assistant</Title>
             <Text fw={500}>Ask Anything</Text>
           </Box>
         )}
-
-        {/* load messages */}
-        {messages.map((message) => (
-          <Group w="100%" justify="center">
+        {isLoading ? (
+          <Box c="var(--mantine-color-text-primary)" ta="center">
+            <Title order={3}>Loading Chats</Title>
+          </Box>
+        ) : (
+          messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
-          </Group>
-        ))}
+          ))
+        )}
         <div ref={messagesEndRef} />
       </Box>
-      <Box w="100%" maw={600}>
+
+      {/* Input */}
+      <Box w="80%" mx="auto" mb="md">
         <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
       </Box>
-      <Box flex={1} p="md">
+
+      {/* Footer */}
+      <Box flex={1} p="md" ta={"center"}>
         <Text c="var(--mantine-color-text-tertiary)">Be Responsible</Text>
       </Box>
     </Flex>

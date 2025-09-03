@@ -55,22 +55,28 @@ const ChatPage: React.FC = () => {
     fetchChats();
   }, [user]);
   return (
-    <AppShell>
+    <AppShell
+      layout="default" // 👈 important: pushes Main, doesn't overlap
+      navbar={{
+        width: "30%", // 👈 percentage width
+        breakpoint: "sm", // optional: collapse on small screens
+        // collapsed: { mobile: false },
+      }}
+    >
       <AppShell.Navbar
-        bg={"var(--mantine-color-background-secondary)"}
+        bg={"var(--mantine-color-background-tertiary)"}
         p={"xs"}
         withBorder={false}
+        opacity={1}
+        w={"260px"}
       >
         <Box flex="1">
           <Flex>
-            <Image
-              src={PROJECT_LOGO}
-              alt="Logo"
-              w={"25px"}
-              h={"25px"}
-              width={"100%"}
-            />
+            <Image src={PROJECT_LOGO} alt="Logo" w="10%" h="10%" />
           </Flex>
+          <Anchor component={Link} to="/" underline="never">
+            <Text c="var(--mantine-color-text-primary)">New Chat</Text>
+          </Anchor>
           {loading ? (
             <Text c="var(--mantine-color-text-primary)">Loading chats ...</Text>
           ) : (
@@ -81,13 +87,17 @@ const ChatPage: React.FC = () => {
 
               {chats.map((chat: any) => (
                 <Flex c="var(--mantine-color-text-primary)">
-                  <Text
+                  <Anchor
                     onClick={() => handleChatClick(chat.id)}
                     variant="filled"
-                    style={{ cursor: "pointer", paddingTop: "10px" }}
+                    c="var(--mantine-color-text-primary)"
+                    pt={"10px"}
+                    underline="never"
+                    style={{ cursor: "pointer" }}
+                    // style={{ cursor: "pointer", paddingTop: "10px" }}
                   >
                     {chat.name}
-                  </Text>
+                  </Anchor>
                 </Flex>
               ))}
             </Box>
@@ -110,7 +120,7 @@ const ChatPage: React.FC = () => {
         </Box>
       </AppShell.Navbar>
 
-      <AppShell.Main bg={"var(--mantine-color-background-tertiary)"}>
+      <AppShell.Main bg={"var(--mantine-color-background-secondary)"}>
         <ChatInterface
           currentMessages={chatMessages}
           isLoadingMessages={isLoadingMessages}
