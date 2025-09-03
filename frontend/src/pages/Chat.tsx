@@ -72,18 +72,17 @@ const ChatPage: React.FC = () => {
             />
           </Flex>
           {loading ? (
-            <Text c="brand.8">Loading chats ...</Text>
+            <Text c="var(--mantine-color-text-primary)">Loading chats ...</Text>
           ) : (
             <Box>
-              <Title order={3} c="var(--mantine-color-text-quaternary)">
+              <Title order={3} c="var(--mantine-color-text-primary)">
                 Chats
               </Title>
 
               {chats.map((chat: any) => (
-                <Flex c="var(--mantine-color-text-quaternary)">
+                <Flex c="var(--mantine-color-text-primary)">
                   <Text
                     onClick={() => handleChatClick(chat.id)}
-                    c="--var(--mantine-color-text-tertiary)"
                     variant="filled"
                     style={{ cursor: "pointer", paddingTop: "10px" }}
                   >
@@ -109,7 +108,7 @@ const ChatPage: React.FC = () => {
               h="10%"
               radius={"xl"}
             />
-            <Text c="var(--mantine-color-text-quaternary)" size="sm">
+            <Text c="var(--mantine-color-text-primary)" size="sm">
               {user.username}
             </Text>
           </Anchor>

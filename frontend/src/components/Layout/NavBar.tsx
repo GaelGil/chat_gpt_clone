@@ -38,12 +38,7 @@ const Navigation = () => {
     >
       <Anchor component={Link} to="/" display={"flex"} underline="never">
         <Image src={PROJECT_LOGO} alt="Logo" />
-        <Text
-          c="var(--mantine-color-text-quaternary)"
-          fz={"xl"}
-          fw={700}
-          ml="sm"
-        >
+        <Text c="var(--mantine-color-text-primary)" fz={"xl"} fw={700} ml="sm">
           {PROJECT_NAME}
         </Text>
       </Anchor>
@@ -58,8 +53,8 @@ const Navigation = () => {
             <Button
               radius="xl"
               variant="outline"
-              c="var(--mantine-color-text-quaternary)"
-              bd={"1px solid var(--mantine-color-text-quaternary)"}
+              c="var(--mantine-color-text-primary)"
+              bd={"1px solid var(--mantine-color-text-primary)"}
             >
               Chat
             </Button>
@@ -71,8 +66,8 @@ const Navigation = () => {
             <Button
               radius="xl"
               variant="outline"
-              c="var(--mantine-color-text-quaternary)"
-              bd={"1px solid var(--mantine-color-text-quaternary)"}
+              c="var(--mantine-color-text-primary)"
+              bd={"1px solid var(--mantine-color-text-primary)"}
             >
               Log In
             </Button>
@@ -88,8 +83,8 @@ const Navigation = () => {
             <Button
               radius="xl"
               variant="outline"
-              c="var(--mantine-color-text-quaternary)"
-              bd={"1px solid var(--mantine-color-text-quaternary)"}
+              c="var(--mantine-color-text-primary)"
+              bd={"1px solid var(--mantine-color-text-primary)"}
             >
               Log Out
             </Button>

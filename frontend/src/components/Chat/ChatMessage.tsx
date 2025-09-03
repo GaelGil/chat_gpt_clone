@@ -12,14 +12,14 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         <Box
           // bg="brand.2"
           p="lg"
-          c="var(--mantine-color-text-quaternary)"
+          c="var(--mantine-color-text-primary)"
           ml="auto"
           w="fit-content"
         >
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.content}
           </ReactMarkdown>
-          <Text size="xs" c="var(--mantine-color-text-quaternary)" mt="xs">
+          <Text size="xs" c="var(--mantine-color-text-primary)" mt="xs">
             {message.timestamp.toLocaleTimeString()}
           </Text>
         </Box>
@@ -28,11 +28,11 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
   } else if (message.role === "assistant") {
     return (
       <Flex w="60%" direction="column" mb="sm">
-        <Box p="sm" c="var(--mantine-color-text-quaternary)">
+        <Box p="sm" c="var(--mantine-color-text-primary)">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.content}
           </ReactMarkdown>
-          <Text c="var(--mantine-color-text-quaternary)">
+          <Text c="var(--mantine-color-text-primary)">
             {message.timestamp.toLocaleTimeString()}
           </Text>
         </Box>

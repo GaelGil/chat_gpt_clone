@@ -91,9 +91,9 @@ export const theme = createTheme({
 export const cssResolver: CSSVariablesResolver = (theme) => ({
   variables: {
     "--mantine-color-text-primary": theme.colors.brand[0],
-    "--mantine-color-text-secondary": theme.colors.black[2],
-    "--mantine-color-text-tertiary": theme.colors.black[4],
-    "--mantine-color-text-quaternary": theme.colors.black[9],
+    "--mantine-color-text-secondary": theme.colors.black[1],
+    "--mantine-color-text-tertiary": theme.colors.black[2],
+    "--mantine-color-text-quaternary": theme.colors.black[3],
     "--mantine-color-accent": theme.colors.red[1],
     "--mantine-color-background": theme.colors.black[0],
     "--mantine-color-background-secondary": theme.colors.red[2],
