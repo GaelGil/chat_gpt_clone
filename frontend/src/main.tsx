@@ -8,13 +8,14 @@ import { UserProvider } from "./context/UserContext.tsx";
 // Import styles of packages that you've installed.
 // All packages except `@mantine/hooks` require styles imports
 import "@mantine/core/styles.css";
-import { theme } from "./theme.ts";
+import { theme, cssResolver } from "./theme.ts";
 
 import { MantineProvider } from "@mantine/core";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={theme} cssVariablesResolver={cssResolver}>
+      {" "}
       <UserProvider>
         <BrowserRouter>
           <App />

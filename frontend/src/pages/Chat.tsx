@@ -3,7 +3,7 @@ import ChatInterface from "../components/Chat/ChatInterface";
 import { Link } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { getDefaultPhoto } from "../api/helper";
-import { Flex, Box, Text, Anchor, AppShell, Image } from "@mantine/core";
+import { Flex, Box, Text, Anchor, AppShell, Image, Title } from "@mantine/core";
 import { PROJECT_LOGO } from "../data/ProjectLogo";
 import { getUserChats, getChat } from "../api/chat";
 import { useState, useEffect } from "react";
@@ -56,7 +56,11 @@ const ChatPage: React.FC = () => {
   }, [user]);
   return (
     <AppShell>
-      <AppShell.Navbar bg={"brand.6"} p={"xs"} withBorder={false}>
+      <AppShell.Navbar
+        bg={"var(--mantine-color-background)"}
+        p={"xs"}
+        withBorder={false}
+      >
         <Box flex="1">
           <Flex>
             <Image
@@ -71,14 +75,17 @@ const ChatPage: React.FC = () => {
             <Text c="brand.8">Loading chats ...</Text>
           ) : (
             <Box>
-              <Text c="brand.8">Chats</Text>
+              <Title order={3} c="var(--mantine-color-text-quaternary)">
+                Chats
+              </Title>
 
               {chats.map((chat: any) => (
-                <Flex c="brand.0">
+                <Flex c="var(--mantine-color-text-quaternary)">
                   <Text
                     onClick={() => handleChatClick(chat.id)}
-                    c="brand.0"
+                    c="--var(--mantine-color-text-tertiary)"
                     variant="filled"
+                    style={{ cursor: "pointer", paddingTop: "10px" }}
                   >
                     {chat.name}
                   </Text>
@@ -102,14 +109,14 @@ const ChatPage: React.FC = () => {
               h="10%"
               radius={"xl"}
             />
-            <Text c="brand.0" size="sm">
+            <Text c="var(--mantine-color-text-quaternary)" size="sm">
               {user.username}
             </Text>
           </Anchor>
         </Box>
       </AppShell.Navbar>
 
-      <AppShell.Main bg="brand.1">
+      <AppShell.Main bg="var(--mantine-color-background)">
         <ChatInterface
           currentMessages={chatMessages}
           isLoadingMessages={isLoadingMessages}

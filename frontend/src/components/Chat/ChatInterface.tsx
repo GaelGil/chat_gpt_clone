@@ -321,7 +321,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       <Box flex={1} p={"md"} w="100%" maw={"80%"}>
         {/* no messages */}
         {messages.length === 0 && (
-          <Box c="brand.0" ta="center">
+          <Box c="var(--mantine-color-text-quaternary)" ta="center">
             <Title>I am your personal AI assistant</Title>
             <Text fw={500}>Ask Anything</Text>
           </Box>

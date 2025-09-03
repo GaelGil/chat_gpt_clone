@@ -4,6 +4,7 @@ import SignUpForm from "../components/Auth/SignUpForm";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import { Text, Group, Stack } from "@mantine/core";
 const AuthPage: React.FC = () => {
   const [selected, setSelected] = useState<"login" | "signup">("login"); // declare the default state as string
   const { user } = useUser();
@@ -16,27 +17,37 @@ const AuthPage: React.FC = () => {
   }, [navigate]);
 
   return (
-    <div className="mt-5">
+    <Stack align="center" mt="xl" mih={"100vh"} p={"xl"} m={0}>
       {selected === "login" ? <LogInForm /> : <SignUpForm />}
-      {/* the selection options for sorting options */}
-      <div className="mb-4 flex justify-center space-x-4">
+
+      <Group>
         {selected === "login" ? (
           <>
-            <p className="text-secondary-300">Don't have an account yet?</p>
-            <p className="text-back-300" onClick={() => setSelected("signup")}>
+            <Text c="dimmed">Don't have an account yet?</Text>
+            <Text
+              variant="link"
+              component="span"
+              onClick={() => setSelected("signup")}
+              style={{ cursor: "pointer" }}
+            >
               Sign Up
-            </p>
+            </Text>
           </>
         ) : (
           <>
-            <p className="text-secondary-300">Already have an account?</p>
-            <p className="text-back-300" onClick={() => setSelected("login")}>
+            <Text c="dimmed">Already have an account?</Text>
+            <Text
+              variant="link"
+              component="span"
+              onClick={() => setSelected("login")}
+              style={{ cursor: "pointer" }}
+            >
               Log In
-            </p>
+            </Text>
           </>
         )}
-      </div>
-    </div>
+      </Group>
+    </Stack>
   );
 };
 

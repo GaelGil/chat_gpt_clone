@@ -30,6 +30,13 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
         w={"80%"}
         radius="xl"
         ta={"center"}
+        styles={{
+          input: {
+            backgroundColor: "var(--mantine-color-background-secondary)", // Replace with your desired background color
+            color: "var(--mantine-color-text-secondary)", // Replace with your desired text color
+            border: "1px solid var(--mantine-color-text-primary)", // Replace with your desired border color
+          },
+        }}
       />
       <Button
         radius="xl"

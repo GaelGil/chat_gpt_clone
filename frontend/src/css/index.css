@@ -1,10 +1,10 @@
 @import "tailwindcss";
 @import "tailwindcss/utilities";
-:root[data-mantine-color-scheme="light"] {
-  --mantine-color-body: #f0f0f0; /* Light background color */
-}
 
-/* Dark theme background */
-:root[data-mantine-color-scheme="dark"] {
-  --mantine-color-body: #1a1a1a; /* Dark background color */
+html,
+body {
+  background-color: var(--mantine-color-background);
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
 }

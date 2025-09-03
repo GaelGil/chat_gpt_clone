@@ -45,15 +45,10 @@ const AuthForm: React.FC<AuthFormProps> = ({
 
     <Button
       type="submit"
-      variant="outline" // gives border only
-      radius="xl" // makes it oval
-      size="lg" // adjust size
-      styles={(theme) => ({
-        root: {
-          borderColor: theme.colors.brand[4], // border color
-          color: theme.colors.brand[4], // text color
-        },
-      })}
+      radius="xl"
+      variant="outline"
+      c="var(--mantine-color-text-primary)"
+      bd={"1px solid var(--mantine-color-text-primary)"}
     >
       {isLogin ? "Login" : "Sign Up"}
     </Button>

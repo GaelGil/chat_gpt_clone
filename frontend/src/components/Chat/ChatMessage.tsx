@@ -8,12 +8,18 @@ import { Text, Flex, Box } from "@mantine/core";
 const ChatMessage = ({ message }: ChatMessageProps) => {
   if (message.role === "user") {
     return (
-      <Flex w="60%" direction="column" mb="sm" bg={"brand.1"}>
-        <Box bg="brand.2" p="lg" c="brand.0" ml="auto" w="fit-content">
+      <Flex w="60%" direction="column" mb="sm">
+        <Box
+          // bg="brand.2"
+          p="lg"
+          c="var(--mantine-color-text-quaternary)"
+          ml="auto"
+          w="fit-content"
+        >
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.content}
           </ReactMarkdown>
-          <Text size="xs" c="gray.6" mt="xs">
+          <Text size="xs" c="var(--mantine-color-text-quaternary)" mt="xs">
             {message.timestamp.toLocaleTimeString()}
           </Text>
         </Box>
@@ -21,12 +27,14 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
     );
   } else if (message.role === "assistant") {
     return (
-      <Flex w="60%" direction="column" mb="sm" bg={"brand.1"}>
-        <Box p="sm" c="brand.0">
+      <Flex w="60%" direction="column" mb="sm">
+        <Box p="sm" c="var(--mantine-color-text-quaternary)">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.content}
           </ReactMarkdown>
-          <Text c="brand.0">{message.timestamp.toLocaleTimeString()}</Text>
+          <Text c="var(--mantine-color-text-quaternary)">
+            {message.timestamp.toLocaleTimeString()}
+          </Text>
         </Box>
       </Flex>
     );
@@ -69,7 +77,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             // if respose block, render text blocks
             if (block.type === "response") {
               return (
-                <Box p="sm" c="brand.0">
+                <Box p="sm" c="var(--mantine-color-text-quaternary)">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {message.content}
                   </ReactMarkdown>
@@ -83,7 +91,9 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
           {/* footer */}
           {!message.isLoading && (
             <Box>
-              <Text c="brand.0">{message.timestamp.toLocaleTimeString()}</Text>
+              <Text c="var(--mantine-color-text-quaternary)">
+                {message.timestamp.toLocaleTimeString()}
+              </Text>
             </Box>
           )}
 
@@ -92,7 +102,9 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             <Box className="px-4 py-3 border-t border-secondary-300">
               <Box className="flex items-center space-x-2">
                 <Box className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></Box>
-                <Text c="brand.0">Thinking...</Text>
+                <Text c="var(--mantine-color-text-quaternary)">
+                  Thinking...
+                </Text>
               </Box>
             </Box>
           )}

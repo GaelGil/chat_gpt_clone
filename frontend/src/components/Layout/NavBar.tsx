@@ -38,7 +38,12 @@ const Navigation = () => {
     >
       <Anchor component={Link} to="/" display={"flex"} underline="never">
         <Image src={PROJECT_LOGO} alt="Logo" />
-        <Text c="brand.0" fz={"xl"} fw={700} ml="sm">
+        <Text
+          c="var(--mantine-color-text-quaternary)"
+          fz={"xl"}
+          fw={700}
+          ml="sm"
+        >
           {PROJECT_NAME}
         </Text>
       </Anchor>
@@ -51,12 +56,10 @@ const Navigation = () => {
           // load chat option
           <Anchor component={Link} to="/chat" underline="never">
             <Button
-              variant="outline"
               radius="xl"
-              size="sm"
-              px={20}
-              bd="2px solid brand.0"
-              c={"brand.0"}
+              variant="outline"
+              c="var(--mantine-color-text-quaternary)"
+              bd={"1px solid var(--mantine-color-text-quaternary)"}
             >
               Chat
             </Button>
@@ -66,12 +69,10 @@ const Navigation = () => {
         {!user ? (
           <Anchor component={Link} to="/login" underline="never">
             <Button
-              variant="outline" // gives border only
-              radius="xl" // makes it oval
-              size="sm" // adjust size
-              px={20} // horizontal padding
-              bd="2px solid brand.0" // border width
-              c={"brand.0"}
+              radius="xl"
+              variant="outline"
+              c="var(--mantine-color-text-quaternary)"
+              bd={"1px solid var(--mantine-color-text-quaternary)"}
             >
               Log In
             </Button>
@@ -85,12 +86,10 @@ const Navigation = () => {
             underline="never"
           >
             <Button
-              variant="outline" // gives border only
-              radius="xl" // makes it oval
-              size="sm" // adjust size
-              px={20} // horizontal padding
-              bd="2px solid brand.0" // border width
-              c={"brand.0"}
+              radius="xl"
+              variant="outline"
+              c="var(--mantine-color-text-quaternary)"
+              bd={"1px solid var(--mantine-color-text-quaternary)"}
             >
               Log Out
             </Button>

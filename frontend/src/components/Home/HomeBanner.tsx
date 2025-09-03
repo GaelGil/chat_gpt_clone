@@ -16,7 +16,7 @@ const HomeBanner = () => {
     <Container size="lg" mih={"100vh"} display={"flex"}>
       <Group gap="xl" justify="center" align="center">
         <Box flex={1}>
-          <Text fz="lg" c="brand.0" mb="xl">
+          <Text fz="lg" c="var(--mantine-color-text-quaternary)" mb="xl">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque,
             quaerat minima ducimus doloribus dolore, inventore impedit iste
             maxime temporibus earum beatae tenetur quisquam enim reprehenderit
@@ -29,11 +29,11 @@ const HomeBanner = () => {
             underline="never"
           >
             <Button
-              variant="outline"
               radius="xl"
               size="lg"
-              bg={"brand.0"}
-              c={"brand.2"}
+              variant="outline"
+              c="var(--mantine-color-text-quaternary)"
+              bd={"1px solid var(--mantine-color-text-quaternary)"}
             >
               Chat
             </Button>
