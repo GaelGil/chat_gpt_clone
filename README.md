@@ -1,8 +1,6 @@
 # Project Description
 
-This is an essay writing AI agent. The idea is that we send a call to the OpenAI model. We provide tools to it, prompt and query. It then returns a plan with tasks that we must execute. Each task is a tool call.
-Here is an example workflow/plan:
-You can run in docker by going into the root directory of the folder and doing.
+A ChatGPT clone I created using flask, react, typescript OpenAI api and Postgres. You can sign up, create, update and delete chats.
 
 ## How to Run
 
@@ -34,3 +32,17 @@ bun run dev
 
 
 ```
+
+# Demo
+
+Home Page
+![](./images/home.png "Home")
+
+Log In Page
+![](./images/login.png "Login")
+
+Chat Interface
+![](./images/chat_interface.png "chat_interface")
+
+Chat Example
+![](./images/chat_example.png "Chat Example")
