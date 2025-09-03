@@ -57,7 +57,7 @@ const ChatPage: React.FC = () => {
   return (
     <AppShell>
       <AppShell.Navbar
-        bg={"var(--mantine-color-background)"}
+        bg={"var(--mantine-color-background-secondary)"}
         p={"xs"}
         withBorder={false}
       >
@@ -75,7 +75,7 @@ const ChatPage: React.FC = () => {
             <Text c="var(--mantine-color-text-primary)">Loading chats ...</Text>
           ) : (
             <Box>
-              <Title order={3} c="var(--mantine-color-text-primary)">
+              <Title order={3} c="var(--mantine-color-text-tertiary)">
                 Chats
               </Title>
 
@@ -95,12 +95,7 @@ const ChatPage: React.FC = () => {
         </Box>
 
         <Box>
-          <Anchor
-            component={Link}
-            to={`/profile/${user.id}`}
-            display="flex"
-            className="hover:bg-red-600"
-          >
+          <Anchor component={Link} to={`/profile/${user.id}`} display="flex">
             <Image
               src={user.pfp || getDefaultPhoto()}
               alt="Profile Avatar"
@@ -115,7 +110,7 @@ const ChatPage: React.FC = () => {
         </Box>
       </AppShell.Navbar>
 
-      <AppShell.Main bg="var(--mantine-color-background)">
+      <AppShell.Main bg={"var(--mantine-color-background-tertiary)"}>
         <ChatInterface
           currentMessages={chatMessages}
           isLoadingMessages={isLoadingMessages}

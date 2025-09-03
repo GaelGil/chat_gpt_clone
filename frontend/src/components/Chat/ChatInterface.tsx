@@ -321,7 +321,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       <Box flex={1} p={"md"} w="100%" maw={"80%"}>
         {/* no messages */}
         {messages.length === 0 && (
-          <Box c="var(--mantine-color-text-quaternary)" ta="center">
+          <Box c="var(--mantine-color-text-primary)" ta="center">
             <Title>I am your personal AI assistant</Title>
             <Text fw={500}>Ask Anything</Text>
           </Box>
@@ -337,6 +337,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </Box>
       <Box w="100%" maw={600}>
         <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
+      </Box>
+      <Box flex={1} p="md">
+        <Text c="var(--mantine-color-text-tertiary)">Be Responsible</Text>
       </Box>
     </Flex>
   );

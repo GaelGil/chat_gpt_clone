@@ -32,17 +32,30 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
         ta={"center"}
         styles={{
           input: {
-            backgroundColor: "var(--mantine-color-background-secondary)", // Replace with your desired background color
-            color: "var(--mantine-color-text-secondary)", // Replace with your desired text color
-            border: "1px solid var(--mantine-color-text-primary)", // Replace with your desired border color
+            backgroundColor: "var(--mantine-color-text-tertiary)", // Replace with your desired background color
+            color: "var(--mantine-color-text-primary)", // Replace with your desired text color
+            border: "0",
+            padding: "0.5rem",
+            shadow: "100px  100px 100px 100px #000000",
           },
         }}
       />
       <Button
         radius="xl"
-        size="lg"
+        size="xl"
         onClick={handleSend}
         disabled={!message.trim() || disabled}
+        c={
+          !message.trim() || disabled
+            ? "var(--mantine-color-text-tertiary)"
+            : "black"
+        }
+        bg={
+          !message.trim() || disabled
+            ? "var(--mantine-color-text-tertiary)"
+            : "var(--mantine-color-text-primary)"
+        }
+        bd={`1px solid var(--mantine-color-text-tertiary)`}
       >
         {disabled ? (
           <Group>

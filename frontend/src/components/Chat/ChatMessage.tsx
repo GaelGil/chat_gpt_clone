@@ -8,7 +8,14 @@ import { Text, Flex, Box } from "@mantine/core";
 const ChatMessage = ({ message }: ChatMessageProps) => {
   if (message.role === "user") {
     return (
-      <Flex w="60%" direction="column" mb="sm">
+      <Flex
+        w="60%"
+        mah={"300px"}
+        direction="column"
+        mb="sm"
+        bg={"var(--mantine-color-text-tertiary)"}
+        bdrs={"md"}
+      >
         <Box
           // bg="brand.2"
           p="lg"

@@ -6,14 +6,14 @@ export const theme = createTheme({
   colors: {
     brand: [
       "#ffffff", // shade 0
-      "#9f9fa9", // shade 1
-      "#414141", // shade 2
-      "#181818", // shade 3
-      "#000000", // shade 4
-      "#0066ff", // shade 5
-      "#0044cc", // shade 6
-      "#003399", // shade 7
-      "#001966", // shade 8
+      "#212121", // shade 1
+      "#303030", // shade 2
+      "#414141", // shade 3
+      "#0d0d0d80", // shade 4
+      "#303030", // shade 5
+      "#181818", // shade 6
+      "#000000", // shade 7
+      "#afafaf", // shade 8
       "#000d33", // shade 9
     ],
     pink: [
@@ -95,8 +95,9 @@ export const cssResolver: CSSVariablesResolver = (theme) => ({
     "--mantine-color-text-tertiary": theme.colors.black[2],
     "--mantine-color-text-quaternary": theme.colors.black[3],
     "--mantine-color-accent": theme.colors.red[1],
-    "--mantine-color-background": theme.colors.black[0],
-    "--mantine-color-background-secondary": theme.colors.red[2],
+    "--mantine-color-background": theme.colors.brand[7],
+    "--mantine-color-background-secondary": theme.colors.brand[4],
+    "--mantine-color-background-tertiary": theme.colors.brand[1],
   },
   light: {},
   dark: {},
