@@ -2,13 +2,16 @@ import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { sendChatMessage, createChat } from "../../api/chat";
-import type { Message, ChatBlock, ChatInterfaceProps } from "../../types/Chat";
+import type { Message, ChatBlock } from "../../types/Chat";
 import { Text, Box, Flex, Title } from "@mantine/core";
 import { useChat } from "../../context/ChatContext";
-const ChatInterface: React.FC<ChatInterfaceProps> = ({}) => {
+const ChatInterface = () => {
   const { currentChatId, currentMessages, loadingMessages } = useChat();
   const [messages, setMessages] = useState<Message[]>(currentMessages || []);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [loading, setIsLoading] = useState(false);
+  const [loadingMsgs, setLoadingMsgs] = useState(false);
+  const [loadingResponse, setLoadingResponse] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -20,7 +23,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({}) => {
   }, [currentMessages]);
 
   useEffect(() => {
-    setIsLoading(loadingMessages);
+    setLoadingMsgs(loadingMessages);
   }, [loadingMessages]);
   useEffect(() => {
     scrollToBottom();
@@ -212,7 +215,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({}) => {
 
   // --- sendMessage with SSE ---
   const sendMessage = async (message: string) => {
-    if (!message.trim() || isLoading) return;
+    if (!message.trim() || loadingResponse) return;
 
     // create user + assistant messages (same as you had)
     const userMessage: Message = {
@@ -232,7 +235,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({}) => {
     };
 
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
-    setIsLoading(true);
+    setLoadingResponse(true);
 
     // abort previous stream if any
 
@@ -284,7 +287,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({}) => {
 
       // stream finished normally
       finalizeTextBlocks();
-      setIsLoading(false);
+      setLoadingResponse(false);
       setTimeout(scrollToBottom, 10);
     } catch (err: any) {
       if (err.name === "AbortError") {
@@ -303,7 +306,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({}) => {
           newMessages[lastIndex] = last;
           return newMessages;
         });
-        setIsLoading(false);
+        setLoadingResponse(false);
       }
     } finally {
       // cleanup abort controller
@@ -314,7 +317,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({}) => {
     <Flex direction="column" justify="flex-start" w="100%">
       {/* Messages container */}
       <Box w="80%" mb="md" p={"xl"}>
-        {" "}
         {/* width same as input, centered */}
         {messages.length === 0 && (
           <Box c="var(--mantine-color-text-primary)" ta="center" m={"xl"}>
@@ -322,9 +324,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({}) => {
             <Text fw={500}>Ask Anything</Text>
           </Box>
         )}
-        {isLoading ? (
+        {loadingMsgs ? (
           <Box c="var(--mantine-color-text-primary)" ta="center">
-            <Title order={3}>Loading Chats</Title>
+            <Title order={3}>Loading Messages</Title>
           </Box>
         ) : (
           messages.map((message) => (
@@ -336,7 +338,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({}) => {
 
       {/* Input */}
       <Box w="80%" mb="md">
-        <ChatInput onSendMessage={sendMessage} disabled={isLoading} />
+        <ChatInput onSendMessage={sendMessage} disabled={loadingResponse} />
       </Box>
 
       {/* Footer */}

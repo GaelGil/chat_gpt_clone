@@ -2,6 +2,8 @@ export type User = {
   id: string;
   name: string;
   email: string;
+  username: string;
+  pfp?: string;
 };
 
 export type UserContextType = {
