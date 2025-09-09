@@ -5,6 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./css/index.css";
 import App from "./App.tsx";
 import { UserProvider } from "./context/UserContext.tsx";
+import { ChatProvider } from "./context/ChatContext.tsx";
 // Import styles of packages that you've installed.
 // All packages except `@mantine/hooks` require styles imports
 import "@mantine/core/styles.css";
@@ -15,11 +16,12 @@ import { MantineProvider } from "@mantine/core";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <MantineProvider theme={theme} cssVariablesResolver={cssResolver}>
-      {" "}
       <UserProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <ChatProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </ChatProvider>
       </UserProvider>
     </MantineProvider>
   </StrictMode>

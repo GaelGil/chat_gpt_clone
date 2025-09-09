@@ -4,12 +4,9 @@ import ChatInput from "./ChatInput";
 import { sendChatMessage, createChat } from "../../api/chat";
 import type { Message, ChatBlock, ChatInterfaceProps } from "../../types/Chat";
 import { Text, Box, Flex, Title } from "@mantine/core";
-
-const ChatInterface: React.FC<ChatInterfaceProps> = ({
-  currentMessages,
-  isLoadingMessages,
-  currentChatId,
-}) => {
+import { useChat } from "../../context/ChatContext";
+const ChatInterface: React.FC<ChatInterfaceProps> = ({}) => {
+  const { currentChatId, currentMessages, loadingMessages } = useChat();
   const [messages, setMessages] = useState<Message[]>(currentMessages || []);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -23,8 +20,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   }, [currentMessages]);
 
   useEffect(() => {
-    setIsLoading(isLoadingMessages);
-  }, [isLoadingMessages]);
+    setIsLoading(loadingMessages);
+  }, [loadingMessages]);
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
