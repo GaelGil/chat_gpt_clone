@@ -11,13 +11,13 @@ const Navigation = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>();
   const [isOpen, setIsOpen] = useState(false);
-  const { user, setUser } = useUser();
+  const { user, logoutUser } = useUser();
 
   const handleLogout = async () => {
     try {
       setLoading(true);
       await logout();
-      setUser(null);
+      logoutUser();
     } catch (error) {
       alert(`error logging out: ${error}`);
     } finally {

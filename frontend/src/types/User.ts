@@ -7,6 +7,6 @@ export type User = {
 export type UserContextType = {
   user: User | null;
   loading: boolean;
-  login: (user: User) => void;
-  logout: () => void;
+  loginUser: (user: User) => void;
+  logoutUser: () => void;
 };

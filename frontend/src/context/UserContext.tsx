@@ -23,11 +23,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = (user: User) => setUser(user);
-  const logout = () => setUser(null);
+  const loginUser = (user: User) => setUser(user);
+  const logoutUser = () => setUser(null);
 
   const value = useMemo(
-    () => ({ user, loading, login, logout }),
+    () => ({ user, loading, loginUser, logoutUser }),
     [user, loading]
   );
 

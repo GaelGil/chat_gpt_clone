@@ -9,7 +9,9 @@ const LogInForm = () => {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState<boolean>(true);
-  const { setUser } = useUser();
+  // const { setUser } = useUser();
+  const { loginUser } = useUser();
+
   const navigate = useNavigate();
 
   const handleChange = (
@@ -29,10 +31,10 @@ const LogInForm = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("Logging in...");
+    setMessage("Logging in ...");
     try {
       const data = await login(username, password);
 
@@ -40,7 +42,8 @@ const LogInForm = () => {
         setMessage("Login failed: user not returned");
         return;
       }
-      setUser(data.user);
+      // setUser(data.user);
+      loginUser(data.user);
       navigate("/chat");
     } catch (error) {
       console.error("Login Error", error);
@@ -69,7 +72,7 @@ const LogInForm = () => {
             username={username}
             password={password}
             onChange={handleChange}
-            onSubmit={handleSubmit}
+            onSubmit={handleLogin}
           />
           {message && (
             <Text c="red" mt="sm">
