@@ -13,59 +13,7 @@ import { Navigate } from "react-router-dom";
 
 const ChatPage: React.FC = () => {
   const { user } = useUser();
-  // const [chats, setChats] = useState([]);
-  // const [loading, setLoading] = useState(false);
-  // const [currentChatId, setCurrentChatId] = useState<string | "" | undefined>(
-  //   undefined
-  // );
-  // const [chatMessages, setChatMessages] = useState<Message[]>([]);
-  // const [isLoadingMessages, setIsLoadingMessages] = useState(false);
-
   const { chats, selectChat, loadingChats } = useChat();
-
-  // const handleChatClick = async (chatId: string) => {
-  //   if (!chatId) {
-  //     setCurrentChatId(undefined); // reset current chat
-  //     setChatMessages([]); // clear messages
-  //     setIsLoadingMessages(false); // reset loading
-  //     return;
-  //   }
-  //   setCurrentChatId(chatId);
-  //   setIsLoadingMessages(true);
-
-  //   try {
-  //     // API call to fetch messages
-  //     const messages = await getChat(chatId);
-  //     // convert timestamp strings to Date objects
-  //     const messagesWithDates = messages.messages.map((msg: any) => ({
-  //       ...msg,
-  //       timestamp: new Date(msg.timestamp),
-  //     }));
-  //     // set messages
-  //     setChatMessages(messagesWithDates);
-  //   } catch (err) {
-  //     console.error("Failed to load chat messages:", err);
-  //     setChatMessages([]);
-  //   } finally {
-  //     setIsLoadingMessages(false);
-  //   }
-  // };
-
-  // const fetchChats = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const data = await getUserChats(user.id);
-  //     setChats(data);
-  //   } catch (error) {
-  //     console.error("Error fetching chats:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchChats();
-  // }, [user]);{
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -97,15 +45,14 @@ const ChatPage: React.FC = () => {
             onClick={() => selectChat("")}
           >
             <Text c="var(--mantine-color-text-primary)">New Chat</Text>
+            <Title order={3} c="var(--mantine-color-text-tertiary)">
+              Chats
+            </Title>
           </Anchor>
           {loadingChats ? (
             <Text c="var(--mantine-color-text-primary)">Loading chats ...</Text>
           ) : (
             <Box>
-              <Title order={3} c="var(--mantine-color-text-tertiary)">
-                Chats
-              </Title>
-
               {chats.map((chat: any) => (
                 <Flex c="var(--mantine-color-text-primary)">
                   <Anchor

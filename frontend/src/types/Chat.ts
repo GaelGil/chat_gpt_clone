@@ -37,14 +37,8 @@ export interface ChatContextType {
   loadingMessages: boolean;
   fetchChats: () => Promise<void>;
   selectChat: (chatId: string | undefined) => Promise<void>;
-  // sendMessage: (message: string) => Promise<void>;
 }
 
-export interface ChatInterfaceProps {
-  currentMessages: Message[];
-  isLoadingMessages: boolean;
-  currentChatId: string | "" | undefined;
-}
 export interface ChatMessageProps {
   message: Message;
 }
