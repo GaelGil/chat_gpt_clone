@@ -13,13 +13,15 @@ const ChatPage: React.FC = () => {
   const { user } = useUser();
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentChatId, setCurrentChatId] = useState<string | "">("");
+  const [currentChatId, setCurrentChatId] = useState<string | "" | undefined>(
+    undefined
+  );
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
   const handleChatClick = async (chatId: string) => {
     if (!chatId) {
-      setCurrentChatId(""); // reset current chat
+      setCurrentChatId(undefined); // reset current chat
       setChatMessages([]); // clear messages
       setIsLoadingMessages(false); // reset loading
       return;
@@ -28,12 +30,14 @@ const ChatPage: React.FC = () => {
     setIsLoadingMessages(true);
 
     try {
-      const messages = await getChat(chatId); // API call to fetch messages
-      console.log(messages.messages);
+      // API call to fetch messages
+      const messages = await getChat(chatId);
+      // convert timestamp strings to Date objects
       const messagesWithDates = messages.messages.map((msg: any) => ({
         ...msg,
         timestamp: new Date(msg.timestamp),
       }));
+      // set messages
       setChatMessages(messagesWithDates);
     } catch (err) {
       console.error("Failed to load chat messages:", err);
@@ -45,10 +49,8 @@ const ChatPage: React.FC = () => {
 
   const fetchChats = async () => {
     setLoading(true);
-
     try {
       const data = await getUserChats(user.id);
-      console.log(data);
       setChats(data);
     } catch (error) {
       console.error("Error fetching chats:", error);

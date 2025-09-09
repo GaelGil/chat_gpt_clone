@@ -27,7 +27,7 @@ export interface Message {
 export interface ChatInterfaceProps {
   currentMessages: Message[];
   isLoadingMessages: boolean;
-  currentChatId: string | "";
+  currentChatId: string | "" | undefined;
 }
 export interface ChatMessageProps {
   message: Message;

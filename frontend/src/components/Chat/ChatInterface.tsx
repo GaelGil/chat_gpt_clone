@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
-import { sendChatMessage } from "../../api/chat";
+import { sendChatMessage, createChat } from "../../api/chat";
 import type { Message, ChatBlock, ChatInterfaceProps } from "../../types/Chat";
 import { Text, Box, Flex, Title } from "@mantine/core";
 
@@ -241,6 +241,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
     console.log("Sending message:", message);
     console.log("Sending chat ID:", currentChatId);
+
+    // if (!currentChatId) {
+    //   const chat = await createChat("Chat");
+    //   setCurrentChatId(chat.id);
+    // }
+
     try {
       const res = await sendChatMessage(message, currentChatId);
       const reader = res.body?.getReader();
@@ -251,9 +257,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       // event handler mapping (mimics your fetchEventSource handlers)
       const onParsed = (parsed: any) => {
         if (!parsed || typeof parsed !== "object") return;
-        console.log("SSE chunk:", parsed);
-        console.log("SSE chunk type", parsed.type);
-        console.log("SSE chunk text", parsed.text);
 
         switch (parsed.type) {
           case "response":

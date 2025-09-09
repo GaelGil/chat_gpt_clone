@@ -66,7 +66,10 @@ export const deleteChat = async (chatId: string) => {
   return data;
 };
 
-export const sendChatMessage = async (message: string, chatId: string) => {
+export const sendChatMessage = async (
+  message: string,
+  chatId: string | undefined
+) => {
   const streamUrl = `${BASE_URL}/api/chat/message/stream?t=${Date.now()}`;
   const res = await fetch(streamUrl, {
     method: "POST",

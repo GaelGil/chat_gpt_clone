@@ -40,6 +40,7 @@ class ChatService:
         # Load existing chat session if session_id is provided
         if self.session_id:
             self.chat_session = ChatSession.query.get(self.session_id)
+
         # If no session exists, create a new one
         if not self.chat_session:
             self.chat_session = ChatSession(

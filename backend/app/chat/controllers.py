@@ -54,9 +54,6 @@ def send_message_stream():
     except Exception as e:
         return jsonify({"error": f"Failed to process message: {str(e)}"}), 500
 
-    except Exception as e:
-        return jsonify({"error": f"Failed to process message: {str(e)}"}), 500
-
 
 @chat.route("/health", methods=["GET"])
 @login_required
