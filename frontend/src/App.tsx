@@ -9,12 +9,12 @@ import { getCurrentUser } from "./api/auth";
 import { useUser } from "./context/UserContext";
 
 function App() {
-  const { setUser } = useUser();
+  const { loginUser } = useUser();
 
   useEffect(() => {
     getCurrentUser().then((user) => {
       if (user) {
-        setUser(user);
+        loginUser(user);
       }
     });
   }, []);

@@ -10,7 +10,7 @@ const SignUpForm = () => {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState<boolean>();
-  const { setUser } = useUser();
+  const { loginUser } = useUser();
 
   const navigate = useNavigate();
   // function to handle if algorithm changes
@@ -34,21 +34,19 @@ const SignUpForm = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    console.log(loading);
     try {
       const data = await signup(username, email, password);
       setMessage(data.msg);
       setMessage("Account created");
       setLoading(true);
       try {
-        setMessage("Logging in");
+        setMessage("Logging in ...");
         const user = await login(username, password);
         setMessage(user.msg);
-        localStorage.setItem("token", data.access_token);
-        setUser(data.user);
+        loginUser(data.user);
         // const userId = user.user.id;
         navigate("/chat");
       } catch (error) {
@@ -76,7 +74,7 @@ const SignUpForm = () => {
           email={email}
           password={password}
           onChange={handleChange}
-          onSubmit={handleSubmit}
+          onSubmit={handleSignUp}
         />
         {message && <p className="text-danger">{message}</p>}
       </div>

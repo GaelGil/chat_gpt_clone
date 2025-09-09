@@ -42,7 +42,6 @@ const LogInForm = () => {
         setMessage("Login failed: user not returned");
         return;
       }
-      // setUser(data.user);
       loginUser(data.user);
       navigate("/chat");
     } catch (error) {

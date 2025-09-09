@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { Text, Group, Stack } from "@mantine/core";
+import { Navigate } from "react-router-dom";
 const AuthPage: React.FC = () => {
   const [selected, setSelected] = useState<"login" | "signup">("login"); // declare the default state as string
   const { user } = useUser();
@@ -15,6 +16,8 @@ const AuthPage: React.FC = () => {
       console.log("No user found, stay on auth page");
     }
   }, [navigate]);
+
+  if (user) return <Navigate to="/" replace />;
 
   return (
     <Stack align="center" mt="xl" mih={"100vh"} p={"xl"} m={0}>
