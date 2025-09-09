@@ -1,13 +1,9 @@
 import ChatInterface from "../components/Chat/ChatInterface";
-// import Chats from "../components/Chat/Chats";
 import { Link } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { getDefaultPhoto } from "../api/helper";
 import { Flex, Box, Text, Anchor, AppShell, Image, Title } from "@mantine/core";
 import { PROJECT_LOGO } from "../data/ProjectLogo";
-// import { getUserChats, getChat } from "../api/chat";
-// import { useState, useEffect } from "react";
-// import type { Message } from "../types/Chat";
 import { useChat } from "../context/ChatContext";
 import { Navigate } from "react-router-dom";
 
@@ -20,11 +16,10 @@ const ChatPage: React.FC = () => {
   }
   return (
     <AppShell
-      layout="default" // 👈 important: pushes Main, doesn't overlap
+      layout="default"
       navbar={{
-        width: "30%", // 👈 percentage width
-        breakpoint: "sm", // optional: collapse on small screens
-        // collapsed: { mobile: false },
+        width: "30%",
+        breakpoint: "sm",
       }}
     >
       <AppShell.Navbar
@@ -44,11 +39,13 @@ const ChatPage: React.FC = () => {
             underline="never"
             onClick={() => selectChat("")}
           >
-            <Text c="var(--mantine-color-text-primary)">New Chat</Text>
-            <Title order={3} c="var(--mantine-color-text-tertiary)">
-              Chats
-            </Title>
+            <Text fw={600} c="var(--mantine-color-text-primary)">
+              New Chat
+            </Text>
           </Anchor>
+          <Title order={3} c="var(--mantine-color-text-tertiary)">
+            Chats
+          </Title>
           {loadingChats ? (
             <Text c="var(--mantine-color-text-primary)">Loading chats ...</Text>
           ) : (
@@ -60,6 +57,7 @@ const ChatPage: React.FC = () => {
                     variant="filled"
                     c="var(--mantine-color-text-primary)"
                     pt={"10px"}
+                    fw={500}
                     underline="never"
                     style={{ cursor: "pointer" }}
                   >

@@ -83,7 +83,7 @@ export const theme = createTheme({
     xl: "5px 5px 3px rgba(0, 0, 0, .25)",
   },
   /** Set your primary color */
-  primaryColor: "red",
+  primaryColor: "gray",
 
   components: {}, // default theme (can be 'dark')
 });
