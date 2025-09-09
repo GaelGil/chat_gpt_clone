@@ -6,7 +6,8 @@ import type { Message, ChatBlock } from "../../types/Chat";
 import { Text, Box, Flex, Title } from "@mantine/core";
 import { useChat } from "../../context/ChatContext";
 const ChatInterface = () => {
-  const { currentChatId, currentMessages, loadingMessages } = useChat();
+  const { currentChatId, currentMessages, loadingMessages, selectChat } =
+    useChat();
   const [messages, setMessages] = useState<Message[]>(currentMessages || []);
   // const [loading, setIsLoading] = useState(false);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
@@ -242,10 +243,10 @@ const ChatInterface = () => {
     console.log("Sending message:", message);
     console.log("Sending chat ID:", currentChatId);
 
-    // if (!currentChatId) {
-    //   const chat = await createChat("Chat");
-    //   setCurrentChatId(chat.id);
-    // }
+    if (!currentChatId) {
+      const chat = await createChat("Chat");
+      selectChat(chat.id);
+    }
 
     try {
       const res = await sendChatMessage(message, currentChatId);

@@ -16,13 +16,13 @@ import { MantineProvider } from "@mantine/core";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <MantineProvider theme={theme} cssVariablesResolver={cssResolver}>
-      <UserProvider>
-        <ChatProvider>
-          <BrowserRouter>
+      <BrowserRouter>
+        <UserProvider>
+          <ChatProvider>
             <App />
-          </BrowserRouter>
-        </ChatProvider>
-      </UserProvider>
+          </ChatProvider>
+        </UserProvider>
+      </BrowserRouter>
     </MantineProvider>
   </StrictMode>
 );

@@ -8,11 +8,14 @@ import React, {
 import { getUserChats, getChat } from "../api/chat";
 import type { Chat, Message, ChatContextType } from "../types/Chat";
 import { useUser } from "./UserContext";
+import { useNavigate } from "react-router-dom";
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useUser();
   const [chats, setChats] = useState<Chat[]>([]);
+  const navigate = useNavigate();
+  // const params = useParams<{ chatId?: string }>();
   const [currentChatId, setCurrentChatId] = useState<string | undefined>(
     undefined
   );
@@ -35,6 +38,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
   const selectChat = async (chatId: string | undefined) => {
     setCurrentChatId(chatId);
+    navigate(chatId ? `/chat/${chatId}` : "/chat");
     if (!chatId) {
       setCurrentMessages([]);
       return;
