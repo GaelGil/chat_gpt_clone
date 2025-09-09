@@ -24,6 +24,22 @@ export interface Message {
   isLoading?: boolean;
 }
 
+export type Chat = {
+  id: string;
+  name: string;
+};
+
+export interface ChatContextType {
+  chats: Chat[];
+  currentChatId?: string;
+  currentMessages: Message[];
+  loadingChats: boolean;
+  loadingMessages: boolean;
+  fetchChats: () => Promise<void>;
+  selectChat: (chatId: string | undefined) => Promise<void>;
+  // sendMessage: (message: string) => Promise<void>;
+}
+
 export interface ChatInterfaceProps {
   currentMessages: Message[];
   isLoadingMessages: boolean;

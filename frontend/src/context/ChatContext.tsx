@@ -1,27 +1,85 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-// import { getCurrentChat } from "../api/auth";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+} from "react";
+import { getUserChats, getChat } from "../api/chat";
+import type { Chat, Message, ChatContextType } from "../types/Chat";
+import { useUser } from "./UserContext";
 
-// user context
-const ChatContext = createContext<any>(null);
+const ChatContext = createContext<ChatContextType | undefined>(undefined);
+export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useUser();
 
-export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState(null); // user and setUser
-  const [loading, setLoading] = useState(true); // for initial load
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [currentChatId, setCurrentChatId] = useState<string | undefined>(
+    undefined
+  );
+  const [currentMessages, setCurrentMessages] = useState<Message[]>([]);
+  const [loadingChats, setLoadingChats] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
-  // get current user on initial load
+  const fetchChats = async () => {
+    if (!user) return;
+    setLoadingChats(true);
+    try {
+      const data = await getUserChats(user.id);
+      setChats(data);
+    } catch (err) {
+      console.error("Error fetching chats:", err);
+    } finally {
+      setLoadingChats(false);
+    }
+  };
+
+  const selectChat = async (chatId: string | undefined) => {
+    setCurrentChatId(chatId);
+    if (!chatId) {
+      setCurrentMessages([]);
+      return;
+    }
+
+    setLoadingMessages(true);
+    try {
+      const messages = await getChat(chatId);
+      const normalized = messages.messages.map((msg: any) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp),
+      }));
+      setCurrentMessages(normalized);
+    } catch (err) {
+      console.error("Failed to load messages:", err);
+      setCurrentMessages([]);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
   useEffect(() => {
-    getCurrentUser().then((user) => {
-      setUser(user);
-      setLoading(false);
-    });
-  }, []);
+    if (user) fetchChats();
+  }, [user]);
+
+  const value = useMemo(
+    () => ({
+      chats,
+      currentChatId,
+      currentMessages,
+      loadingChats,
+      loadingMessages,
+      fetchChats,
+      selectChat,
+    }),
+    [chats, currentChatId, currentMessages, loadingChats, loadingMessages]
+  );
 
   // provider
-  return (
-    <ChatContext.Provider value={{ user, setUser, loading }}>
-      {children}
-    </ChatContext.Provider>
-  );
+  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };
 
-export const useUser = () => useContext(UserContext);
+export const useChat = () => {
+  const contex = useContext(ChatContext);
+  if (!contex) throw new Error("useChat must be used inside ChatProvider");
+  return contex;
+};
