@@ -35,6 +35,8 @@ def send_message_stream():
         if not message:
             return jsonify({"error": "Message is required"}), 400
 
+        if not chat_id:
+            return jsonify({"error": "Chat ID is required"}), 400
         # check chat session exists
         chat_session = db.session.get(ChatSession, chat_id)
         if not chat_session:

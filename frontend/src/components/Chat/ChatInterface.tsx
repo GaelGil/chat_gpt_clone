@@ -240,11 +240,11 @@ const ChatInterface = () => {
     console.log("Sending message:", message);
     console.log("Sending chat ID:", currentChatId);
 
-    if (!currentChatId) {
-      const chat = await createChat("Chat");
+    // if (!currentChatId) {
+    //   const chat = await createChat("Chat");
 
-      selectChat(chat.id);
-    }
+    //   selectChat(chat.id);
+    // }
 
     try {
       const res = await sendChatMessage(message, currentChatId);
