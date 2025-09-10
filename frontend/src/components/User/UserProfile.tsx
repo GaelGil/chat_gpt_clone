@@ -1,28 +1,19 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext";
 import { getDefaultPhoto } from "../../api/helper";
 
-const UserProfile = ({ userId }: { userId?: string }) => {
-  const { user, setUser } = useUser();
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+const UserProfile = () => {
+  const { user, loading } = useUser();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      setLoading(true);
-      try {
-        console.log(user);
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-        navigate("/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [userId, user, setUser, navigate]);
+  if (!user)
+    return (
+      <div className="flex-1 overflow-y-auto justify-center items-center">
+        <div className="max-w-4xl mx-auto px-8 py-6 space-y-6">
+          <div className="text-center py-4">
+            <h3>No profile data found</h3>
+          </div>
+        </div>
+      </div>
+    );
 
   return (
     <div className="flex-1 overflow-y-auto justify-center items-center">
@@ -51,7 +42,7 @@ const UserProfile = ({ userId }: { userId?: string }) => {
                 <div className="d-flex gap-3 mt-2">
                   <div
                     className="text-secondary-300 cursor-pointer"
-                    onClick={() => navigate(`/edit-profile/${user.id}`)}
+                    // onClick={() => navigate(`/edit-profile/${user.id}`)}
                   >
                     Edit Profile
                   </div>

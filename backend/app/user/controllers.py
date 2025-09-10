@@ -16,16 +16,6 @@ def get_users():
     )
 
 
-@users.route("/", methods=["POST"])
-@login_required
-def create_user():
-    data = request.get_json()
-    user = User(name=data["name"], email=data["email"])
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({"id": user.id, "name": user.name, "email": user.email}), 201
-
-
 @users.route("/<int:user_id>", methods=["GET"])
 @login_required
 def get_user(user_id):
@@ -92,7 +82,7 @@ def logout():
     return jsonify({"msg": "Successfully logged out"}), 200
 
 
-@users.route("/profile/<int:user_id>", methods=["GET"])
+@users.route("/users/<int:user_id>", methods=["GET"])
 @login_required
 def profile(user_id):
     if "user_id" not in session:
