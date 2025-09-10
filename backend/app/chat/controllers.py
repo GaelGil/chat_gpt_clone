@@ -7,9 +7,14 @@ from app.auth.decorators import login_required
 import sys
 import json
 import logging
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 chat = Blueprint("chat", __name__)
+
+
+def default_chat_name():
+    return f"Chat {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
 
 
 def generate_response(chat_service: ChatService, message: str):
@@ -35,8 +40,15 @@ def send_message_stream():
         if not message:
             return jsonify({"error": "Message is required"}), 400
 
+        # create new chat session if id not provided
         if not chat_id:
-            return jsonify({"error": "Chat ID is required"}), 400
+            chat_session = ChatSession(
+                user_id=session["user_id"], name=default_chat_name()
+            )
+            db.session.add(chat_session)
+            db.session.commit()
+            chat_id = chat_session.id
+
         # check chat session exists
         chat_session = db.session.get(ChatSession, chat_id)
         if not chat_session:
