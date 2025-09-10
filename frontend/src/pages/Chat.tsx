@@ -60,7 +60,7 @@ const ChatPage: React.FC = () => {
           ) : (
             <Box>
               {chats.map((chat: any) => (
-                <Flex c="var(--mantine-color-text-primary)">
+                <Flex key={chat.id} c="var(--mantine-color-text-primary)">
                   <Anchor
                     onClick={() => selectChat(chat.id)}
                     variant="filled"

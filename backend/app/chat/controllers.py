@@ -3,18 +3,15 @@ from app.chat.services import ChatService
 from app.chat.models import ChatSession
 from app.user.models import User
 from app.extensions import db
-from app.chat.decorators import chat_service_required
 from app.auth.decorators import login_required
 import sys
 import json
 import logging
 
 logger = logging.getLogger(__name__)
-
 chat = Blueprint("chat", __name__)
 
 
-@chat_service_required
 def generate_response(chat_service: ChatService, message: str):
     try:
         for chunk in chat_service.process_message_stream(message):
@@ -29,22 +26,33 @@ def generate_response(chat_service: ChatService, message: str):
 @login_required
 def send_message_stream():
     """Send a message to the AI agent and get a streaming SSE response."""
-    print("send_message_stream called")
     try:
         data = request.get_json()
         message = data.get("message")
         chat_id = data.get("chatId")
 
-        chat = ChatSession.query.get(chat_id)
-        if not chat:
-            return jsonify({"error": "Chat not found"}), 404
-        session["chat_session_id"] = chat_id
-
+        # check empty message
         if not message:
             return jsonify({"error": "Message is required"}), 400
 
+        # check chat session exists
+        chat_session = db.session.get(ChatSession, chat_id)
+        if not chat_session:
+            return jsonify({"error": "Chat not found"}), 404
+
+        # check user is authorized
+        user = db.session.get(User, session["user_id"])
+        if chat_session.user_id != user.id:
+            return jsonify({"error": "Unauthorized"}), 403
+
+        # start chat service
+        chat_service = ChatService(user_id=session["user_id"], session_id=chat_id)
+
+        # Store session_id in Flask session for future requests
+        session["chat_session_id"] = chat_id
+
         return Response(
-            stream_with_context(generate_response(message)),
+            stream_with_context(generate_response(chat_service, message)),
             content_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -65,17 +73,18 @@ def health_check():
 @chat.route("/users/<int:user_id>/chats", methods=["GET"])
 @login_required
 def get_chats(user_id):
+    # check user is authorized
     user_session_id = session.get("user_id")
     if user_session_id != user_id:
-        return jsonify({"msg": "Unauthorized"}), 401
-    user = User.query.get(user_id)
+        return jsonify({"msg": "Unauthorized"}), 403
+    # get user from id
+    user = db.session.get(User, user_id)
+    # check user exists
     if not user:
         return jsonify({"msg": "User not found"}), 404
-
+    # get users chats
     chats = ChatSession.query.filter_by(user_id=user_id).all()
-
     chats_data = [{"id": chat.id, "name": chat.name} for chat in chats]
-
     return jsonify(chats_data), 200
 
 
@@ -83,16 +92,24 @@ def get_chats(user_id):
 @login_required
 def delete_chat():
     try:
+        # get data from request
         data = request.get_json()
         chat_id = data.get("id")
+        # get chat using id
+        chat = db.session.get(ChatSession, chat_id)
 
-        chat = ChatSession.query.get(chat_id)
+        # check chat exists
         if not chat:
             return jsonify({"msg": "Chat not found"}), 404
+
+        # check user is authorized
+        if not (chat.user_id == session["user_id"]):
+            return jsonify({"msg": "Unauthorized"}), 403
 
         db.session.delete(chat)
         db.session.commit()
     except Exception as e:
+        logger.exception("Failed to delete chat")
         return jsonify({"error": f"Failed to delete chat: {str(e)}"}), 500
 
     return jsonify({"msg": "Chat deleted successfully"}), 200
@@ -102,15 +119,18 @@ def delete_chat():
 @login_required
 def create_chat():
     try:
+        # get data from request
         data = request.get_json()
         name = data.get("name")
-
+        # create chat
         chat = ChatSession(name=name, user_id=session.get("user_id"))
+        # add chat to db
         db.session.add(chat)
+        # commit changes
         db.session.commit()
     except Exception as e:
+        logger.exception("Failed to delete chat")
         return jsonify({"error": f"Failed to create chat: {str(e)}"}), 500
-
     return jsonify({"id": chat.id, "name": chat.name}), 201
 
 
@@ -118,10 +138,15 @@ def create_chat():
 @login_required
 def get_chat(chat_id):
     try:
-        chat = ChatSession.query.get(chat_id)
+        # check user is authorized
+        user_session_id = session.get("user_id")
+        chat = db.session.get(ChatSession, chat_id)
+        chat_user = chat.user_id
+        if user_session_id != chat_user:
+            return jsonify({"msg": "Unauthorized"}), 403
         if not chat:
             return jsonify({"msg": "Chat not found"}), 404
     except Exception as e:
+        logger.exception("Failed to delete chat")
         return jsonify({"error": f"Failed to get chat: {str(e)}"}), 500
-
     return jsonify(chat.to_dict()), 200
