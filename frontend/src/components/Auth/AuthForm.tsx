@@ -1,5 +1,5 @@
 // import { Form } from "react-bootstrap";
-import type { AuthFormProps } from "../../types/AuthFormProp.ts";
+import type { AuthFormProps } from "../../types/Auth.ts";
 import { Button, TextInput } from "@mantine/core";
 const AuthForm: React.FC<AuthFormProps> = ({
   isLogin,
