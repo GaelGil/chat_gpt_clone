@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
-import { sendChatMessage, createChat } from "../../api/chat";
+import { sendChatMessage } from "../../api/chat";
 import type { Message, ChatBlock } from "../../types/Chat";
 import { Text, Box, Flex, Title } from "@mantine/core";
 import { useChat } from "../../context/ChatContext";
 const ChatInterface = () => {
-  const { currentChatId, currentMessages, loadingMessages, selectChat } =
-    useChat();
+  const { currentChatId, currentMessages, loadingMessages } = useChat();
   const [messages, setMessages] = useState<Message[]>(currentMessages || []);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [loadingResponse, setLoadingResponse] = useState(false);
@@ -239,12 +238,6 @@ const ChatInterface = () => {
 
     console.log("Sending message:", message);
     console.log("Sending chat ID:", currentChatId);
-
-    // if (!currentChatId) {
-    //   const chat = await createChat("Chat");
-
-    //   selectChat(chat.id);
-    // }
 
     try {
       const res = await sendChatMessage(message, currentChatId);
