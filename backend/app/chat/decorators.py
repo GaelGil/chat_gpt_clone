@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import session, redirect, url_for
+from flask import session, jsonify
 from app.chat.services import ChatService
 
 
@@ -8,7 +8,7 @@ def chat_service_required(func):
     def wrapper(*args, **kwargs):
         user_id = session.get("user_id")
         if not user_id:
-            return redirect(url_for("auth.login"))
+            return jsonify({"error": "Unauthorized"}), 401
         # get chat session id
         chat_session_id = session.get("chat_session_id")
         # start chat service with user id and session id

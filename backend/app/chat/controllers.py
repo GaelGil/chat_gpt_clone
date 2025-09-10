@@ -98,7 +98,7 @@ def delete_chat():
     return jsonify({"msg": "Chat deleted successfully"}), 200
 
 
-@chat.route("/craete", methods=["POST"])
+@chat.route("/create", methods=["POST"])
 @login_required
 def create_chat():
     try:
