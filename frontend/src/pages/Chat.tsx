@@ -79,7 +79,7 @@ const ChatPage: React.FC = () => {
         </Box>
 
         <Container>
-          <Anchor component={Link} to={`/profile/${user.id}`} display="flex">
+          <Anchor component={Link} to={`/users/me`} display="flex">
             <Image
               src={user.pfp || getDefaultPhoto()}
               alt="Profile Avatar"
