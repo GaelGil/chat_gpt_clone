@@ -3,35 +3,11 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Spinner from "react-bootstrap/Spinner";
-import { useEffect, useState } from "react";
-import type { Profile } from "../../types/Profile";
-import { getUserProfile } from "../../api/users";
+
 import { useUser } from "../../context/UserContext";
 
-const EditProfile = ({ userId }: { userId: string }) => {
-  const { user } = useUser();
-  const [profile, setProfile] = useState<Profile>();
-  const [loading, setLoading] = useState<boolean>();
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      setLoading(true);
-      const idToFetch = userId || user?.id;
-
-      if (!user || !idToFetch) return;
-
-      try {
-        const fetchedUser = await getUserProfile(idToFetch);
-        setProfile(fetchedUser);
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [userId, user]);
+const EditProfile = () => {
+  const { user, loading } = useUser();
 
   return (
     <>
@@ -48,13 +24,13 @@ const EditProfile = ({ userId }: { userId: string }) => {
                     <Spinner animation="border" variant="primary" />
                     <Card.Title className="mt-3">Loading Profile...</Card.Title>
                   </>
-                ) : profile ? (
+                ) : user ? (
                   <>
                     <Card.Title className="mb-2 fs-3">
-                      {profile.username}
+                      {user.username}
                     </Card.Title>
                     <Card.Subtitle className="text-muted">
-                      {profile.email}
+                      {user.email}
                     </Card.Subtitle>
                   </>
                 ) : (

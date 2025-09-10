@@ -1,8 +1,10 @@
 import { useUser } from "../../context/UserContext";
 import { getDefaultPhoto } from "../../api/helper";
+import { useNavigate } from "react-router-dom";
 
 const UserProfile = () => {
   const { user, loading } = useUser();
+  const navigate = useNavigate();
 
   if (!user)
     return (
@@ -42,7 +44,7 @@ const UserProfile = () => {
                 <div className="d-flex gap-3 mt-2">
                   <div
                     className="text-secondary-300 cursor-pointer"
-                    // onClick={() => navigate(`/edit-profile/${user.id}`)}
+                    onClick={() => navigate(`/edit-profile/${user.id}`)}
                   >
                     Edit Profile
                   </div>
