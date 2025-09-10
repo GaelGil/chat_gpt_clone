@@ -9,7 +9,6 @@ const ChatInterface = () => {
   const { currentChatId, currentMessages, loadingMessages, selectChat } =
     useChat();
   const [messages, setMessages] = useState<Message[]>(currentMessages || []);
-  // const [loading, setIsLoading] = useState(false);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [loadingResponse, setLoadingResponse] = useState(false);
 
@@ -43,8 +42,6 @@ const ChatInterface = () => {
         // comment/heartbeat — ignore
       } else if (line.trim() === "") {
         // skip blanks
-      } else {
-        // other fields like event: or id:, ignore for now
       }
     }
     if (dataLines.length === 0) return null;
@@ -245,6 +242,7 @@ const ChatInterface = () => {
 
     if (!currentChatId) {
       const chat = await createChat("Chat");
+
       selectChat(chat.id);
     }
 
