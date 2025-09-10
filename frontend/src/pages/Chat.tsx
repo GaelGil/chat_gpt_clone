@@ -2,7 +2,16 @@ import ChatInterface from "../components/Chat/ChatInterface";
 import { Link } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { getDefaultPhoto } from "../api/helper";
-import { Flex, Box, Text, Anchor, AppShell, Image, Title } from "@mantine/core";
+import {
+  Flex,
+  Box,
+  Text,
+  Anchor,
+  AppShell,
+  Image,
+  Title,
+  Container,
+} from "@mantine/core";
 import { PROJECT_LOGO } from "../data/ProjectLogo";
 import { useChat } from "../context/ChatContext";
 import { Navigate } from "react-router-dom";
@@ -24,7 +33,7 @@ const ChatPage: React.FC = () => {
     >
       <AppShell.Navbar
         bg={"var(--mantine-color-background-tertiary)"}
-        p={"xs"}
+        p={"md"}
         withBorder={false}
         opacity={1}
         w={"260px"}
@@ -69,7 +78,7 @@ const ChatPage: React.FC = () => {
           )}
         </Box>
 
-        <Box>
+        <Container>
           <Anchor component={Link} to={`/profile/${user.id}`} display="flex">
             <Image
               src={user.pfp || getDefaultPhoto()}
@@ -78,11 +87,11 @@ const ChatPage: React.FC = () => {
               h="10%"
               radius={"xl"}
             />
-            <Text c="var(--mantine-color-text-primary)" size="sm">
+            <Text c="var(--mantine-color-text-primary)" size="sm" px={"xs"}>
               {user.username}
             </Text>
           </Anchor>
-        </Box>
+        </Container>
       </AppShell.Navbar>
 
       <AppShell.Main bg={"var(--mantine-color-background-secondary)"}>
