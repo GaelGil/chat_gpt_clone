@@ -255,6 +255,7 @@ const ChatInterface = () => {
             upsertTextBlock(parsed.text ?? "", true);
             break;
           case "tool_use":
+            console.log("Tool used:", parsed);
             appendToolBlock({
               type: "tool_use",
               tool_name: parsed.tool_name,
@@ -262,6 +263,8 @@ const ChatInterface = () => {
             });
             break;
           case "tool_result":
+            console.log("Tool result:", parsed);
+
             appendToolBlock({
               type: "tool_result",
               tool_name: parsed.tool_name,

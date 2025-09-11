@@ -8,16 +8,13 @@ import { Text, Flex, Box } from "@mantine/core";
 const ChatMessage = ({ message }: ChatMessageProps) => {
   if (message.role === "user") {
     return (
-      <Flex
-        justify="flex-end" // 👈 user messages go to the left
-        m="md"
-      >
+      <Flex justify="flex-end" m="md">
         <Box
           bg="var(--mantine-color-text-quaternary)"
           p="lg"
           bdrs="md"
-          c={"var(--mantine-color-text-primary)"}
-          ta={"right"}
+          c="var(--mantine-color-text-primary)"
+          ta="right"
         >
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.content}
@@ -28,32 +25,9 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         </Box>
       </Flex>
     );
-  } else if (message.role === "assistant") {
-    return (
-      <Flex
-        justify="flex-start" // 👈 assistant messages go to the right
-        mb="sm"
-      >
-        <Box
-          bg="var(--mantine-color-background-secondary)"
-          p="lg"
-          bdrs="md"
-          c={"var(--mantine-color-text-primary)"}
-        >
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {message.content}
-          </ReactMarkdown>
-          <Text size="xs" mt="xs">
-            {message.timestamp.toLocaleTimeString()}
-          </Text>
-        </Box>
-      </Flex>
-    );
-  } else if (message.role === "system" || message.role === "developer") {
-    return null; // hide
   }
 
-  // assistant
+  // assistant, system, developer all handled below
   const blocks = message.response?.blocks ?? [];
   const hasBlocks = blocks.length > 0;
 
@@ -85,12 +59,11 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
               );
             }
 
-            // if respose block, render text blocks
             if (block.type === "response") {
               return (
-                <Box p="sm" c="var(--mantine-color-text-quaternary)">
+                <Box p="sm" c="var(--mantine-color-text-primary)">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {message.content}
+                    {block.content || ""}
                   </ReactMarkdown>
                 </Box>
               );
@@ -102,7 +75,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
           {/* footer */}
           {!message.isLoading && (
             <Box>
-              <Text c="var(--mantine-color-text-quaternary)">
+              <Text c="var(--mantine-color-text-primary)">
                 {message.timestamp.toLocaleTimeString()}
               </Text>
             </Box>
@@ -113,9 +86,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             <Box className="px-4 py-3 border-t border-secondary-300">
               <Box className="flex items-center space-x-2">
                 <Box className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></Box>
-                <Text c="var(--mantine-color-text-quaternary)">
-                  Thinking...
-                </Text>
+                <Text c="var(--mantine-color-text-primary)">Thinking...</Text>
               </Box>
             </Box>
           )}
@@ -133,7 +104,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             <Box className="mt-2">
               <Box className="flex items-center space-x-2">
                 <Box className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></Box>
-                <Text c="brand.0">Thinking...</Text>
+                <Text c="var(--mantine-color-text-primary)">Thinking...</Text>
               </Box>
             </Box>
           ) : (

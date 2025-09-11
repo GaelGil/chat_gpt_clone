@@ -17,7 +17,7 @@ export interface ChatResponse {
 
 export interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "system" | "developer";
   content: string;
   response?: ChatResponse;
   timestamp: Date;
