@@ -14,7 +14,7 @@ def create_app():
     bcrypt.init_app(app)
     CORS(
         app,
-        origins=["http://localhost:5173"],
+        origins=app.config["CORS_ALLOWED_ORIGINS"],
         supports_credentials=True,
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "OPTIONS", "DELETE"],
