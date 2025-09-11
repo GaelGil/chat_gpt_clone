@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ToolBlockProps } from "../../types/Chat";
-import { Text, Box } from "@mantine/core";
+import { Text, Box, Button } from "@mantine/core";
 
 const ToolBlock = ({
   type,
@@ -31,42 +31,59 @@ const ToolBlock = ({
             {toolName.toUpperCase()}
           </span>
         </div>
-        <button
+        <Button
+          variant="transparent"
+          c="var(--mantine-color-text-primary)"
           onClick={() => setIsExpanded(!isExpanded)}
           className="text-xs text-blue-600 hover:text-blue-800 font-medium"
         >
           {isExpanded ? "Hide details" : "Show details"}
-        </button>
+        </Button>
       </div>
 
-      {type === "tool_use" && (
-        <div className="text-sm text-blue-800">
-          <Text className="font-medium mb-1">Calling {toolName}</Text>
-
-          {isExpanded && toolInput && (
-            <div className="bg-white rounded border p-2 text-blue-900 font-mono text-xs">
-              {JSON.stringify(toolInput, null, 2)}
-            </div>
-          )}
-        </div>
-      )}
-
-      {type === "tool_result" && (
-        <div className="text-sm text-blue-800">
-          <Text className="font-medium mb-1">Tool {toolName} returned:</Text>
-          {isExpanded && toolInput && (
-            <div className="mb-2">
-              <Text className="text-xs text-blue-600 mb-1">Input:</Text>
-              <div className="bg-white rounded border p-2 text-blue-700 font-mono text-xs">
+      <Box>
+        {type === "tool_use" && (
+          <>
+            <Text>Calling {toolName}</Text>
+            {isExpanded && toolInput && (
+              <Box
+                bg={"var(--mantine-color-background-tertiary)"}
+                p="md"
+                bdrs={"md"}
+              >
                 {JSON.stringify(toolInput, null, 2)}
-              </div>
-              <div className="bg-white rounded border p-2 text-green-800 font-mono text-xs">
-                {JSON.stringify(toolResult, null, 2)}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+              </Box>
+            )}
+          </>
+        )}
+
+        {type === "tool_result" && (
+          <>
+            <Text className="font-medium mb-1">Tool {toolName} returned:</Text>
+            {isExpanded && toolInput && (
+              <Box>
+                <Text>Input:</Text>
+                <Box
+                  bg={"var(--mantine-color-background-tertiary)"}
+                  p="md"
+                  bdrs={"md"}
+                >
+                  {JSON.stringify(toolInput, null, 2)}
+                </Box>
+                <Text>Result:</Text>
+
+                <Box
+                  bg={"var(--mantine-color-background-tertiary)"}
+                  p="md"
+                  bdrs={"md"}
+                >
+                  {JSON.stringify(toolResult, null, 2)}
+                </Box>
+              </Box>
+            )}
+          </>
+        )}
+      </Box>
     </Box>
   );
 };
