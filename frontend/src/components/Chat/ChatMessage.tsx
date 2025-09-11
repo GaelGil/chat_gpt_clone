@@ -31,6 +31,10 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
   const blocks = message.response?.blocks ?? [];
   const hasBlocks = blocks.length > 0;
 
+  if (message.role === "developer") {
+    return null;
+  }
+
   return (
     <Flex w="60%" direction="column" mb="sm">
       {hasBlocks ? (
@@ -94,7 +98,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
       ) : (
         // fallback: no blocks, show content
         <Flex>
-          <Box>
+          <Box p="sm" c="var(--mantine-color-text-primary)">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {message.content}
             </ReactMarkdown>

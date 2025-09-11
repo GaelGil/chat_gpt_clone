@@ -10,7 +10,6 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>(currentMessages || []);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [loadingResponse, setLoadingResponse] = useState(false);
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
