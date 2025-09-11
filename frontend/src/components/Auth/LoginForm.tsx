@@ -59,9 +59,7 @@ const LogInForm = () => {
     <Center style={{ width: "100%" }}>
       <Stack align="center">
         <Text size="xl" fw={700} c="primary">
-          <Text component="span" c="var(--mantine-color-text-primary)">
-            Log In
-          </Text>
+          <Text component="span">Log In</Text>
         </Text>
 
         <>

@@ -47,8 +47,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
       type="submit"
       radius="xl"
       variant="outline"
-      c="var(--mantine-color-text-primary)"
-      bd={"1px solid var(--mantine-color-text-primary)"}
+      c="var(--mantine-color-text-secondary)"
+      bd={"1px solid var(--mantine-color-text-secondary)"}
     >
       {isLogin ? "Login" : "Sign Up"}
     </Button>

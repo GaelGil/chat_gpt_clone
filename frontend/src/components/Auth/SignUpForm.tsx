@@ -66,9 +66,7 @@ const SignUpForm = () => {
     <Center style={{ width: "100%" }}>
       <Stack align="center">
         <Text size="xl" fw={700} c="primary">
-          <Text component="span" c="var(--mantine-color-text-primary)">
-            Sign Up
-          </Text>
+          <Text component="span">Sign Up</Text>
         </Text>
         <AuthForm
           isLogin={false}
