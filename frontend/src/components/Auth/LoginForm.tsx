@@ -9,7 +9,6 @@ const LogInForm = () => {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState<boolean>(true);
-  // const { setUser } = useUser();
   const { loginUser } = useUser();
 
   const navigate = useNavigate();
@@ -60,12 +59,12 @@ const LogInForm = () => {
     <Center style={{ width: "100%" }}>
       <Stack align="center">
         <Text size="xl" fw={700} c="primary">
-          <Text component="span" c="dimmed">
+          <Text component="span" c="var(--mantine-color-text-primary)">
             Log In
           </Text>
         </Text>
 
-        <div>
+        <>
           <AuthForm
             isLogin={true}
             username={username}
@@ -78,7 +77,7 @@ const LogInForm = () => {
               {message}
             </Text>
           )}
-        </div>
+        </>
       </Stack>
     </Center>
   );

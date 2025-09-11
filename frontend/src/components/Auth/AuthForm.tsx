@@ -35,7 +35,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
 
     <TextInput
       label="Password"
-      type="text"
+      type="password"
       name="password"
       value={password}
       onChange={onChange}
