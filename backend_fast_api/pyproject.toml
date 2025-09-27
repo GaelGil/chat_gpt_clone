@@ -9,6 +9,7 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "python-jose[cryptography]>=3.5.0",
     "python-multipart>=0.0.20",
+    "sentry-sdk>=2.39.0",
     "sqlalchemy>=2.0.43",
     "uvicorn>=0.35.0",
 ]
