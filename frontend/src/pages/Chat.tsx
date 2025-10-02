@@ -11,6 +11,7 @@ import {
   Image,
   Title,
   Container,
+  Avatar,
 } from "@mantine/core";
 import { PROJECT_LOGO } from "../data/ProjectLogo";
 import { useChat } from "../context/ChatContext";
@@ -20,9 +21,9 @@ const ChatPage: React.FC = () => {
   const { user } = useUser();
   const { chats, selectChat, loadingChats } = useChat();
 
-  if (!user) {
-    return <Navigate to="/" replace />;
-  }
+  // if (!user) {
+  //   return <Navigate to="/" replace />;
+  // }
   return (
     <AppShell
       layout="default"
@@ -80,15 +81,9 @@ const ChatPage: React.FC = () => {
 
         <Container>
           <Anchor component={Link} to={`/users/me`} display="flex">
-            <Image
-              src={user.pfp || getDefaultPhoto()}
-              alt="Profile Avatar"
-              w="10%"
-              h="10%"
-              radius={"xl"}
-            />
+            <Avatar src={user?.pfp || getDefaultPhoto()} size={"sm"} />
             <Text c="var(--mantine-color-text-primary)" size="sm" px={"xs"}>
-              {user.username}
+              {user?.username}
             </Text>
           </Anchor>
         </Container>

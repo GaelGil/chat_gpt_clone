@@ -331,14 +331,10 @@ const ChatInterface = () => {
       </Box>
 
       {/* Input */}
-      <Box w="80%" mb="md">
-        <ChatInput onSendMessage={sendMessage} disabled={loadingResponse} />
-      </Box>
+      <ChatInput onSendMessage={sendMessage} disabled={loadingResponse} />
+      {/* </Box> */}
 
       {/* Footer */}
-      <Box w="80%" mb="md" ta={"center"}>
-        <Text c="var(--mantine-color-text-tertiary)">Be Responsible</Text>
-      </Box>
     </Flex>
   );
 };
