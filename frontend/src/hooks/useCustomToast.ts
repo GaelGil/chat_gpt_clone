@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import { toaster } from "@/components/ui/toaster"
+import { toaster } from "@/components/ui/toaster";
 
 const useCustomToast = () => {
-  const showSuccessToast = (description: string) => {
-    toaster.create({
+  const showSuccessToast = (message: string) => {
+    toaster.show({
       title: "Success!",
-      description,
-      type: "success",
-    })
-  }
+      message,
+      color: "green",
+    });
+  };
 
-  const showErrorToast = (description: string) => {
-    toaster.create({
+  const showErrorToast = (message: string) => {
+    toaster.show({
       title: "Something went wrong!",
-      description,
-      type: "error",
-    })
-  }
+      message,
+      color: "red",
+    });
+  };
 
-  return { showSuccessToast, showErrorToast }
-}
+  return { showSuccessToast, showErrorToast };
+};
 
-export default useCustomToast
+export default useCustomToast;

@@ -1,52 +1,62 @@
-import { Drawer as ChakraDrawer, Portal } from "@chakra-ui/react"
-import * as React from "react"
-import { CloseButton } from "./close-button"
+import * as React from "react";
+import {
+  Drawer as MantineDrawer,
+  DrawerProps as MantineDrawerProps,
+} from "@mantine/core";
+import { CloseButton } from "./close-button";
 
-interface DrawerContentProps extends ChakraDrawer.ContentProps {
-  portalled?: boolean
-  portalRef?: React.RefObject<HTMLElement>
-  offset?: ChakraDrawer.ContentProps["padding"]
+interface DrawerContentProps extends Omit<MantineDrawerProps, "children"> {
+  portalled?: boolean;
+  portalRef?: HTMLElement;
+  offset?: MantineDrawerProps["padding"];
+  children: React.ReactNode;
+  open?: boolean; // <-- add this
+  onOpenChange?: (state: { open: boolean }) => void; // <-- add this
 }
 
 export const DrawerContent = React.forwardRef<
   HTMLDivElement,
   DrawerContentProps
 >(function DrawerContent(props, ref) {
-  const { children, portalled = true, portalRef, offset, ...rest } = props
+  const { children, portalled = true, offset, ...rest } = props;
+
   return (
-    <Portal disabled={!portalled} container={portalRef}>
-      <ChakraDrawer.Positioner padding={offset}>
-        <ChakraDrawer.Content ref={ref} {...rest} asChild={false}>
-          {children}
-        </ChakraDrawer.Content>
-      </ChakraDrawer.Positioner>
-    </Portal>
-  )
-})
+    <MantineDrawer
+      ref={ref}
+      padding={offset}
+      withinPortal={portalled}
+      {...rest}
+    >
+      {children}
+    </MantineDrawer>
+  );
+});
 
 export const DrawerCloseTrigger = React.forwardRef<
   HTMLButtonElement,
-  ChakraDrawer.CloseTriggerProps
+  React.ComponentProps<typeof CloseButton>
 >(function DrawerCloseTrigger(props, ref) {
-  return (
-    <ChakraDrawer.CloseTrigger
-      position="absolute"
-      top="2"
-      insetEnd="2"
-      {...props}
-      asChild
-    >
-      <CloseButton size="sm" ref={ref} />
-    </ChakraDrawer.CloseTrigger>
-  )
-})
+  return <CloseButton ref={ref} {...props} />;
+});
 
-export const DrawerTrigger = ChakraDrawer.Trigger
-export const DrawerRoot = ChakraDrawer.Root
-export const DrawerFooter = ChakraDrawer.Footer
-export const DrawerHeader = ChakraDrawer.Header
-export const DrawerBody = ChakraDrawer.Body
-export const DrawerBackdrop = ChakraDrawer.Backdrop
-export const DrawerDescription = ChakraDrawer.Description
-export const DrawerTitle = ChakraDrawer.Title
-export const DrawerActionTrigger = ChakraDrawer.ActionTrigger
+// Aliases for consistency
+export const DrawerRoot = MantineDrawer;
+export const DrawerHeader: React.FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => <>{children}</>;
+export const DrawerBody: React.FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => <>{children}</>;
+export const DrawerFooter: React.FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => <>{children}</>;
+export const DrawerBackdrop = MantineDrawer.Overlay;
+export const DrawerTitle: React.FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => <>{children}</>;
+export const DrawerDescription: React.FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => <>{children}</>;
+export const DrawerActionTrigger: React.FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => <>{children}</>;

@@ -1,51 +1,45 @@
+"use client";
+
+import { Button, Text, Stack, Group, Input } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { FaPlus } from "react-icons/fa";
+import { type UserCreate, UsersService } from "@/client";
+import type { ApiError } from "@/client/core/ApiError";
+import useCustomToast from "@/hooks/useCustomToast";
+import { Checkbox } from "../ui/checkbox";
 import {
-  Button,
-  DialogActionTrigger,
-  DialogTitle,
-  Flex,
-  Input,
-  Text,
-  VStack,
-} from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
-import { Controller, type SubmitHandler, useForm } from "react-hook-form"
-import { FaPlus } from "react-icons/fa"
-import { type UserCreate, UsersService } from "@/client"
-import type { ApiError } from "@/client/core/ApiError"
-import useCustomToast from "@/hooks/useCustomToast"
-import { emailPattern, handleError } from "@/utils"
-import { Checkbox } from "../ui/checkbox"
+  handleError,
+  emailPattern,
+  passwordRules,
+  confirmPasswordRules,
+} from "@/utils";
 import {
-  DialogBody,
-  DialogCloseTrigger,
   DialogContent,
-  DialogFooter,
+  DialogCloseTrigger,
+  DialogTitle,
   DialogHeader,
-  DialogRoot,
-  DialogTrigger,
-} from "../ui/dialog"
-import { Field } from "../ui/field"
+  DialogBody,
+  DialogFooter,
+} from "../ui/dialog";
+import { Field } from "@/components/ui/field";
+import { InputGroup } from "@/components/ui/input-group";
+import { PasswordInput } from "@/components/ui/password-input";
+import { FiUser, FiLock } from "react-icons/fi";
 
 interface UserCreateForm extends UserCreate {
-  confirm_password: string
+  confirm_password: string;
 }
 
 const AddUser = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const queryClient = useQueryClient()
-  const { showSuccessToast } = useCustomToast()
-  const {
-    control,
-    register,
-    handleSubmit,
-    reset,
-    getValues,
-    formState: { errors, isValid, isSubmitting },
-  } = useForm<UserCreateForm>({
-    mode: "onBlur",
-    criteriaMode: "all",
-    defaultValues: {
+  const [isOpen, setIsOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
+
+  const form = useForm<UserCreateForm>({
+    validateInputOnBlur: true,
+    initialValues: {
       email: "",
       full_name: "",
       password: "",
@@ -53,173 +47,146 @@ const AddUser = () => {
       is_superuser: false,
       is_active: false,
     },
-  })
+    validate: {
+      email: (value) =>
+        emailPattern.value.test(value) ? null : emailPattern.message,
+      password: (value) => {
+        const rule = passwordRules();
+        return value.length >= 8
+          ? null
+          : (rule.minLength?.message ??
+              "Password must be at least 8 characters");
+      },
+      confirm_password: (value, values) => {
+        const rule = confirmPasswordRules(() => values.password);
+        return value === values.password
+          ? null
+          : (rule.validate?.(value, values) ?? "Passwords do not match");
+      },
+    },
+  });
 
   const mutation = useMutation({
     mutationFn: (data: UserCreate) =>
       UsersService.createUser({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("User created successfully.")
-      reset()
-      setIsOpen(false)
+      showSuccessToast("User created successfully.");
+      form.reset();
+      setIsOpen(false);
     },
     onError: (err: ApiError) => {
-      handleError(err)
+      const body = err.body as { detail?: string } | undefined;
+      const message = body?.detail ?? "An error occurred";
+      showErrorToast(message);
+      handleError(err);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] })
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-  })
-
-  const onSubmit: SubmitHandler<UserCreateForm> = (data) => {
-    mutation.mutate(data)
-  }
+  });
 
   return (
-    <DialogRoot
-      size={{ base: "xs", md: "md" }}
-      placement="center"
-      open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
-    >
-      <DialogTrigger asChild>
-        <Button value="add-user" my={4}>
-          <FaPlus fontSize="16px" />
-          Add User
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
+    <>
+      <Button
+        my="md"
+        onClick={() => setIsOpen(true)}
+        leftSection={<FaPlus size={18} />}
+      >
+        Add User
+      </Button>
+
+      <DialogContent
+        opened={isOpen}
+        onClose={() => setIsOpen(false)}
+        size="md"
+        centered
+        portalled
+        style={{ padding: 20 }}
+      >
+        <form onSubmit={form.onSubmit((values) => mutation.mutate(values))}>
           <DialogHeader>
             <DialogTitle>Add User</DialogTitle>
+            <DialogCloseTrigger onClick={() => setIsOpen(false)} />
           </DialogHeader>
+
           <DialogBody>
-            <Text mb={4}>
+            <Text mb="sm">
               Fill in the form below to add a new user to the system.
             </Text>
-            <VStack gap={4}>
-              <Field
-                required
-                invalid={!!errors.email}
-                errorText={errors.email?.message}
-                label="Email"
-              >
-                <Input
-                  {...register("email", {
-                    required: "Email is required",
-                    pattern: emailPattern,
-                  })}
-                  placeholder="Email"
-                  type="email"
-                />
+
+            <Stack gap="sm">
+              <Field errorText={form.errors.email}>
+                <InputGroup w="100%" startElement={<FiUser />}>
+                  <Input
+                    placeholder="Email"
+                    key={form.key("email")}
+                    {...form.getInputProps("email")}
+                  />
+                </InputGroup>
               </Field>
 
-              <Field
-                invalid={!!errors.full_name}
-                errorText={errors.full_name?.message}
-                label="Full Name"
-              >
-                <Input
-                  {...register("full_name")}
-                  placeholder="Full name"
-                  type="text"
-                />
+              <Field errorText={form.errors.full_name}>
+                <InputGroup w="100%" startElement={<FiUser />}>
+                  <Input
+                    placeholder="Full name"
+                    key={form.key("full_name")}
+                    {...form.getInputProps("full_name")}
+                  />
+                </InputGroup>
               </Field>
 
-              <Field
-                required
-                invalid={!!errors.password}
-                errorText={errors.password?.message}
-                label="Set Password"
-              >
-                <Input
-                  {...register("password", {
-                    required: "Password is required",
-                    minLength: {
-                      value: 8,
-                      message: "Password must be at least 8 characters",
-                    },
-                  })}
-                  placeholder="Password"
-                  type="password"
-                />
-              </Field>
-
-              <Field
-                required
-                invalid={!!errors.confirm_password}
-                errorText={errors.confirm_password?.message}
-                label="Confirm Password"
-              >
-                <Input
-                  {...register("confirm_password", {
-                    required: "Please confirm your password",
-                    validate: (value) =>
-                      value === getValues().password ||
-                      "The passwords do not match",
-                  })}
-                  placeholder="Password"
-                  type="password"
-                />
-              </Field>
-            </VStack>
-
-            <Flex mt={4} direction="column" gap={4}>
-              <Controller
-                control={control}
-                name="is_superuser"
-                render={({ field }) => (
-                  <Field disabled={field.disabled} colorPalette="teal">
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={({ checked }) => field.onChange(checked)}
-                    >
-                      Is superuser?
-                    </Checkbox>
-                  </Field>
-                )}
+              <PasswordInput
+                type="password"
+                startElement={<FiLock />}
+                key={form.key("password")}
+                {...form.getInputProps("password")}
+                placeholder="Password"
+                errors={form.errors}
               />
-              <Controller
-                control={control}
-                name="is_active"
-                render={({ field }) => (
-                  <Field disabled={field.disabled} colorPalette="teal">
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={({ checked }) => field.onChange(checked)}
-                    >
-                      Is active?
-                    </Checkbox>
-                  </Field>
-                )}
+
+              <PasswordInput
+                type="password"
+                startElement={<FiLock />}
+                key={form.key("confirm_password")}
+                {...form.getInputProps("confirm_password")}
+                placeholder="Confirm Password"
+                errors={form.errors}
               />
-            </Flex>
+
+              <Checkbox
+                mt="md"
+                label="Is superuser?"
+                key={form.key("is_superuser")}
+                {...form.getInputProps("is_superuser", { type: "checkbox" })}
+              />
+
+              <Checkbox
+                mt="md"
+                label="Is active?"
+                key={form.key("is_active")}
+                {...form.getInputProps("is_active", { type: "checkbox" })}
+              />
+            </Stack>
           </DialogBody>
 
-          <DialogFooter gap={2}>
-            <DialogActionTrigger asChild>
+          <DialogFooter>
+            <Group justify="flex-end" mt="md">
               <Button
-                variant="subtle"
-                colorPalette="gray"
-                disabled={isSubmitting}
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                disabled={mutation.isPending}
               >
                 Cancel
               </Button>
-            </DialogActionTrigger>
-            <Button
-              variant="solid"
-              type="submit"
-              disabled={!isValid}
-              loading={isSubmitting}
-            >
-              Save
-            </Button>
+              <Button type="submit" loading={mutation.isPending}>
+                Save
+              </Button>
+            </Group>
           </DialogFooter>
         </form>
-        <DialogCloseTrigger />
       </DialogContent>
-    </DialogRoot>
-  )
-}
+    </>
+  );
+};
 
-export default AddUser
+export default AddUser;

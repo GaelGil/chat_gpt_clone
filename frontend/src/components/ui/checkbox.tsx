@@ -1,25 +1,38 @@
-import { Checkbox as ChakraCheckbox } from "@chakra-ui/react"
-import * as React from "react"
+"use client";
 
-export interface CheckboxProps extends ChakraCheckbox.RootProps {
-  icon?: React.ReactNode
-  inputProps?: React.InputHTMLAttributes<HTMLInputElement>
-  rootRef?: React.Ref<HTMLLabelElement>
+import * as React from "react";
+import {
+  Checkbox as MantineCheckbox,
+  type CheckboxProps as MantineCheckboxProps,
+  type MantineSize,
+} from "@mantine/core";
+
+// ---------- Checkbox ----------
+export interface CheckboxProps extends Omit<MantineCheckboxProps, "icon"> {
+  icon?: React.ReactNode; // custom icon
+  inputProps?: Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">;
+  rootRef?: React.Ref<HTMLDivElement>;
+  size?: MantineSize; // optional size prop
+  children?: React.ReactNode;
 }
 
 export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
-  function Checkbox(props, ref) {
-    const { icon, children, inputProps, rootRef, ...rest } = props
+  function Checkbox(
+    { icon, inputProps, rootRef, children, size = "sm", label, ...rest },
+    ref
+  ) {
     return (
-      <ChakraCheckbox.Root ref={rootRef} {...rest}>
-        <ChakraCheckbox.HiddenInput ref={ref} {...inputProps} />
-        <ChakraCheckbox.Control>
-          {icon || <ChakraCheckbox.Indicator />}
-        </ChakraCheckbox.Control>
-        {children != null && (
-          <ChakraCheckbox.Label>{children}</ChakraCheckbox.Label>
-        )}
-      </ChakraCheckbox.Root>
-    )
-  },
-)
+      <div ref={rootRef}>
+        <MantineCheckbox
+          ref={ref}
+          size={size}
+          {...rest}
+          {...inputProps}
+          // Mantine accepts a function for custom icon
+          icon={icon ? () => icon : undefined}
+          label={label}
+        />
+      </div>
+    );
+  }
+);

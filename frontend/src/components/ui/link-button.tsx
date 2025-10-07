@@ -1,12 +1,39 @@
-"use client"
+"use client";
 
-import type { HTMLChakraProps, RecipeProps } from "@chakra-ui/react"
-import { createRecipeContext } from "@chakra-ui/react"
+import * as React from "react";
+import { UnstyledButton, UnstyledButtonProps } from "@mantine/core";
 
-export interface LinkButtonProps
-  extends HTMLChakraProps<"a", RecipeProps<"button">> {}
+export interface LinkButtonProps extends UnstyledButtonProps {
+  href: string;
+  children: React.ReactNode;
+  target?: string;
+  rel?: string;
+}
 
-const { withContext } = createRecipeContext({ key: "button" })
-
-// Replace "a" with your framework's link component
-export const LinkButton = withContext<HTMLAnchorElement, LinkButtonProps>("a")
+export const LinkButton = React.forwardRef<HTMLAnchorElement, LinkButtonProps>(
+  function LinkButton({ href, children, target, rel, ...props }, ref) {
+    return (
+      <UnstyledButton
+        component="a"
+        href={href}
+        target={target}
+        rel={rel}
+        ref={ref}
+        {...props}
+        style={(theme) => ({
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: theme.spacing.sm,
+          borderRadius: theme.radius.sm,
+          cursor: "pointer",
+          textDecoration: "none",
+          color: theme.colors.blue[6],
+          fontWeight: 500,
+        })}
+      >
+        {children}
+      </UnstyledButton>
+    );
+  }
+);

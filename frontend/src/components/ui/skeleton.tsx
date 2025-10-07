@@ -1,47 +1,57 @@
-import type {
-  SkeletonProps as ChakraSkeletonProps,
-  CircleProps,
-} from "@chakra-ui/react"
-import { Skeleton as ChakraSkeleton, Circle, Stack } from "@chakra-ui/react"
-import * as React from "react"
+"use client";
 
-export interface SkeletonCircleProps extends ChakraSkeletonProps {
-  size?: CircleProps["size"]
+import * as React from "react";
+import {
+  Skeleton as MantineSkeleton,
+  Stack,
+  Box,
+  type SkeletonProps as MantineSkeletonProps,
+  type MantineSize,
+} from "@mantine/core";
+
+export interface SkeletonCircleProps extends MantineSkeletonProps {
+  size?: MantineSize | number; // Mantine allows sizes or numbers
 }
 
 export const SkeletonCircle = React.forwardRef<
   HTMLDivElement,
   SkeletonCircleProps
->(function SkeletonCircle(props, ref) {
-  const { size, ...rest } = props
+>(function SkeletonCircle({ size = "md", ...rest }, ref) {
   return (
-    <Circle size={size} asChild ref={ref}>
-      <ChakraSkeleton {...rest} />
-    </Circle>
-  )
-})
+    <Box
+      ref={ref}
+      style={{
+        borderRadius: "50%",
+        width: typeof size === "number" ? size : undefined,
+        height: typeof size === "number" ? size : undefined,
+      }}
+    >
+      <MantineSkeleton height={size} width={size} {...rest} />
+    </Box>
+  );
+});
 
-export interface SkeletonTextProps extends ChakraSkeletonProps {
-  noOfLines?: number
+export interface SkeletonTextProps extends MantineSkeletonProps {
+  noOfLines?: number;
+  gap?: number | string;
 }
 
 export const SkeletonText = React.forwardRef<HTMLDivElement, SkeletonTextProps>(
-  function SkeletonText(props, ref) {
-    const { noOfLines = 3, gap, ...rest } = props
+  function SkeletonText({ noOfLines = 3, gap = 8, ...rest }, ref) {
     return (
-      <Stack gap={gap} width="full" ref={ref}>
+      <Stack gap={gap} ref={ref}>
         {Array.from({ length: noOfLines }).map((_, index) => (
-          <ChakraSkeleton
-            height="4"
+          <MantineSkeleton
             key={index}
-            {...props}
-            _last={{ maxW: "80%" }}
+            height={16}
+            radius="sm"
+            style={index === noOfLines - 1 ? { maxWidth: "80%" } : undefined}
             {...rest}
           />
         ))}
       </Stack>
-    )
-  },
-)
+    );
+  }
+);
 
-export const Skeleton = ChakraSkeleton
+export const Skeleton = MantineSkeleton;

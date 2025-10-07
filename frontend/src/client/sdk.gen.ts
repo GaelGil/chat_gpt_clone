@@ -3,22 +3,22 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { CanvasReadCanvasesData, CanvasReadCanvasesResponse, CanvasCreateCanvasData, CanvasCreateCanvasResponse, CanvasReadCanvasData, CanvasReadCanvasResponse, CanvasUpdateCanvasData, CanvasUpdateCanvasResponse, CanvasDeleteCanvasData, CanvasDeleteCanvasResponse, GenerationReadGenerationsData, GenerationReadGenerationsResponse, GenerationCreateGenerationData, GenerationCreateGenerationResponse, GenerationReadGenerationData, GenerationReadGenerationResponse, GenerationUpdateGenerationData, GenerationUpdateGenerationResponse, GenerationDeleteGenerationData, GenerationDeleteGenerationResponse, GenerationFalWebhookResponse, GenerationReadImagesData, GenerationReadImagesResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
-export class ItemsService {
+export class CanvasService {
     /**
-     * Read Items
-     * Retrieve items.
+     * Read Canvases
+     * Retrieve canvases.
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
-     * @returns ItemsPublic Successful Response
+     * @returns CanvasesPublic Successful Response
      * @throws ApiError
      */
-    public static readItems(data: ItemsReadItemsData = {}): CancelablePromise<ItemsReadItemsResponse> {
+    public static readCanvases(data: CanvasReadCanvasesData = {}): CancelablePromise<CanvasReadCanvasesResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/items/',
+            url: '/api/v1/canvas/',
             query: {
                 skip: data.skip,
                 limit: data.limit
@@ -30,17 +30,17 @@ export class ItemsService {
     }
     
     /**
-     * Create Item
-     * Create new item.
+     * Create Canvas
+     * Create new canvas.
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns ItemPublic Successful Response
+     * @returns CanvasPublic Successful Response
      * @throws ApiError
      */
-    public static createItem(data: ItemsCreateItemData): CancelablePromise<ItemsCreateItemResponse> {
+    public static createCanvas(data: CanvasCreateCanvasData): CancelablePromise<CanvasCreateCanvasResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/items/',
+            url: '/api/v1/canvas/',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -50,17 +50,17 @@ export class ItemsService {
     }
     
     /**
-     * Read Item
-     * Get item by ID.
+     * Read Canvas
+     * Get canvas by ID.
      * @param data The data for the request.
      * @param data.id
-     * @returns ItemPublic Successful Response
+     * @returns CanvasData Successful Response
      * @throws ApiError
      */
-    public static readItem(data: ItemsReadItemData): CancelablePromise<ItemsReadItemResponse> {
+    public static readCanvas(data: CanvasReadCanvasData): CancelablePromise<CanvasReadCanvasResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/items/{id}',
+            url: '/api/v1/canvas/{id}',
             path: {
                 id: data.id
             },
@@ -71,18 +71,18 @@ export class ItemsService {
     }
     
     /**
-     * Update Item
-     * Update an item.
+     * Update Canvas
+     * Update a canvas.
      * @param data The data for the request.
      * @param data.id
      * @param data.requestBody
-     * @returns ItemPublic Successful Response
+     * @returns CanvasPublic Successful Response
      * @throws ApiError
      */
-    public static updateItem(data: ItemsUpdateItemData): CancelablePromise<ItemsUpdateItemResponse> {
+    public static updateCanvas(data: CanvasUpdateCanvasData): CancelablePromise<CanvasUpdateCanvasResponse> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/api/v1/items/{id}',
+            url: '/api/v1/canvas/{id}',
             path: {
                 id: data.id
             },
@@ -95,19 +95,165 @@ export class ItemsService {
     }
     
     /**
-     * Delete Item
-     * Delete an item.
+     * Delete Canvas
+     * Delete a canvas.
      * @param data The data for the request.
      * @param data.id
      * @returns Message Successful Response
      * @throws ApiError
      */
-    public static deleteItem(data: ItemsDeleteItemData): CancelablePromise<ItemsDeleteItemResponse> {
+    public static deleteCanvas(data: CanvasDeleteCanvasData): CancelablePromise<CanvasDeleteCanvasResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/items/{id}',
+            url: '/api/v1/canvas/{id}',
             path: {
                 id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class GenerationService {
+    /**
+     * Read Generations
+     * Retrieve generations.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns GenerationsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readGenerations(data: GenerationReadGenerationsData = {}): CancelablePromise<GenerationReadGenerationsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/generation/',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Generation
+     * Create new generation.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns NewGenerationResponse Successful Response
+     * @throws ApiError
+     */
+    public static createGeneration(data: GenerationCreateGenerationData): CancelablePromise<GenerationCreateGenerationResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/generation/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Generation
+     * Get generation by ID.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns GenerationData Successful Response
+     * @throws ApiError
+     */
+    public static readGeneration(data: GenerationReadGenerationData): CancelablePromise<GenerationReadGenerationResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/generation/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Generation
+     * Update a Generation.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns GenerationPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateGeneration(data: GenerationUpdateGenerationData): CancelablePromise<GenerationUpdateGenerationResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/generation/{id}',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Generation
+     * Delete a Generation.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteGeneration(data: GenerationDeleteGenerationData): CancelablePromise<GenerationDeleteGenerationResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/generation/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Fal Webhook
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static falWebhook(): CancelablePromise<GenerationFalWebhookResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/generation/webhook/fal'
+        });
+    }
+    
+    /**
+     * Read Images
+     * Get all images for a user.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns ImageGenerationsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readImages(data: GenerationReadImagesData = {}): CancelablePromise<GenerationReadImagesResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/generation/images',
+            query: {
+                skip: data.skip,
+                limit: data.limit
             },
             errors: {
                 422: 'Validation Error'

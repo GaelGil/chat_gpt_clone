@@ -1,107 +1,81 @@
-import { Button, ButtonGroup, Text } from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
+"use client";
 
-import { type ApiError, UsersService } from "@/client"
-import {
-  DialogActionTrigger,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import useAuth from "@/hooks/useAuth"
-import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { Button, Group, Text, Modal, Stack } from "@mantine/core";
+
+import { type ApiError, UsersService } from "@/client";
+import useAuth from "@/hooks/useAuth";
+import useCustomToast from "@/hooks/useCustomToast";
+import { handleError } from "@/utils";
 
 const DeleteConfirmation = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const queryClient = useQueryClient()
-  const { showSuccessToast } = useCustomToast()
+  const [opened, setOpened] = useState(false);
+  const queryClient = useQueryClient();
+  const { showSuccessToast } = useCustomToast();
+  const { logout } = useAuth();
+
   const {
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm()
-  const { logout } = useAuth()
+  } = useForm();
 
   const mutation = useMutation({
     mutationFn: () => UsersService.deleteUserMe(),
     onSuccess: () => {
-      showSuccessToast("Your account has been successfully deleted")
-      setIsOpen(false)
-      logout()
+      showSuccessToast("Your account has been successfully deleted");
+      setOpened(false);
+      logout();
     },
-    onError: (err: ApiError) => {
-      handleError(err)
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] })
-    },
-  })
+    onError: (err: ApiError) => handleError(err),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] }),
+  });
 
-  const onSubmit = async () => {
-    mutation.mutate()
-  }
+  const onSubmit = async () => mutation.mutate();
 
   return (
-    <DialogRoot
-      size={{ base: "xs", md: "md" }}
-      role="alertdialog"
-      placement="center"
-      open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
-    >
-      <DialogTrigger asChild>
-        <Button variant="solid" colorPalette="red" mt={4}>
-          Delete
-        </Button>
-      </DialogTrigger>
+    <>
+      <Button color="red" onClick={() => setOpened(true)}>
+        Delete
+      </Button>
 
-      <DialogContent>
+      <Modal
+        opened={opened}
+        onClose={() => setOpened(false)}
+        title="Confirmation Required"
+        size="sm"
+        centered
+      >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogCloseTrigger />
-          <DialogHeader>
-            <DialogTitle>Confirmation Required</DialogTitle>
-          </DialogHeader>
-          <DialogBody>
-            <Text mb={4}>
+          <Stack>
+            <Text>
               All your account data will be{" "}
               <strong>permanently deleted.</strong> If you are sure, please
               click <strong>"Confirm"</strong> to proceed. This action cannot be
               undone.
             </Text>
-          </DialogBody>
 
-          <DialogFooter gap={2}>
-            <ButtonGroup>
-              <DialogActionTrigger asChild>
-                <Button
-                  variant="subtle"
-                  colorPalette="gray"
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-              </DialogActionTrigger>
+            <Group gap="sm">
               <Button
-                variant="solid"
-                colorPalette="red"
-                type="submit"
-                loading={isSubmitting}
+                variant="outline"
+                color="gray"
+                onClick={() => setOpened(false)}
+                disabled={isSubmitting}
               >
+                Cancel
+              </Button>
+
+              <Button color="red" type="submit" loading={isSubmitting}>
                 Delete
               </Button>
-            </ButtonGroup>
-          </DialogFooter>
+            </Group>
+          </Stack>
         </form>
-      </DialogContent>
-    </DialogRoot>
-  )
-}
+      </Modal>
+    </>
+  );
+};
 
-export default DeleteConfirmation
+export default DeleteConfirmation;

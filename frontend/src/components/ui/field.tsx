@@ -1,33 +1,49 @@
-import { Field as ChakraField } from "@chakra-ui/react"
-import * as React from "react"
+"use client";
 
-export interface FieldProps extends Omit<ChakraField.RootProps, "label"> {
-  label?: React.ReactNode
-  helperText?: React.ReactNode
-  errorText?: React.ReactNode
-  optionalText?: React.ReactNode
+import * as React from "react";
+import { Box, Text } from "@mantine/core";
+
+export interface FieldProps extends React.HTMLAttributes<HTMLDivElement> {
+  label?: React.ReactNode;
+  helperText?: React.ReactNode;
+  errorText?: React.ReactNode;
+  optionalText?: React.ReactNode;
+  children: React.ReactNode;
+  required?: boolean;
+  invalid?: boolean;
+  disabled?: boolean;
+  colorPalette?: string;
 }
 
 export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
   function Field(props, ref) {
     const { label, children, helperText, errorText, optionalText, ...rest } =
-      props
+      props;
+
     return (
-      <ChakraField.Root ref={ref} {...rest}>
+      <Box ref={ref} {...rest} mb="sm">
         {label && (
-          <ChakraField.Label>
-            {label}
-            <ChakraField.RequiredIndicator fallback={optionalText} />
-          </ChakraField.Label>
+          <Text w={500} mb={2}>
+            {label}{" "}
+            {optionalText && (
+              <Text component="span" c="dimmed">
+                ({optionalText})
+              </Text>
+            )}
+          </Text>
         )}
         {children}
         {helperText && (
-          <ChakraField.HelperText>{helperText}</ChakraField.HelperText>
+          <Text size="sm" c="dimmed" mt={2}>
+            {helperText}
+          </Text>
         )}
         {errorText && (
-          <ChakraField.ErrorText>{errorText}</ChakraField.ErrorText>
+          <Text size="sm" c="red" mt={2}>
+            {errorText}
+          </Text>
         )}
-      </ChakraField.Root>
-    )
-  },
-)
+      </Box>
+    );
+  }
+);

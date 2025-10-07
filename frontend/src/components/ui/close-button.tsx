@@ -1,17 +1,16 @@
-import type { ButtonProps } from "@chakra-ui/react"
-import { IconButton as ChakraIconButton } from "@chakra-ui/react"
-import * as React from "react"
-import { LuX } from "react-icons/lu"
+import { ActionIcon, type ActionIconProps } from "@mantine/core";
+import * as React from "react";
+import { LuX } from "react-icons/lu";
 
-export type CloseButtonProps = ButtonProps
+export type CloseButtonProps = ActionIconProps;
 
 export const CloseButton = React.forwardRef<
   HTMLButtonElement,
   CloseButtonProps
 >(function CloseButton(props, ref) {
   return (
-    <ChakraIconButton variant="ghost" aria-label="Close" ref={ref} {...props}>
+    <ActionIcon variant="light" aria-label="Close" ref={ref} {...props}>
       {props.children ?? <LuX />}
-    </ChakraIconButton>
-  )
-})
+    </ActionIcon>
+  );
+});

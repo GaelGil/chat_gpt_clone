@@ -1,18 +1,19 @@
-"use client"
+"use client";
 
-import { ChakraProvider } from "@chakra-ui/react"
-import { type PropsWithChildren } from "react"
-import { system } from "../../theme"
-import { ColorModeProvider } from "./color-mode"
-import { Toaster } from "./toaster"
+import { type PropsWithChildren } from "react";
+import { ColorModeProvider } from "./color-mode";
+import { Toaster } from "./toaster";
+import "@mantine/core/styles.css";
+import { theme } from "../../theme";
+import { MantineProvider } from "@mantine/core";
 
 export function CustomProvider(props: PropsWithChildren) {
   return (
-    <ChakraProvider value={system}>
-      <ColorModeProvider defaultTheme="light">
+    <MantineProvider theme={theme}>
+      <ColorModeProvider initialColorScheme="light">
         {props.children}
       </ColorModeProvider>
       <Toaster />
-    </ChakraProvider>
-  )
+    </MantineProvider>
+  );
 }

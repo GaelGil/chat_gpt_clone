@@ -1,32 +1,34 @@
+"use client";
+
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import {
-  Box,
-  Button,
   Container,
-  Flex,
-  Heading,
-  Input,
   Text,
-} from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
-import { type SubmitHandler, useForm } from "react-hook-form"
+  TextInput,
+  Button,
+  Stack,
+  Group,
+  Title,
+} from "@mantine/core";
 
 import {
   type ApiError,
   type UserPublic,
   UsersService,
   type UserUpdateMe,
-} from "@/client"
-import useAuth from "@/hooks/useAuth"
-import useCustomToast from "@/hooks/useCustomToast"
-import { emailPattern, handleError } from "@/utils"
-import { Field } from "../ui/field"
+} from "@/client";
+import useAuth from "@/hooks/useAuth";
+import useCustomToast from "@/hooks/useCustomToast";
+import { emailPattern, handleError } from "@/utils";
 
 const UserInformation = () => {
-  const queryClient = useQueryClient()
-  const { showSuccessToast } = useCustomToast()
-  const [editMode, setEditMode] = useState(false)
-  const { user: currentUser } = useAuth()
+  const queryClient = useQueryClient();
+  const { showSuccessToast } = useCustomToast();
+  const [editMode, setEditMode] = useState(false);
+  const { user: currentUser } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -40,109 +42,89 @@ const UserInformation = () => {
       full_name: currentUser?.full_name,
       email: currentUser?.email,
     },
-  })
+  });
 
-  const toggleEditMode = () => {
-    setEditMode(!editMode)
-  }
+  const toggleEditMode = () => setEditMode(!editMode);
 
   const mutation = useMutation({
     mutationFn: (data: UserUpdateMe) =>
       UsersService.updateUserMe({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("User updated successfully.")
+      showSuccessToast("User updated successfully.");
+      toggleEditMode();
     },
-    onError: (err: ApiError) => {
-      handleError(err)
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries()
-    },
-  })
+    onError: (err: ApiError) => handleError(err),
+    onSettled: () => queryClient.invalidateQueries(),
+  });
 
-  const onSubmit: SubmitHandler<UserUpdateMe> = async (data) => {
-    mutation.mutate(data)
-  }
+  const onSubmit: SubmitHandler<UserUpdateMe> = (data) => mutation.mutate(data);
 
   const onCancel = () => {
-    reset()
-    toggleEditMode()
-  }
+    reset();
+    toggleEditMode();
+  };
 
   return (
-    <Container maxW="full">
-      <Heading size="sm" py={4}>
+    <Container size="xl" px="md">
+      <Title order={4} py="md">
         User Information
-      </Heading>
-      <Box
-        w={{ sm: "full", md: "sm" }}
-        as="form"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <Field label="Full name">
+      </Title>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Stack gap="md" maw={400}>
+          {/* Full Name */}
+          <Text size="md" fw={700}>
+            Full name
+          </Text>
           {editMode ? (
-            <Input
-              {...register("full_name", { maxLength: 30 })}
-              type="text"
-              size="md"
-            />
+            <TextInput {...register("full_name", { maxLength: 30 })} />
           ) : (
-            <Text
-              fontSize="md"
-              py={2}
-              color={!currentUser?.full_name ? "gray" : "inherit"}
-              truncate
-              maxW="sm"
-            >
+            <Text size="md" c={!currentUser?.full_name ? "dimmed" : undefined}>
               {currentUser?.full_name || "N/A"}
             </Text>
           )}
-        </Field>
-        <Field
-          mt={4}
-          label="Email"
-          invalid={!!errors.email}
-          errorText={errors.email?.message}
-        >
+
+          {/* Email */}
+          <Text size="md" fw={700}>
+            Email
+          </Text>
           {editMode ? (
-            <Input
+            <TextInput
               {...register("email", {
                 required: "Email is required",
                 pattern: emailPattern,
               })}
-              type="email"
-              size="md"
+              error={errors.email?.message}
             />
           ) : (
-            <Text fontSize="md" py={2} truncate maxW="sm">
-              {currentUser?.email}
-            </Text>
+            <Text size="md">{currentUser?.email || "N/A"}</Text>
           )}
-        </Field>
-        <Flex mt={4} gap={3}>
-          <Button
-            variant="solid"
-            onClick={toggleEditMode}
-            type={editMode ? "button" : "submit"}
-            loading={editMode ? isSubmitting : false}
-            disabled={editMode ? !isDirty || !getValues("email") : false}
-          >
-            {editMode ? "Save" : "Edit"}
-          </Button>
-          {editMode && (
-            <Button
-              variant="subtle"
-              colorPalette="gray"
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-          )}
-        </Flex>
-      </Box>
-    </Container>
-  )
-}
 
-export default UserInformation
+          {/* Action Buttons */}
+          <Group gap="sm" mt="sm">
+            <Button
+              type={editMode ? "submit" : "button"}
+              onClick={editMode ? undefined : toggleEditMode}
+              loading={editMode ? isSubmitting : false}
+              disabled={editMode ? !isDirty || !getValues("email") : false}
+            >
+              {editMode ? "Save" : "Edit"}
+            </Button>
+            {editMode && (
+              <Button
+                variant="outline"
+                color="gray"
+                onClick={onCancel}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            )}
+          </Group>
+        </Stack>
+      </form>
+    </Container>
+  );
+};
+
+export default UserInformation;

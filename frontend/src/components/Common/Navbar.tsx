@@ -1,32 +1,29 @@
-import { Flex, Image, useBreakpointValue } from "@chakra-ui/react"
-import { Link } from "@tanstack/react-router"
+import { Flex, Image, Box } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import { Link } from "@tanstack/react-router";
 
-import Logo from "/assets/images/fastapi-logo.svg"
-import UserMenu from "./UserMenu"
+import { LOGO } from "@/const";
+import UserMenu from "./UserMenu";
 
 function Navbar() {
-  const display = useBreakpointValue({ base: "none", md: "flex" })
+  // show navbar only on md and up
+  const isMdUp = useMediaQuery("(min-width: 768px)");
+
+  if (!isMdUp) return null; // hide navbar on smaller screens
 
   return (
-    <Flex
-      display={display}
-      justify="space-between"
-      position="sticky"
-      color="white"
-      align="center"
-      bg="bg.muted"
-      w="100%"
-      top={0}
-      p={4}
-    >
-      <Link to="/">
-        <Image src={Logo} alt="Logo" maxW="3xs" p={2} />
-      </Link>
-      <Flex gap={2} alignItems="center">
-        <UserMenu />
+    <Box component="header" w={"100%"} p={"md"}>
+      <Flex justify="space-between" align="center">
+        <Link to="/">
+          <Image src={LOGO} alt="Logo" maw={120} p="sm" />
+        </Link>
+
+        <Flex gap="sm" align="center">
+          <UserMenu />
+        </Flex>
       </Flex>
-    </Flex>
-  )
+    </Box>
+  );
 }
 
-export default Navbar
+export default Navbar;

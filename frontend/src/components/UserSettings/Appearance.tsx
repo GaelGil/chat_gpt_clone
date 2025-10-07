@@ -1,29 +1,44 @@
-import { Container, Heading, Stack } from "@chakra-ui/react"
-import { useTheme } from "next-themes"
+"use client";
 
-import { Radio, RadioGroup } from "@/components/ui/radio"
+import { Container, Title, Stack, Radio, RadioGroup } from "@mantine/core";
+import { useColorMode } from "@/components/ui/color-mode"; // your custom hook
+
+type ColorModeOption = "light" | "dark" | "system";
 
 const Appearance = () => {
-  const { theme, setTheme } = useTheme()
+  const { colorMode, setColorMode } = useColorMode();
+
+  // For system theme, just fallback to Mantine's colorMode
+  const handleChange = (value: ColorModeOption) => {
+    if (value === "system") {
+      // Implement system preference logic here
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      setColorMode(prefersDark ? "dark" : "light");
+    } else {
+      setColorMode(value);
+    }
+  };
 
   return (
-    <Container maxW="full">
-      <Heading size="sm" py={4}>
+    <Container size="xl" px="md">
+      <Title order={4} py="md">
         Appearance
-      </Heading>
+      </Title>
 
       <RadioGroup
-        onValueChange={(e) => setTheme(e.value ?? "system")}
-        value={theme}
-        colorPalette="teal"
+        value={colorMode}
+        onChange={(value) => handleChange(value as ColorModeOption)}
       >
-        <Stack>
-          <Radio value="system">System</Radio>
-          <Radio value="light">Light Mode</Radio>
-          <Radio value="dark">Dark Mode</Radio>
+        <Stack gap="sm" mt="sm">
+          <Radio value="system" label="System" />
+          <Radio value="light" label="Light Mode" />
+          <Radio value="dark" label="Dark Mode" />
         </Stack>
       </RadioGroup>
     </Container>
-  )
-}
-export default Appearance
+  );
+};
+
+export default Appearance;

@@ -1,112 +1,97 @@
-"use client"
+"use client";
 
-import { AbsoluteCenter, Menu as ChakraMenu, Portal } from "@chakra-ui/react"
-import * as React from "react"
-import { LuCheck, LuChevronRight } from "react-icons/lu"
+import * as React from "react";
+import { Menu as MantineMenu, Group, Box } from "@mantine/core";
+import { LuChevronRight } from "react-icons/lu";
+// import { console } from "inspector";
 
-interface MenuContentProps extends ChakraMenu.ContentProps {
-  portalled?: boolean
-  portalRef?: React.RefObject<HTMLElement>
+interface MenuContentProps {
+  children: React.ReactNode;
 }
 
-export const MenuContent = React.forwardRef<HTMLDivElement, MenuContentProps>(
-  function MenuContent(props, ref) {
-    const { portalled = true, portalRef, ...rest } = props
-    return (
-      <Portal disabled={!portalled} container={portalRef}>
-        <ChakraMenu.Positioner>
-          <ChakraMenu.Content ref={ref} {...rest} />
-        </ChakraMenu.Positioner>
-      </Portal>
-    )
-  },
-)
+export const MenuContent: React.FC<MenuContentProps> = ({ children }) => {
+  return <MantineMenu.Dropdown>{children}</MantineMenu.Dropdown>;
+};
 
-export const MenuArrow = React.forwardRef<
-  HTMLDivElement,
-  ChakraMenu.ArrowProps
->(function MenuArrow(props, ref) {
-  return (
-    <ChakraMenu.Arrow ref={ref} {...props}>
-      <ChakraMenu.ArrowTip />
-    </ChakraMenu.Arrow>
-  )
-})
+export const MenuArrow = () => null; // Mantine menu has no arrow
 
-export const MenuCheckboxItem = React.forwardRef<
-  HTMLDivElement,
-  ChakraMenu.CheckboxItemProps
->(function MenuCheckboxItem(props, ref) {
-  return (
-    <ChakraMenu.CheckboxItem ps="8" ref={ref} {...props}>
-      <AbsoluteCenter axis="horizontal" insetStart="4" asChild>
-        <ChakraMenu.ItemIndicator>
-          <LuCheck />
-        </ChakraMenu.ItemIndicator>
-      </AbsoluteCenter>
-      {props.children}
-    </ChakraMenu.CheckboxItem>
-  )
-})
-
-export const MenuRadioItem = React.forwardRef<
-  HTMLDivElement,
-  ChakraMenu.RadioItemProps
->(function MenuRadioItem(props, ref) {
-  const { children, ...rest } = props
-  return (
-    <ChakraMenu.RadioItem ps="8" ref={ref} {...rest}>
-      <AbsoluteCenter axis="horizontal" insetStart="4" asChild>
-        <ChakraMenu.ItemIndicator>
-          <LuCheck />
-        </ChakraMenu.ItemIndicator>
-      </AbsoluteCenter>
-      <ChakraMenu.ItemText>{children}</ChakraMenu.ItemText>
-    </ChakraMenu.RadioItem>
-  )
-})
-
-export const MenuItemGroup = React.forwardRef<
-  HTMLDivElement,
-  ChakraMenu.ItemGroupProps
->(function MenuItemGroup(props, ref) {
-  const { title, children, ...rest } = props
-  return (
-    <ChakraMenu.ItemGroup ref={ref} {...rest}>
-      {title && (
-        <ChakraMenu.ItemGroupLabel userSelect="none">
-          {title}
-        </ChakraMenu.ItemGroupLabel>
-      )}
-      {children}
-    </ChakraMenu.ItemGroup>
-  )
-})
-
-export interface MenuTriggerItemProps extends ChakraMenu.ItemProps {
-  startIcon?: React.ReactNode
+interface MenuCheckboxItemProps {
+  checked?: boolean;
+  onChange?: (checked: boolean) => void;
+  children: React.ReactNode;
 }
 
-export const MenuTriggerItem = React.forwardRef<
-  HTMLDivElement,
-  MenuTriggerItemProps
->(function MenuTriggerItem(props, ref) {
-  const { startIcon, children, ...rest } = props
+export const MenuCheckboxItem: React.FC<MenuCheckboxItemProps> = ({
+  checked,
+  onChange,
+  children,
+}) => {
   return (
-    <ChakraMenu.TriggerItem ref={ref} {...rest}>
-      {startIcon}
+    <MantineMenu.Item onClick={() => onChange?.(!checked)}>
       {children}
-      <LuChevronRight />
-    </ChakraMenu.TriggerItem>
-  )
-})
+    </MantineMenu.Item>
+  );
+};
 
-export const MenuRadioItemGroup = ChakraMenu.RadioItemGroup
-export const MenuContextTrigger = ChakraMenu.ContextTrigger
-export const MenuRoot = ChakraMenu.Root
-export const MenuSeparator = ChakraMenu.Separator
+interface MenuRadioItemProps {
+  checked?: boolean;
+  onChange?: () => void;
+  children: React.ReactNode;
+}
 
-export const MenuItem = ChakraMenu.Item
-export const MenuItemText = ChakraMenu.ItemText
-export const MenuItemCommand = ChakraMenu.ItemCommand
-export const MenuTrigger = ChakraMenu.Trigger
+export const MenuRadioItem: React.FC<MenuRadioItemProps> = ({
+  onChange,
+  children,
+}) => {
+  return <MantineMenu.Item onClick={onChange}>{children}</MantineMenu.Item>;
+};
+
+interface MenuItemGroupProps {
+  title?: string;
+  children: React.ReactNode;
+}
+
+export const MenuItemGroup: React.FC<MenuItemGroupProps> = ({
+  title,
+  children,
+}) => {
+  return (
+    <Box style={{ padding: "4px 0" }}>
+      {title && <MantineMenu.Label>{title}</MantineMenu.Label>}
+      {children}
+    </Box>
+  );
+};
+
+interface MenuTriggerItemProps {
+  startIcon?: React.ReactNode;
+  children: React.ReactNode;
+}
+
+export const MenuTriggerItem: React.FC<MenuTriggerItemProps> = ({
+  startIcon,
+  children,
+}) => {
+  return (
+    <MantineMenu.Item rightSection={<LuChevronRight />}>
+      <Group gap="xs">
+        {startIcon}
+        {children}
+      </Group>
+    </MantineMenu.Item>
+  );
+};
+
+// Aliases
+export const MenuRadioItemGroup = MantineMenu; // manage state externally
+export const MenuContextTrigger = MantineMenu.Target;
+export const MenuRoot = MantineMenu;
+export const MenuSeparator = MantineMenu.Divider;
+export const MenuItem = MantineMenu.Item;
+export const MenuItemText: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => <>{children}</>;
+export const MenuItemCommand: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => <>{children}</>;
+export const MenuTrigger = MantineMenu.Target;

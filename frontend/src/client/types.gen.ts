@@ -9,34 +9,97 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
-export type HTTPValidationError = {
-    detail?: Array<ValidationError>;
+export type CanvasData = {
+    title?: (string | null);
+    id: string;
+    owner_id: string;
+    generations: Array<GenerationData>;
+    created_at: string;
 };
 
-export type ItemCreate = {
-    title: string;
-    description?: (string | null);
+export type CanvasesPublic = {
+    data: Array<CanvasPublic>;
+    count: number;
 };
 
-export type ItemPublic = {
-    title: string;
-    description?: (string | null);
+export type CanvasPublic = {
+    title?: (string | null);
     id: string;
     owner_id: string;
 };
 
-export type ItemsPublic = {
-    data: Array<ItemPublic>;
+export type GenerationData = {
+    prompt?: (string | null);
+    cost?: (string | null);
+    provider?: (string | null);
+    model?: (string | null);
+    num_images?: (number | null);
+    image_size?: (string | null);
+    status: GenerationStatus;
+    id: string;
+    owner_id: string;
+    created_at: string;
+    images: Array<ImageGenerationPublic>;
+};
+
+export type GenerationPublic = {
+    prompt?: (string | null);
+    cost?: (string | null);
+    provider?: (string | null);
+    model?: (string | null);
+    num_images?: (number | null);
+    image_size?: (string | null);
+    status: GenerationStatus;
+    id: string;
+    owner_id: string;
+};
+
+export type GenerationsPublic = {
+    data: Array<GenerationPublic>;
     count: number;
 };
 
-export type ItemUpdate = {
-    title?: (string | null);
-    description?: (string | null);
+export type GenerationStatus = 'pending' | 'completed' | 'failed';
+
+export type HTTPValidationError = {
+    detail?: Array<ValidationError>;
+};
+
+export type ImageGenerationPublic = {
+    id: string;
+    image_url: string;
+    created_at: string;
+    generation_id: string;
+};
+
+export type ImageGenerationsPublic = {
+    data: Array<ImageGenerationPublic>;
+    count: number;
 };
 
 export type Message = {
     message: string;
+};
+
+export type NewCanvasRequest = {
+    title?: (string | null);
+};
+
+export type NewGenerationRequest = {
+    prompt?: (string | null);
+    cost?: (number | string | null);
+    provider?: (string | null);
+    model?: (string | null);
+    num_images?: (number | null);
+    image_size?: (string | null);
+    status?: GenerationStatus;
+    canvas_id: string;
+};
+
+export type NewGenerationResponse = {
+    message: string;
+    request_id: string;
+    role: RoleEnum;
 };
 
 export type NewPassword = {
@@ -51,9 +114,25 @@ export type PrivateUserCreate = {
     is_verified?: boolean;
 };
 
+export type RoleEnum = 'user' | 'system';
+
 export type Token = {
     access_token: string;
     token_type?: string;
+};
+
+export type UpdateCanvasRequest = {
+    title?: (string | null);
+};
+
+export type UpdateGenerationRequest = {
+    prompt?: (string | null);
+    cost?: (number | string | null);
+    provider?: (string | null);
+    model?: (string | null);
+    num_images?: (number | null);
+    image_size?: (string | null);
+    status?: GenerationStatus;
 };
 
 export type UpdatePassword = {
@@ -107,37 +186,78 @@ export type ValidationError = {
     type: string;
 };
 
-export type ItemsReadItemsData = {
+export type CanvasReadCanvasesData = {
     limit?: number;
     skip?: number;
 };
 
-export type ItemsReadItemsResponse = (ItemsPublic);
+export type CanvasReadCanvasesResponse = (CanvasesPublic);
 
-export type ItemsCreateItemData = {
-    requestBody: ItemCreate;
+export type CanvasCreateCanvasData = {
+    requestBody: NewCanvasRequest;
 };
 
-export type ItemsCreateItemResponse = (ItemPublic);
+export type CanvasCreateCanvasResponse = (CanvasPublic);
 
-export type ItemsReadItemData = {
+export type CanvasReadCanvasData = {
     id: string;
 };
 
-export type ItemsReadItemResponse = (ItemPublic);
+export type CanvasReadCanvasResponse = (CanvasData);
 
-export type ItemsUpdateItemData = {
+export type CanvasUpdateCanvasData = {
     id: string;
-    requestBody: ItemUpdate;
+    requestBody: UpdateCanvasRequest;
 };
 
-export type ItemsUpdateItemResponse = (ItemPublic);
+export type CanvasUpdateCanvasResponse = (CanvasPublic);
 
-export type ItemsDeleteItemData = {
+export type CanvasDeleteCanvasData = {
     id: string;
 };
 
-export type ItemsDeleteItemResponse = (Message);
+export type CanvasDeleteCanvasResponse = (Message);
+
+export type GenerationReadGenerationsData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type GenerationReadGenerationsResponse = (GenerationsPublic);
+
+export type GenerationCreateGenerationData = {
+    requestBody: NewGenerationRequest;
+};
+
+export type GenerationCreateGenerationResponse = (NewGenerationResponse);
+
+export type GenerationReadGenerationData = {
+    id: string;
+};
+
+export type GenerationReadGenerationResponse = (GenerationData);
+
+export type GenerationUpdateGenerationData = {
+    id: string;
+    requestBody: UpdateGenerationRequest;
+};
+
+export type GenerationUpdateGenerationResponse = (GenerationPublic);
+
+export type GenerationDeleteGenerationData = {
+    id: string;
+};
+
+export type GenerationDeleteGenerationResponse = (Message);
+
+export type GenerationFalWebhookResponse = (unknown);
+
+export type GenerationReadImagesData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type GenerationReadImagesResponse = (ImageGenerationsPublic);
 
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;
