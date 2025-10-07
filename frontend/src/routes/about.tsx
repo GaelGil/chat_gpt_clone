@@ -13,8 +13,8 @@ import {
   Box,
   Button,
 } from "@mantine/core";
-import Navbar from "@/components/Common/Layout/HomeNav";
-import Footer from "@/components/Common/Layout/Footer";
+import Navbar from "@/components/Common/Home/HomeNav";
+import Footer from "@/components/Common/Home/Footer";
 import { PROJECT_NAME } from "@/const";
 export const Route = createFileRoute("/about")({
   component: About,

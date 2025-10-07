@@ -22,37 +22,11 @@ const Navigation = () => {
           underline="never"
           style={{ alignItems: "center" }}
         >
-          <Image src={LOGO} alt="Logo" maw={60} p={2} />
           <Text c="var(--mantine-color-text-primary)" fz="xl" fw={700} ml="sm">
             {PROJECT_NAME}
           </Text>
         </Anchor>
-        <Box style={{ flex: 1 }} />
-
-        <Group align="center" gap="lg">
-          <Anchor component={Link} to="/features" underline="never">
-            Features
-          </Anchor>
-          <Anchor component={Link} to="/solutions" underline="never">
-            Solutions
-          </Anchor>
-          <Anchor component={Link} to="/learn" underline="never">
-            Learn
-          </Anchor>
-          <Anchor component={Link} to="/for-teams" underline="never">
-            For Teams
-          </Anchor>
-          <Anchor component={Link} to="/for-devs" underline="never">
-            For Devs
-          </Anchor>
-          <Anchor component={Link} to="/pricing" underline="never">
-            Pricing
-          </Anchor>
-          <Anchor component={Link} to="/contact" underline="never">
-            Contact
-          </Anchor>
-        </Group>
-        <Box style={{ flex: 1 }} />
+        
 
         <Group align="center" gap="md">
           <Anchor
@@ -60,7 +34,7 @@ const Navigation = () => {
             to={loggedIn ? "/dashboard" : "/auth/login"}
             underline="never"
           >
-            <Button radius="xl" variant="outline">
+            <Button radius="xl" >
               {loggedIn ? "Dashboard" : "Login"}
             </Button>
           </Anchor>
