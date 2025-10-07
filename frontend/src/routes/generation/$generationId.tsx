@@ -103,4 +103,3 @@ function GenerationDetail() {
   );
 }
 
-export default GenerationDetail;

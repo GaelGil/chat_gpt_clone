@@ -11,7 +11,7 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-export function HomePage() {
+function HomePage() {
   const [opened, { toggle }] = useDisclosure();
   const loggedIn = isLoggedIn();
   return (
