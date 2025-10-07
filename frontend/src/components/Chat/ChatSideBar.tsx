@@ -73,7 +73,7 @@ const Chats = ({ onClose }: SidebarItemsProps) => {
 
       {/* Chats Section */}
       <Box p="md" pb={0}>
-        <Text fw={600} fz="sm" mb="xs">
+        <Text fw={600} fz="sm" mb="xs" c="dimmed">
           Chats
         </Text>
       </Box>

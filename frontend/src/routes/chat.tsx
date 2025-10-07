@@ -22,10 +22,13 @@ function Chat() {
     <AppShell
       navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="md"
+      bg={"black"}
+        c="white"
+      
       
     >
 
-      <AppShell.Navbar p="md" withBorder={false}>
+      <AppShell.Navbar p="md" withBorder={false} bg={"black"}>
         <Chats />
       </AppShell.Navbar>
       <AppShell.Main>

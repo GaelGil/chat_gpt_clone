@@ -19,14 +19,16 @@ export function HomePage() {
       header={{ height: 60 }}
       navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="md"
+      bg={"black"}
+      c={"white"}
       
     >
-      <AppShell.Header withBorder={false}>
+      <AppShell.Header withBorder={false} bg={"black"}>
 <Flex
   h="100%"
   px="md"
   align="center"
-  justify="space-between" // 👈 pushes content to opposite sides
+  justify="space-between" // 👈 pushes content to opposite side
 >
   {/* Left side: logo + project name */}
   <Flex align="center">
@@ -56,7 +58,7 @@ export function HomePage() {
   </Anchor>
 </Flex>
       </AppShell.Header>
-      <AppShell.Navbar p="md" withBorder={false}>
+      <AppShell.Navbar p="md" withBorder={false} bg={"black"}>
         <HomeItems />
       </AppShell.Navbar>
       <AppShell.Main>
