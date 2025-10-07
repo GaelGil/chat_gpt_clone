@@ -1,28 +1,49 @@
-import { BrowserRouter } from "react-router-dom";
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./css/index.css";
-import App from "./App.tsx";
-import { UserProvider } from "./context/UserContext.tsx";
-import { ChatProvider } from "./context/ChatContext.tsx";
-// Import styles of packages that you've installed.
-// All packages except `@mantine/hooks` require styles imports
-import "@mantine/core/styles.css";
-import { theme, cssResolver } from "./theme.ts";
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query"
+import { createRouter, RouterProvider } from "@tanstack/react-router"
+import { StrictMode } from "react"
+import ReactDOM from "react-dom/client"
+import { ApiError, OpenAPI } from "./client"
+import { CustomProvider } from "./components/ui/provider"
+import { routeTree } from "./routeTree.gen"
 
-import { MantineProvider } from "@mantine/core";
+OpenAPI.BASE = import.meta.env.VITE_API_URL
+OpenAPI.TOKEN = async () => {
+  return localStorage.getItem("access_token") || ""
+}
 
-createRoot(document.getElementById("root")!).render(
+const handleApiError = (error: Error) => {
+  if (error instanceof ApiError && [401, 403].includes(error.status)) {
+    localStorage.removeItem("access_token")
+    window.location.href = "/login"
+  }
+}
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: handleApiError,
+  }),
+  mutationCache: new MutationCache({
+    onError: handleApiError,
+  }),
+})
+
+const router = createRouter({ routeTree })
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router
+  }
+}
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <MantineProvider theme={theme} cssVariablesResolver={cssResolver}>
-      <BrowserRouter>
-        <UserProvider>
-          <ChatProvider>
-            <App />
-          </ChatProvider>
-        </UserProvider>
-      </BrowserRouter>
-    </MantineProvider>
-  </StrictMode>
-);
+    <CustomProvider>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </CustomProvider>
+  </StrictMode>,
+)
