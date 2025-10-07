@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
@@ -18,6 +19,7 @@ import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settin
 import { Route as DashboardGalleryRouteImport } from './routes/dashboard/gallery'
 import { Route as DashboardCanvasesRouteImport } from './routes/dashboard/canvases'
 import { Route as DashboardAdminRouteImport } from './routes/dashboard/admin'
+import { Route as ChatChatIdRouteImport } from './routes/chat/$chatId'
 import { Route as CanvasCanvasIdRouteImport } from './routes/canvas/$canvasId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
@@ -27,6 +29,11 @@ import { Route as AuthLoginRouteImport } from './routes/auth/login'
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -69,6 +76,11 @@ const DashboardAdminRoute = DashboardAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => DashboardRoute,
 } as any)
+const ChatChatIdRoute = ChatChatIdRouteImport.update({
+  id: '/$chatId',
+  path: '/$chatId',
+  getParentRoute: () => ChatRoute,
+} as any)
 const CanvasCanvasIdRoute = CanvasCanvasIdRouteImport.update({
   id: '/canvas/$canvasId',
   path: '/canvas/$canvasId',
@@ -98,12 +110,14 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/chat': typeof ChatRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/recover-password': typeof AuthRecoverPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/canvas/$canvasId': typeof CanvasCanvasIdRoute
+  '/chat/$chatId': typeof ChatChatIdRoute
   '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/canvases': typeof DashboardCanvasesRoute
   '/dashboard/gallery': typeof DashboardGalleryRoute
@@ -114,11 +128,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/chat': typeof ChatRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/recover-password': typeof AuthRecoverPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/canvas/$canvasId': typeof CanvasCanvasIdRoute
+  '/chat/$chatId': typeof ChatChatIdRoute
   '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/canvases': typeof DashboardCanvasesRoute
   '/dashboard/gallery': typeof DashboardGalleryRoute
@@ -130,12 +146,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/chat': typeof ChatRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/recover-password': typeof AuthRecoverPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/canvas/$canvasId': typeof CanvasCanvasIdRoute
+  '/chat/$chatId': typeof ChatChatIdRoute
   '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/canvases': typeof DashboardCanvasesRoute
   '/dashboard/gallery': typeof DashboardGalleryRoute
@@ -148,12 +166,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/chat'
     | '/dashboard'
     | '/auth/login'
     | '/auth/recover-password'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/canvas/$canvasId'
+    | '/chat/$chatId'
     | '/dashboard/admin'
     | '/dashboard/canvases'
     | '/dashboard/gallery'
@@ -164,11 +184,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/chat'
     | '/auth/login'
     | '/auth/recover-password'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/canvas/$canvasId'
+    | '/chat/$chatId'
     | '/dashboard/admin'
     | '/dashboard/canvases'
     | '/dashboard/gallery'
@@ -179,12 +201,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/chat'
     | '/dashboard'
     | '/auth/login'
     | '/auth/recover-password'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/canvas/$canvasId'
+    | '/chat/$chatId'
     | '/dashboard/admin'
     | '/dashboard/canvases'
     | '/dashboard/gallery'
@@ -196,6 +220,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  ChatRoute: typeof ChatRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRecoverPasswordRoute: typeof AuthRecoverPasswordRoute
@@ -212,6 +237,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -270,6 +302,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAdminRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/chat/$chatId': {
+      id: '/chat/$chatId'
+      path: '/$chatId'
+      fullPath: '/chat/$chatId'
+      preLoaderRoute: typeof ChatChatIdRouteImport
+      parentRoute: typeof ChatRoute
+    }
     '/canvas/$canvasId': {
       id: '/canvas/$canvasId'
       path: '/canvas/$canvasId'
@@ -308,6 +347,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ChatRouteChildren {
+  ChatChatIdRoute: typeof ChatChatIdRoute
+}
+
+const ChatRouteChildren: ChatRouteChildren = {
+  ChatChatIdRoute: ChatChatIdRoute,
+}
+
+const ChatRouteWithChildren = ChatRoute._addFileChildren(ChatRouteChildren)
+
 interface DashboardRouteChildren {
   DashboardAdminRoute: typeof DashboardAdminRoute
   DashboardCanvasesRoute: typeof DashboardCanvasesRoute
@@ -331,6 +380,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  ChatRoute: ChatRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
   AuthLoginRoute: AuthLoginRoute,
   AuthRecoverPasswordRoute: AuthRecoverPasswordRoute,

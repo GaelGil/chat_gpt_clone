@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { LOGO, PROJECT_NAME } from "@/const";
+import { PROJECT_NAME } from "@/const";
 import { Button } from "@/components/ui/button";
-import { Anchor, Text, Group, Image, Box } from "@mantine/core";
+import { Anchor, Text, Group, Box } from "@mantine/core";
 import { isLoggedIn } from "@/hooks/useAuth";
 
 const Navigation = () => {

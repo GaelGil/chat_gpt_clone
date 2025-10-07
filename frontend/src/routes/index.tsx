@@ -1,11 +1,11 @@
 // routes/index.tsx
 import { createFileRoute , Link} from "@tanstack/react-router";
 import { useDisclosure } from '@mantine/hooks';
-import { AppShell, Burger, Group, Text, Anchor, Flex } from "@mantine/core";
+import { AppShell, Burger,  Text, Anchor, Flex } from "@mantine/core";
 import { Button } from "@/components/ui/button";
 import HomeBanner from "../components/Common/Home/HomeBanner";
 import { isLoggedIn } from "@/hooks/useAuth";
-// import Footer from "../components/Common/Home/Footer";
+import { PROJECT_NAME } from "@/const";
 import HomeItems from "../components/Common/Home/HomeItems";
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -14,7 +14,6 @@ export const Route = createFileRoute("/")({
 export function HomePage() {
   const [opened, { toggle }] = useDisclosure();
   const loggedIn = isLoggedIn();
-const PROJECT_NAME = "Canvas";
   return (
     <AppShell
       header={{ height: 60 }}
