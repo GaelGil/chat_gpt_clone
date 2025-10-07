@@ -13,6 +13,11 @@ const items = [
 { title: "Stories", link: "https://openai.com/stories" },
 { title: "Company", link: "https://openai.com/company" },
 { title: "News", link: "https://openai.com/news" },
+{ title: "News", link: "https://openai.com/news" },
+{ title: "News", link: "https://openai.com/news" },
+{ title: "News", link: "https://openai.com/news" },
+{ title: "News", link: "https://openai.com/news" },
+
 ];
 
 interface SidebarItemsProps {
@@ -24,10 +29,19 @@ interface SidebarItemsProps {
 const Chats = ({ onClose }: SidebarItemsProps) => {
   const isLoggedIn = true;
 
-  const listItems = items.map(({ title, link }) => (
-            <a key={title} href={link} onClick={onClose}>
-        <Text ml={2}>{title}</Text>
-      </a>
+  const listItems = items.map(({ title}) => (
+          <Flex
+
+            mb="sm"
+          >
+            <Flex>
+              <Box>
+                <Text fw={500}>
+                  {title}
+                </Text>
+              </Box>
+            </Flex>
+          </Flex>
   ));
 
   return (
@@ -39,25 +53,21 @@ const Chats = ({ onClose }: SidebarItemsProps) => {
       {/* Header */}
       <Flex align="center" p="md" gap="sm" justify="space-between">
         <Flex align="center" gap="sm">
-          <Burger size="sm" />
           <Anchor component={Link} to="/" underline="never">
             <Text fz="xl" fw={700}>
               {PROJECT_NAME}
             </Text>
           </Anchor>
+                    <Burger size="sm" />
         </Flex>
       </Flex>
 
       {/* Controls */}
       <Group px="md" pb="sm" gap="sm" align="center">
-        <Input
-          placeholder="Search chats"
-          radius="md"
-          size="sm"
-        />
-        <Button  size="sm">
+
+        <Anchor component={Link} to="/chat/new" underline="never">
           New chat
-        </Button>
+        </Anchor>
       </Group>
 
 
@@ -70,54 +80,7 @@ const Chats = ({ onClose }: SidebarItemsProps) => {
 
       <ScrollArea offsetScrollbars style={{ flex: 1 }}>
         <Box px="md" pb="md">
-          {/* Example Chat Item */}
-          <Flex
-            align="center"
-            justify="space-between"
-            p="xs"
-            mb="xs"
-
-          >
-            <Flex align="center" gap="sm">
-              <Avatar radius="md">AI</Avatar>
-              <Box>
-                <Text fw={500} fz="sm">
-                  New Chat
-                </Text>
-                <Text fz="xs" c="dimmed">
-                  Last message preview
-                </Text>
-              </Box>
-            </Flex>
-            <Group gap={4}>
-              <Badge size="sm">2</Badge>
-              <ActionIcon variant="subtle" size="sm">
-              </ActionIcon>
-            </Group>
-          </Flex>
-
-          {/* Add more placeholder chats */}
-          <Flex
-            align="center"
-            justify="space-between"
-            p="xs"
-            mb="xs"
-
-          >
-            <Flex align="center" gap="sm">
-              <Avatar radius="md">UX</Avatar>
-              <Box>
-                <Text fw={500} fz="sm">
-                  Design Discussion
-                </Text>
-                <Text fz="xs" c="dimmed">
-                  Let’s review the layout
-                </Text>
-              </Box>
-            </Flex>
-            <ActionIcon variant="subtle" size="sm">
-            </ActionIcon>
-          </Flex>
+          {listItems}
         </Box>
       </ScrollArea>
     </Box>

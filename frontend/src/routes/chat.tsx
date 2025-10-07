@@ -5,7 +5,7 @@ import Chats from "@/components/Chat/ChatSideBar";
 import { isLoggedIn } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/chat")({
-  component: Layout,
+  component: Chat,
   // beforeLoad: async () => {
   //   if (!isLoggedIn()) {
   //     throw redirect({
@@ -15,12 +15,11 @@ export const Route = createFileRoute("/chat")({
   // },
 });
 
-function Layout() {
+function Chat() {
   const [opened, { toggle }] = useDisclosure();
   // const loggedIn = isLoggedIn();
   return (
     <AppShell
-      header={{ height: 60 }}
       navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="md"
       
@@ -36,4 +35,3 @@ function Layout() {
   );
 }
 
-export default Layout;
