@@ -12,7 +12,7 @@ import { CustomProvider } from "./components/ui/provider";
 import { routeTree } from "./routeTree.gen";
 import "./main.css";
 
-OpenAPI.BASE = import.meta.env.VITE_API_URL || "https://tamayo.fly.dev";
+OpenAPI.BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 OpenAPI.TOKEN = async () => {
   return localStorage.getItem("access_token") || "";
 };
