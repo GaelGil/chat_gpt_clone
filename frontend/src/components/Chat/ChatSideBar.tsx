@@ -4,11 +4,10 @@ import {
   Text,
   Anchor,
   Flex,
-  Burger,
   ScrollArea,
+  Stack,
 } from "@mantine/core";
 import { Link } from "@tanstack/react-router";
-import { PROJECT_NAME } from "@/const";
 
 const items = [
   { title: "Research", link: "https://openai.com/research" },
@@ -35,48 +34,26 @@ const Chats = ({ onClose }: SidebarItemsProps) => {
 
   const listItems = items.map(({ title }) => (
     <Flex mb="sm">
-      <Flex>
-        <Box>
-          <Text fz={"sm"}>{title}</Text>
-        </Box>
-      </Flex>
+      <Text fz={"sm"}>{title}</Text>
     </Flex>
   ));
 
   return (
-    <Box w={300} h="100vh">
-      {/* Header */}
-      <Flex align="center" p="md" gap="sm" justify="space-between">
-        <Flex align="center" gap="sm">
-          <Anchor component={Link} to="/" underline="never">
-            <Text fz="xl" fw={700}>
-              {PROJECT_NAME}
-            </Text>
-          </Anchor>
-          <Burger size="sm" />
-        </Flex>
-      </Flex>
-
+    <Stack>
       {/* Controls */}
-      <Group px="md" pb="sm" gap="sm" align="center">
-        <Anchor component={Link} to="/chat/new" underline="never">
-          New chat
-        </Anchor>
-      </Group>
+      <Anchor component={Link} to="/chat/new" underline="never">
+        New chat
+      </Anchor>
 
       {/* Chats Section */}
-      <Box p="md" pb={0}>
-        <Text fw={600} fz="sm" mb="xs" c="dimmed">
-          Chats
-        </Text>
-      </Box>
+      <Text fw={600} fz="sm" mb="xs" c="dimmed">
+        Chats
+      </Text>
 
       <ScrollArea offsetScrollbars style={{ flex: 1 }}>
-        <Box px="md" pb="md">
-          {listItems}
-        </Box>
+        <Box>{listItems}</Box>
       </ScrollArea>
-    </Box>
+    </Stack>
   );
 };
 
