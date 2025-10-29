@@ -53,7 +53,7 @@ function HomePage() {
           {/* Right side: button */}
           <Anchor
             component={Link}
-            to={loggedIn ? "/dashboard" : "/auth/login"}
+            to={loggedIn ? "/chat" : "/auth/login"}
             underline="never"
           >
             <Button radius="xl">{loggedIn ? "Dashboard" : "Login"}</Button>

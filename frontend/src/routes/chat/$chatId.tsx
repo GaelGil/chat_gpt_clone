@@ -1,9 +1,15 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
+import { Container, Text } from "@mantine/core";
+export const Route = createFileRoute("/chat/$chatId")({
+  component: ChatDetail,
+});
 
-export const Route = createFileRoute('/chat/$chatId')({
-  component: RouteComponent,
-})
-
-function RouteComponent() {
-  return <div>Hello "/chat/$chatId"!</div>
+function ChatDetail() {
+  const { chatId } = Route.useParams();
+  return (
+    <Container>
+      <Text>Hello "/chat/$chatId"!</Text>
+      <Text>{chatId}</Text>
+    </Container>
+  );
 }

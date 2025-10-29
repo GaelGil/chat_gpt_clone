@@ -19,7 +19,7 @@ const HomeBanner = () => {
           <Text fz="sm" c="dimmed">
             {today}
           </Text>
-          <Anchor component={Link} underline="never" to="/dashboard">
+          <Anchor component={Link} underline="never" to="/chat">
             <Button radius="xl" size="lg" variant="outline">
               Get Started
             </Button>

@@ -1,40 +1,31 @@
-import {
-  Box,
-  Group,
-  Text,
-  Anchor,
-  Flex,
-  ScrollArea,
-  Stack,
-} from "@mantine/core";
+import { Box, Text, Anchor, Flex, ScrollArea, Stack } from "@mantine/core";
 import { Link } from "@tanstack/react-router";
 
 const items = [
-  { title: "Research", link: "https://openai.com/research" },
-  { title: "Safety", link: "https://openai.com/safety" },
-  { title: "For Business", link: "https://openai.com/business" },
-  { title: "For Developers", link: "https://openai.com/developers" },
-  { title: "ChatGPT", link: "https://openai.com/chatgpt" },
-  { title: "Sora", link: "https://openai.com/sora" },
-  { title: "Stories", link: "https://openai.com/stories" },
-  { title: "Company", link: "https://openai.com/company" },
-  { title: "News", link: "https://openai.com/news" },
-  { title: "News", link: "https://openai.com/news" },
-  { title: "News", link: "https://openai.com/news" },
-  { title: "News", link: "https://openai.com/news" },
-  { title: "News", link: "https://openai.com/news" },
+  { id: 0, title: "Research", link: "https://openai.com/research" },
+  { id: 1, title: "Safety", link: "https://openai.com/safety" },
+  { id: 2, title: "For Business", link: "https://openai.com/business" },
+  { id: 3, title: "For Developers", link: "https://openai.com/developers" },
+  { id: 4, title: "ChatGPT", link: "https://openai.com/chatgpt" },
+  { id: 5, title: "Sora", link: "https://openai.com/sora" },
+  { id: 6, title: "Stories", link: "https://openai.com/stories" },
+  { id: 7, title: "Company", link: "https://openai.com/company" },
+  { id: 8, title: "News", link: "https://openai.com/news" },
+  { id: 9, title: "News", link: "https://openai.com/news" },
+  { id: 10, title: "News", link: "https://openai.com/news" },
+  { id: 11, title: "News", link: "https://openai.com/news" },
+  { id: 12, title: "News", link: "https://openai.com/news" },
 ];
-
-interface SidebarItemsProps {
-  onClose?: () => void;
-}
-
-const Chats = ({ onClose }: SidebarItemsProps) => {
-  const isLoggedIn = true;
-
-  const listItems = items.map(({ title }) => (
+const Chats = () => {
+  const listItems = items.map((item) => (
     <Flex mb="sm">
-      <Text fz={"sm"}>{title}</Text>
+      <Link
+        to="/chat/$chatId"
+        params={{ chatId: item.id.toString() }}
+        key={item.id}
+      >
+        <Text fz={"sm"}>{item.title}</Text>
+      </Link>
     </Flex>
   ));
 
