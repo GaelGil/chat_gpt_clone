@@ -1,12 +1,4 @@
-import {
-  AppShell,
-  Burger,
-  Group,
-  Flex,
-  Box,
-  Text,
-  Anchor,
-} from "@mantine/core";
+import { AppShell, Burger, Flex, Box, Text, Anchor } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { PROJECT_NAME } from "@/const";
 import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
@@ -15,69 +7,51 @@ import NewChatBanner from "@/components/Chat/NewChatBanner";
 
 export const Route = createFileRoute("/chat")({
   component: Chat,
-  // beforeLoad: async () => {
-  //   if (!isLoggedIn()) {
-  //     throw redirect({
-  //       to: "/auth/login",
-  //     });
-  //   }
-  // },
 });
 function Chat() {
-  const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
-  const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+  const [collapsed, { toggle: toggleCollapsed }] = useDisclosure(false);
 
-  // Sidebar widths
-  const fullWidth = 250; // px
-  const collapsedWidth = fullWidth * 0.1; // 10% of full width (25px)
+  const fullWidth = 250; // full sidebar width
+  const collapsedWidth = fullWidth * 0.2; // 10% width (25px)
 
   return (
     <AppShell
       padding="md"
-      // ✅ Removed header entirely
       navbar={{
         width: fullWidth,
         breakpoint: "sm",
-        collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
+        collapsed: { mobile: false, desktop: false },
       }}
     >
-      {/* ✅ Sidebar (Navbar) */}
+      {/* Sidebar */}
       <AppShell.Navbar
-        p="md"
+        p="sm"
         style={{
-          width: desktopOpened ? fullWidth : collapsedWidth,
+          width: collapsed ? collapsedWidth : fullWidth,
           transition: "width 0.3s ease",
           overflow: "hidden",
         }}
       >
-        {/* Sidebar header with logo + toggle */}
+        {/* Sidebar top: logo + toggle button */}
         <Flex align="center" justify="space-between" mb="md">
-          <Anchor component={Link} to="/" underline="never">
-            <Text fz="xl" fw={700}>
-              {PROJECT_NAME}
-            </Text>
-          </Anchor>
+          {/* Show logo only when sidebar is open */}
+          {!collapsed && (
+            <Anchor component={Link} to="/" underline="never">
+              <Text fz="xl" fw={700}>
+                {PROJECT_NAME}
+              </Text>
+            </Anchor>
+          )}
 
-          {/* ✅ Only one burger button inside the sidebar */}
-          <Burger
-            opened={desktopOpened}
-            onClick={toggleDesktop}
-            size="sm"
-            visibleFrom="sm"
-          />
-          <Burger
-            opened={mobileOpened}
-            onClick={toggleMobile}
-            size="sm"
-            hiddenFrom="sm"
-          />
+          {/* Toggle button */}
+          <Burger opened={!collapsed} onClick={toggleCollapsed} size="sm" />
         </Flex>
 
         {/* Sidebar content */}
-        <Chats />
+        {!collapsed && <Chats />}
       </AppShell.Navbar>
 
-      {/* ✅ Main content */}
+      {/* Main content */}
       <AppShell.Main>
         <NewChatBanner />
         <Outlet />
