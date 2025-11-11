@@ -41,9 +41,9 @@ const Chats = () => {
         Chats
       </Text>
 
-      <ScrollArea style={{ flex: 1, maxHeight: "300px" }} offsetScrollbars>
-        <Box>{listItems}</Box>
-      </ScrollArea>
+      {/* <ScrollArea style={{ flex: 1, maxHeight: "300px" }} offsetScrollbars> */}
+      <Box>{listItems}</Box>
+      {/* </ScrollArea> */}
     </Stack>
   );
 };

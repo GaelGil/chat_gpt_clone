@@ -1,4 +1,4 @@
-import { AppShell, Burger, Flex, Box, Text, Anchor } from "@mantine/core";
+import { AppShell, Burger, Flex, Text, Anchor } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { PROJECT_NAME } from "@/const";
 import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
