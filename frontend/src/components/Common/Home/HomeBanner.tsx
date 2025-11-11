@@ -7,10 +7,10 @@ const HomeBanner = () => {
   //   const user = useUser();
   return (
     <Container
-      size="md"
-      // mih="100vh"
-      // display="flex"
-      h={"100%"}
+    // size="md"
+    // // mih="100vh"
+    // // display="flex"
+    // h={"100%"}
     >
       <Stack align="center" gap="xl" mt={"xl"}>
         {/* Project name and date */}
@@ -27,7 +27,7 @@ const HomeBanner = () => {
         </Box>
 
         {/* Main text */}
-        <Box maw={600}>
+        <Box maw={700}>
           <Title order={1} mb="md">
             Lorem ipsum dolor sit amet consectetur adipisicing elit.
           </Title>

@@ -34,71 +34,50 @@ function Chat() {
   return (
     <AppShell
       padding="md"
-      header={{ height: 60 }}
+      // ✅ Removed header entirely
       navbar={{
         width: fullWidth,
         breakpoint: "sm",
-        collapsed: { mobile: !mobileOpened, desktop: false }, // let us handle desktop manually
+        collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
       }}
     >
-      <AppShell.Header>
-        <Box component="header" w={"100%"} p={"md"}>
-          <Flex justify="space-between" align="center">
-            <Group>
-              <Burger
-                opened={mobileOpened}
-                onClick={toggleMobile}
-                hiddenFrom="sm"
-                size="sm"
-              />
-              <Burger
-                opened={desktopOpened}
-                onClick={toggleDesktop}
-                visibleFrom="sm"
-                size="sm"
-              />
-            </Group>
-          </Flex>
-        </Box>
-      </AppShell.Header>
-      {/* Navbar (Sidebar) */}
+      {/* ✅ Sidebar (Navbar) */}
       <AppShell.Navbar
         p="md"
         style={{
           width: desktopOpened ? fullWidth : collapsedWidth,
-          tansition: "width 0.4s ease",
+          transition: "width 0.3s ease",
           overflow: "hidden",
         }}
       >
-        <Box w={300}>
-          <Flex align="center" p="md" gap="sm" justify="space-between">
-            <Flex align="center" gap="sm">
-              <Anchor component={Link} to="/" underline="never">
-                <Text fz="xl" fw={700}>
-                  {PROJECT_NAME}
-                </Text>
-              </Anchor>
-              <Group>
-                <Burger
-                  opened={mobileOpened}
-                  onClick={toggleMobile}
-                  hiddenFrom="sm"
-                  size="sm"
-                />
-                <Burger
-                  opened={desktopOpened}
-                  onClick={toggleDesktop}
-                  visibleFrom="sm"
-                  size="sm"
-                />
-              </Group>
-            </Flex>
-          </Flex>
-          <Chats />
-        </Box>
+        {/* Sidebar header with logo + toggle */}
+        <Flex align="center" justify="space-between" mb="md">
+          <Anchor component={Link} to="/" underline="never">
+            <Text fz="xl" fw={700}>
+              {PROJECT_NAME}
+            </Text>
+          </Anchor>
+
+          {/* ✅ Only one burger button inside the sidebar */}
+          <Burger
+            opened={desktopOpened}
+            onClick={toggleDesktop}
+            size="sm"
+            visibleFrom="sm"
+          />
+          <Burger
+            opened={mobileOpened}
+            onClick={toggleMobile}
+            size="sm"
+            hiddenFrom="sm"
+          />
+        </Flex>
+
+        {/* Sidebar content */}
+        <Chats />
       </AppShell.Navbar>
 
-      {/* Main content */}
+      {/* ✅ Main content */}
       <AppShell.Main>
         <NewChatBanner />
         <Outlet />

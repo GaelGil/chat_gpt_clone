@@ -23,12 +23,7 @@ function HomePage() {
       c={"white"}
     >
       <AppShell.Header withBorder={false} bg={"black"}>
-        <Flex
-          h="100%"
-          px="md"
-          align="center"
-          justify="space-between" // 👈 pushes content to opposite side
-        >
+        <Flex h="100%" px="md" align="center" justify="space-between">
           {/* Left side: logo + project name */}
           <Flex align="center">
             <Burger
