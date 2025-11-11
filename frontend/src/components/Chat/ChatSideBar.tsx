@@ -1,4 +1,4 @@
-import { Box, Text, Anchor, Flex, ScrollArea, Stack } from "@mantine/core";
+import { Box, Text, Anchor, Flex, Stack } from "@mantine/core";
 import { Link } from "@tanstack/react-router";
 
 const items = [
