@@ -20,7 +20,7 @@ class User(UserBase, table=True):
 
 class Session(SessionBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
     owner: User = Relationship(back_populates="chat_sessions")
     messages: list["Message"] = Relationship(
         back_populates="session", cascade_delete=True
