@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     R2_SECRET_ACCESS_KEY: str
     R2_BUCKET_NAME: str
 
+    OPENAI_API_KEY: str
     FAL_API_KEY: str | None = None
 
     @computed_field  # type: ignore[prop-decorator]

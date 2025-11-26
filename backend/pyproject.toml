@@ -25,6 +25,7 @@ dependencies = [
     "boto3>=1.40.38",
     "fal-client>=0.7.0",
     "pillow>=11.3.0",
+    "openai>=2.8.1",
 ]
 
 [tool.uv]

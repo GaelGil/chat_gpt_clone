@@ -4,6 +4,7 @@ from typing import Any
 from fastapi import APIRouter
 
 from app.api.deps import CurrentUser, SessionServiceDep
+from app.schemas.Message import NewMessage
 from app.schemas.Session import NewSession, SessionDetail, SessionList
 from app.schemas.Utils import Message
 
@@ -41,7 +42,7 @@ def new_session(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
     new_session: NewSession,
-) -> Any:
+) -> Message:
     """
     Create a new Session
     """
@@ -65,14 +66,15 @@ def delete_session(
 
 
 @router.post("/{id}", response_model=Message)
-def add_message(
+def send_message(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
+    message: NewMessage,
     id: uuid.UUID,
 ) -> Message:
     """
     Add message to a session
     """
     session_service.verify_permissions(user=current_user)
-    session_service.add_message(user=current_user, id=id)
+    session_service.send_message(user=current_user, id=id, message=message)
     return Message(message="Message added successfully")
