@@ -12,11 +12,13 @@ class Role(str, Enum):
 
 class MessageBase(SQLModel):
     role: Role = Field(default=Role.USER, nullable=False)
-    message: str = Field(max_length=255, nullable=False)
+    content: str = Field(max_length=255, nullable=False)
 
 
 class NewMessage(MessageBase):
     session_id: uuid.UUID
+    model_name: str
+    prev_messages: list[MessageBase] | None = None
 
 
 class Message(MessageBase):

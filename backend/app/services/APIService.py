@@ -1,24 +1,229 @@
+import json
+import logging
 import uuid
 
 from openai import OpenAI
 from sqlmodel import Session
 
 from app.core.config import settings
-from app.models import User
+from app.models import Message, User
+from app.schemas.Message import MessageBase, NewMessage, Role
+
+# logging stuff
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+# load env
 
 
 class APIService:
-    def __init__(self, session: Session):
+    def __init__(self, session: Session, tool_definitions: dict):
         self.session = session
         self.openai: OpenAI = OpenAI(settings.OPENAI_API_KEY)
+        self.tools = tool_definitions
         pass
+
+    def handle_chat_history(
+        self, new_message: str, prev_messages: list[MessageBase], session_id: uuid.UUID
+    ):
+        chat_history = [
+            {"role": msg.role, "content": msg.content}
+            for msg in Message.query.filter_by(session_id=self.session.id).order_by(
+                Message.id
+            )
+        ]
+
+        return chat_history.append({"role": Role.USER, "content": new_message})
 
     def prep_request(
-        self, user: User, id: uuid.UUID, message: str, session_id: uuid.UUID
+        self, user: User, id: uuid.UUID, new_message: NewMessage, session_id: uuid.UUID
     ):
+        chat_history = self.handle_chat_history(
+            new_message=new_message.content,
+            prev_messages=new_message.prev_messages,
+            session_id=session_id,
+        )
+
+        self.process_message_stream(
+            chat_history=chat_history, model_name=new_message.model_name
+        )
+
+    def save_message(self, user: User, id: uuid.UUID, message: NewMessage):
         pass
 
-    def process_message_stream(
-        self, user: User, id: uuid.UUID, message: str, session_id: uuid.UUID
-    ):
+    def save_tool_call(self, user: User, id: uuid.UUID, message: NewMessage):
+        pass
+
+    async def process_message_stream(self, chat_history: list, model_name: str):
+        # stream the response
+        stream = self.openai.responses.create(
+            model=model_name,
+            input=chat_history,
+            tools=self.tools,
+            tool_choice="auto",
+            stream=True,
+        )
+
+        tool_calls = {}
+        init_response = ""
+        # initial call
+        for event in stream:
+            # if there is text, print it
+            if event.type == "response.output_text.delta":
+                # yield the text
+                yield json.dumps({"type": "response", "text": event.delta})
+                init_response += event.delta
+                # print(event.delta, end="", flush=True)
+            # if there is no text, print a newline
+            elif event.type == "response.output_text.done":
+                logger.info("response.output_text.done")
+
+            # else if there is a tool call
+            # name of the tool is in response.output.item
+            elif (
+                event.type == "response.output_item.added"
+                and event.item.type == "function_call"
+            ):
+                # output_index is the index of the tool call
+                # because they come in chunks we need to keep track of the index
+                idx = getattr(event, "output_index", 0)
+                if idx not in tool_calls:
+                    # if the index is not in the tool calls dict, add it
+                    tool_calls[idx] = {
+                        "name": None,
+                        "arguments_fragments": [],
+                        "arguments": None,
+                        "done": False,
+                    }
+                tool_calls[idx]["name"] = event.item.name  # get the name of the tool
+
+            # else if there is a tool argument (they come in chunks as strings)
+            elif event.type == "response.function_call_arguments.delta":
+                # output_index is the index of the tool call
+                idx = getattr(event, "output_index", 0)
+                if idx not in tool_calls:  # if not in the tool calls dict, add it
+                    tool_calls[idx] = {
+                        "name": None,
+                        "arguments_fragments": [],
+                        "arguments": None,
+                        "done": False,
+                    }
+                # delta (arguments) may be a string fragment so we add it
+                args_frag = (
+                    event.delta
+                    if isinstance(event.delta, str)
+                    else json.dumps(event.delta)
+                )
+                # add up the argument strings for the tool call
+                tool_calls[idx]["arguments_fragments"].append(args_frag)
+                logger.info(f"[DEBUG] Arg fragment for idx={idx}: {args_frag}")
+
+            # else if the tool call is done
+            elif event.type == "response.function_call_arguments.done":
+                # output_index is the index of the tool call
+                idx = getattr(event, "output_index", 0)
+                # if the index is not in the tool calls dict, add it
+                if idx not in tool_calls:
+                    tool_calls[idx] = {
+                        "name": None,
+                        "arguments_fragments": [],
+                        "arguments": None,
+                        "done": False,
+                    }
+                # mark the tool call as done
+                tool_calls[idx]["done"] = True
+                # join the argument fragments into a single string
+                tool_calls[idx]["arguments"] = "".join(
+                    tool_calls[idx]["arguments_fragments"]
+                ).strip()
+                # log statment for tool done
+                logger.info(f"[DEBUG] Marked tool idx={idx} done")
+
+        logger.info(f"TOOL CALLS: {tool_calls}")
+        chat_history.append({"role": Role.ASSISTANT, "content": init_response})
+
+        # self.
+
+        # Execute the tool calls
+        for tool_idx, tool in tool_calls.items():
+            tool_name = tool["name"]
+            args_str = tool["arguments"]
+
+            if not tool_name:  # if tool name is None
+                logger.info(f"[DEBUG] No tool name for idx={tool_idx}, skipping")
+                continue  # continue
+
+            # try to parse the arguments
+            try:
+                parsed_args = json.loads(args_str)
+            except json.JSONDecodeError:
+                parsed_args = {}
+                logger.info(
+                    f"[DEBUG] Failed to parse args for idx={tool_idx}, using empty dict"
+                )
+            # yield the tool call
+            yield json.dumps(
+                {"type": "tool_use", "tool_name": tool_name, "tool_input": parsed_args}
+            )
+            try:
+                result = self.execute_tool(tool_name, parsed_args)
+            except TypeError:
+                result = self.execute_tool(tool_name, parsed_args.get("location"))
+
+            result = self.parse_tool_result(tool_name, result)
+            logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {result}")
+            self.add_tool_history(tool_name, parsed_args, result)
+
+            # yield the tool result
+            yield json.dumps(
+                {
+                    "type": "tool_result",
+                    "tool_name": tool_name,
+                    "tool_input": parsed_args,
+                    "tool_result": result,
+                }
+            )
+
+            # Add the tool call result to the chat history
+            chat_history.append(
+                {
+                    "role": Role.ASSISTANT,
+                    "content": f"TOOL_NAME: {tool_name}, RESULT: {result}",
+                }
+            )
+
+        logger.info(f"[DEBUG] CHAT HISTORY AFTER TOOL RUN: {chat_history}")
+        # Get the final answer
+        # IF we called tools to get updated information then we must form a final response
+        if tool_calls:
+            logger.info("[DEBUG] Calling model for final answer...")
+            # Call the model again with the tool call results
+            final_stream = self.openai.responses.create(
+                model=model_name,
+                input=self.chat_history,
+                stream=True,
+            )
+            logger.info(
+                f"[DEBUG] CHAT HISTORY AFTER FINAL LLM CALL: {self.get_chat_history()}"
+            )
+
+            final_response = ""
+
+            for ev in final_stream:
+                logger.info(
+                    f"\n[DEBUG EVENT FINAL] type={ev.type}, delta={getattr(ev, 'delta', None)}"
+                )
+                # if there is text, print it/yield it
+                if ev.type == "response.output_text.delta":
+                    yield json.dumps({"type": "response", "text": ev.delta})
+                    logger.info(f"response.output_text.delta: {ev.delta}")
+                    final_response += ev.delta
+
+                    # print(ev.delta, end="", flush=True)
+                # if there is no text, print a newline
+                elif ev.type == "response.output_text.done":
+                    logger.info("response.output_text.done")
+            chat_history.append({"role": Role.ASSISTANT, "content": final_response})
+
         pass
