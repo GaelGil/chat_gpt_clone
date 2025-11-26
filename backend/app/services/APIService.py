@@ -3,11 +3,11 @@ import logging
 import uuid
 
 from openai import OpenAI
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.core.config import settings
-from app.models import Message, User
-from app.schemas.Message import MessageBase, NewMessage, Role
+from app.models import Message, ToolCall, User
+from app.schemas.Message import NewMessage, Role
 
 # logging stuff
 logging.basicConfig(
@@ -24,38 +24,65 @@ class APIService:
         self.tools = tool_definitions
         pass
 
-    def handle_chat_history(
-        self, new_message: str, prev_messages: list[MessageBase], session_id: uuid.UUID
-    ):
+    def handle_chat_history(self, new_message: str, role: str, session_id: uuid.UUID):
         chat_history = [
             {"role": msg.role, "content": msg.content}
-            for msg in Message.query.filter_by(session_id=self.session.id).order_by(
-                Message.id
-            )
+            for msg in self.session.exec(select(Message).where(session_id=session_id))
         ]
 
-        return chat_history.append({"role": Role.USER, "content": new_message})
+        return chat_history.append({"role": role, "content": new_message})
 
-    def prep_request(
-        self, user: User, id: uuid.UUID, new_message: NewMessage, session_id: uuid.UUID
-    ):
+    def prep_request(self, user: User, new_message: NewMessage, session_id: uuid.UUID):
         chat_history = self.handle_chat_history(
             new_message=new_message.content,
-            prev_messages=new_message.prev_messages,
+            role=Role.USER,
             session_id=session_id,
         )
 
         self.process_message_stream(
-            chat_history=chat_history, model_name=new_message.model_name
+            chat_history=chat_history,
+            model_name=new_message.model_name,
+            owner_id=user.id,
+            session_id=session_id,
         )
 
-    def save_message(self, user: User, id: uuid.UUID, message: NewMessage):
+    def save_message(
+        self, session_id: uuid.UUID, content: str, role: str, owner_id: uuid.UUID
+    ):
+        message_obj = Message(
+            role=role, content=content, owner_id=owner_id, session_id=session_id
+        )
+
+        self.session.add(message_obj)
+        self.session.commit()
+
+    def save_tool_call(
+        self,
+        session_id: uuid.UUID,
+        name: str,
+        args: dict,
+        result: str,
+        owner_id: uuid.UUID,
+    ):
+        tool_call_obj = ToolCall(
+            name=name,
+            args=args,
+            result=result,
+            owner_id=owner_id,
+            session_id=session_id,
+        )
+
+        self.session.add(tool_call_obj)
+        self.session.commit()
         pass
 
-    def save_tool_call(self, user: User, id: uuid.UUID, message: NewMessage):
-        pass
-
-    async def process_message_stream(self, chat_history: list, model_name: str):
+    async def process_message_stream(
+        self,
+        chat_history: list,
+        model_name: str,
+        owner_id: uuid.UUID,
+        session_id: uuid.UUID,
+    ):
         # stream the response
         stream = self.openai.responses.create(
             model=model_name,
@@ -142,6 +169,12 @@ class APIService:
 
         logger.info(f"TOOL CALLS: {tool_calls}")
         chat_history.append({"role": Role.ASSISTANT, "content": init_response})
+        self.save_message(
+            session_id=session_id,
+            content=init_response,
+            role=Role.ASSISTANT,
+            owner_id=owner_id,
+        )
 
         # self.
 
@@ -192,6 +225,19 @@ class APIService:
                     "content": f"TOOL_NAME: {tool_name}, RESULT: {result}",
                 }
             )
+            self.save_message(
+                session_id=session_id,
+                content=f"TOOL_NAME: {tool_name}, RESULT: {result}",
+                role=Role.ASSISTANT,
+                owner_id=owner_id,
+            )
+            self.save_tool_call(
+                session_id=session_id,
+                name=tool_name,
+                args=parsed_args,
+                result=result,
+                owner_id=owner_id,
+            )
 
         logger.info(f"[DEBUG] CHAT HISTORY AFTER TOOL RUN: {chat_history}")
         # Get the final answer
@@ -201,12 +247,10 @@ class APIService:
             # Call the model again with the tool call results
             final_stream = self.openai.responses.create(
                 model=model_name,
-                input=self.chat_history,
+                input=chat_history,
                 stream=True,
             )
-            logger.info(
-                f"[DEBUG] CHAT HISTORY AFTER FINAL LLM CALL: {self.get_chat_history()}"
-            )
+            logger.info(f"[DEBUG] CHAT HISTORY AFTER FINAL LLM CALL: {chat_history}")
 
             final_response = ""
 
@@ -225,5 +269,11 @@ class APIService:
                 elif ev.type == "response.output_text.done":
                     logger.info("response.output_text.done")
             chat_history.append({"role": Role.ASSISTANT, "content": final_response})
+            self.save_message(
+                session_id=session_id,
+                content=final_response,
+                role=Role.ASSISTANT,
+                owner_id=owner_id,
+            )
 
         pass
