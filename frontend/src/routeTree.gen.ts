@@ -16,8 +16,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as GenerationGenerationIdRouteImport } from './routes/generation/$generationId'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
-import { Route as DashboardGalleryRouteImport } from './routes/dashboard/gallery'
-import { Route as DashboardCanvasesRouteImport } from './routes/dashboard/canvases'
 import { Route as DashboardAdminRouteImport } from './routes/dashboard/admin'
 import { Route as ChatChatIdRouteImport } from './routes/chat/$chatId'
 import { Route as CanvasCanvasIdRouteImport } from './routes/canvas/$canvasId'
@@ -59,16 +57,6 @@ const GenerationGenerationIdRoute = GenerationGenerationIdRouteImport.update({
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardGalleryRoute = DashboardGalleryRouteImport.update({
-  id: '/gallery',
-  path: '/gallery',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardCanvasesRoute = DashboardCanvasesRouteImport.update({
-  id: '/canvases',
-  path: '/canvases',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardAdminRoute = DashboardAdminRouteImport.update({
@@ -119,8 +107,6 @@ export interface FileRoutesByFullPath {
   '/canvas/$canvasId': typeof CanvasCanvasIdRoute
   '/chat/$chatId': typeof ChatChatIdRoute
   '/dashboard/admin': typeof DashboardAdminRoute
-  '/dashboard/canvases': typeof DashboardCanvasesRoute
-  '/dashboard/gallery': typeof DashboardGalleryRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/generation/$generationId': typeof GenerationGenerationIdRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -136,8 +122,6 @@ export interface FileRoutesByTo {
   '/canvas/$canvasId': typeof CanvasCanvasIdRoute
   '/chat/$chatId': typeof ChatChatIdRoute
   '/dashboard/admin': typeof DashboardAdminRoute
-  '/dashboard/canvases': typeof DashboardCanvasesRoute
-  '/dashboard/gallery': typeof DashboardGalleryRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/generation/$generationId': typeof GenerationGenerationIdRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -155,8 +139,6 @@ export interface FileRoutesById {
   '/canvas/$canvasId': typeof CanvasCanvasIdRoute
   '/chat/$chatId': typeof ChatChatIdRoute
   '/dashboard/admin': typeof DashboardAdminRoute
-  '/dashboard/canvases': typeof DashboardCanvasesRoute
-  '/dashboard/gallery': typeof DashboardGalleryRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/generation/$generationId': typeof GenerationGenerationIdRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -175,8 +157,6 @@ export interface FileRouteTypes {
     | '/canvas/$canvasId'
     | '/chat/$chatId'
     | '/dashboard/admin'
-    | '/dashboard/canvases'
-    | '/dashboard/gallery'
     | '/dashboard/settings'
     | '/generation/$generationId'
     | '/dashboard/'
@@ -192,8 +172,6 @@ export interface FileRouteTypes {
     | '/canvas/$canvasId'
     | '/chat/$chatId'
     | '/dashboard/admin'
-    | '/dashboard/canvases'
-    | '/dashboard/gallery'
     | '/dashboard/settings'
     | '/generation/$generationId'
     | '/dashboard'
@@ -210,8 +188,6 @@ export interface FileRouteTypes {
     | '/canvas/$canvasId'
     | '/chat/$chatId'
     | '/dashboard/admin'
-    | '/dashboard/canvases'
-    | '/dashboard/gallery'
     | '/dashboard/settings'
     | '/generation/$generationId'
     | '/dashboard/'
@@ -281,20 +257,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSettingsRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/gallery': {
-      id: '/dashboard/gallery'
-      path: '/gallery'
-      fullPath: '/dashboard/gallery'
-      preLoaderRoute: typeof DashboardGalleryRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/canvases': {
-      id: '/dashboard/canvases'
-      path: '/canvases'
-      fullPath: '/dashboard/canvases'
-      preLoaderRoute: typeof DashboardCanvasesRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/dashboard/admin': {
       id: '/dashboard/admin'
       path: '/admin'
@@ -359,16 +321,12 @@ const ChatRouteWithChildren = ChatRoute._addFileChildren(ChatRouteChildren)
 
 interface DashboardRouteChildren {
   DashboardAdminRoute: typeof DashboardAdminRoute
-  DashboardCanvasesRoute: typeof DashboardCanvasesRoute
-  DashboardGalleryRoute: typeof DashboardGalleryRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAdminRoute: DashboardAdminRoute,
-  DashboardCanvasesRoute: DashboardCanvasesRoute,
-  DashboardGalleryRoute: DashboardGalleryRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }

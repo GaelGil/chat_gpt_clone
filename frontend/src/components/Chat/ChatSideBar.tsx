@@ -4,46 +4,47 @@ import { ActionIcon } from "@mantine/core";
 import { FiArrowRight, FiColumns, FiEdit } from "react-icons/fi";
 import { PROJECT_NAME, LOGO } from "@/const";
 import { useState } from "react";
-const items = [
-  { id: 0, title: "Research", link: "https://openai.com/research" },
-  { id: 1, title: "Safety", link: "https://openai.com/safety" },
-  { id: 2, title: "For Business", link: "https://openai.com/business" },
-  { id: 3, title: "For Developers", link: "https://openai.com/developers" },
-  { id: 4, title: "ChatGPT", link: "https://openai.com/chatgpt" },
-  { id: 5, title: "Sora", link: "https://openai.com/sora" },
-  { id: 6, title: "Stories", link: "https://openai.com/stories" },
-  { id: 7, title: "Company", link: "https://openai.com/company" },
-  { id: 8, title: "News", link: "https://openai.com/news" },
-  { id: 9, title: "News", link: "https://openai.com/news" },
-  { id: 10, title: "News", link: "https://openai.com/news" },
-  { id: 11, title: "News", link: "https://openai.com/news" },
-  { id: 12, title: "News", link: "https://openai.com/news" },
-];
+import { SessionService } from "@/client";
+import { useQuery } from "@tanstack/react-query";
+import Chats from "./Chats";
 interface SidebarProps {
   collapsed: boolean;
   toggle: () => void;
 }
 
+// function getUsersQueryOptions({ page }: { page: number }) {
+//   return {
+//     queryFn: () => SessionService.getSessions(),
+//     queryKey: ["sessions"],
+//   };
+// }
 const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
+  // const sessions;
+  // const { data, isLoading, isPlaceholderData } = useQuery({
+  //   ...getUsersQueryOptions({ page }),
+  //   placeholderData: (prevData) => prevData,
+  // });
+
+  // const items = data?.data ?? [];
   const [hovered, setHovered] = useState(false);
 
-  const listItems = items.map((item) => (
-    <>
-      {collapsed ? (
-        <></>
-      ) : (
-        <Flex mb="sm">
-          <Link
-            to="/chat/$chatId"
-            params={{ chatId: item.id.toString() }}
-            key={item.id}
-          >
-            <Text fz={"sm"}>{item.title}</Text>
-          </Link>
-        </Flex>
-      )}
-    </>
-  ));
+  // const listItems = items.map((item) => (
+  //   <>
+  //     {collapsed ? (
+  //       <></>
+  //     ) : (
+  //       <Flex mb="sm">
+  //         <Link
+  //           to="/chat/$chatId"
+  //           params={{ chatId: item.id.toString() }}
+  //           key={item.id}
+  //         >
+  //           <Text fz={"sm"}>{item.title}</Text>
+  //         </Link>
+  //       </Flex>
+  //     )}
+  //   </>
+  // ));
 
   return (
     <Stack>
@@ -98,7 +99,7 @@ const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
           <Text c="dimmed" fz="sm">
             Your Chats
           </Text>
-          <Box>{listItems}</Box>
+          <Chats />
         </>
       )}
     </Stack>
