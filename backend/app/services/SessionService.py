@@ -83,6 +83,9 @@ class SessionService:
         self.api_service.prep_request(
             user_id=user_id, session_id=session_id, message=message
         )
+
+        self.api_service.send_message_and_stream()
+
         pass
 
     def verify_permissions(
