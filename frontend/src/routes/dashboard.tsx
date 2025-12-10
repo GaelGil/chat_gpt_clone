@@ -2,8 +2,9 @@ import { Flex, Box } from "@mantine/core";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 import Navbar from "@/components/Common/Navbar";
-import Sidebar from "@/components/Common/Sidebar";
+import SideBar from "@/components/Common/SideBar/SideBar";
 import { isLoggedIn } from "@/hooks/useAuth";
+import { useDisclosure } from "@mantine/hooks";
 
 export const Route = createFileRoute("/dashboard")({
   component: Layout,
@@ -17,16 +18,20 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function Layout() {
+  const [collapsed, { toggle: toggleCollapsed }] = useDisclosure(false);
+
   return (
     <Flex direction="column">
       <Navbar />
       <Flex flex="1">
-        <Sidebar />
-        <Box style={{ flex: 1, padding: "1rem", overflowY: "auto" }}>
+        <SideBar collapsed={collapsed} toggle={toggleCollapsed} />
+        <Box
+          style={{ flex: 1, overflow: "hidden", position: "relative" }}
+          bg="dark.7"
+        >
           <Outlet />
         </Box>
       </Flex>
     </Flex>
   );
 }
-

@@ -91,20 +91,21 @@ const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
       </Flex>
       {}
       {!collapsed && (
-        <Anchor fw={700} component={Link} to="/chat/new" underline="never">
-          <Flex align="center" gap="xs">
-            <FiEdit size={18} />
-            <Text fz="sm" fw={500}>
-              New chat
-            </Text>
-          </Flex>
-        </Anchor>
+        <>
+          <Anchor fw={700} component={Link} to="/chat/new" underline="never">
+            <Flex align="center" gap="xs">
+              <FiEdit size={18} />
+              <Text fz="sm" fw={500}>
+                New chat
+              </Text>
+            </Flex>
+          </Anchor>
+          <Text c="dimmed" fz="sm">
+            Your Chats
+          </Text>
+          <Box>{listItems}</Box>
+        </>
       )}
-
-      <Text c="dimmed" fz="sm">
-        Your Chats
-      </Text>
-      <Box>{listItems}</Box>
     </Stack>
   );
 };

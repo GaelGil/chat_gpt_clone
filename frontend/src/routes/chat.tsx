@@ -1,4 +1,4 @@
-import { AppShell, Box } from "@mantine/core";
+import { AppShell } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import NewChatBanner from "@/components/Chat/NewChatBanner";
@@ -26,31 +26,30 @@ function Chat() {
       {/* Sidebar */}
       <AppShell.Navbar
         p="sm"
+        w={sidebarWidth}
+        h="100vh"
         style={{
-          width: collapsed ? collapsedWidth : fullWidth,
+          flexShrink: 0,
           transition: "width 0.3s ease",
-          overflow: "hidden",
+          borderRight:
+            "1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4))",
+          backgroundColor:
+            "light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))",
         }}
       >
-        <Box
-          w={sidebarWidth}
-          h="100vh"
-          style={{
-            flexShrink: 0,
-            transition: "width 0.3s ease",
-            borderRight:
-              "1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4))",
-            backgroundColor:
-              "light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))",
-          }}
-        >
-          {/* <SideBar collapsed={collapsed} toggle={toggleCollapsed} /> */}
-          <ChatSideBar collapsed={collapsed} toggle={toggleCollapsed} />
-        </Box>
+        <ChatSideBar collapsed={collapsed} toggle={toggleCollapsed} />
       </AppShell.Navbar>
 
       {/* Main content */}
-      <AppShell.Main>
+      <AppShell.Main
+        style={{
+          position: "relative",
+          cursor: "pointer",
+          borderRadius: "var(--mantine-radius-lg)",
+          overflow: "hidden",
+          transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        }}
+      >
         <NewChatBanner />
         <Outlet />
       </AppShell.Main>
