@@ -52,8 +52,6 @@ const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
         align="center"
         justify={collapsed ? "center" : "space-between"}
         px={collapsed ? "xs" : "md"}
-        py="sm"
-        gap="sm"
       >
         {collapsed ? (
           <Box
@@ -79,9 +77,6 @@ const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
               <Anchor underline="never" component={Link} to="/">
                 <Image src={LOGO} alt={`${PROJECT_NAME} Logo`} h={32} w={32} />
               </Anchor>
-              <Text size="xl" fw={700}>
-                {PROJECT_NAME}
-              </Text>
             </Flex>
             <ActionIcon onClick={toggle} variant="subtle" size="sm">
               <FiColumns size={18} color="var(--mantine-color-text)" />
