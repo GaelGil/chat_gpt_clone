@@ -1,8 +1,9 @@
-import { AppShell } from "@mantine/core";
+import { AppShell, Box, Container, Flex, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import NewChatBanner from "@/components/Chat/NewChatBanner";
 import ChatSideBar from "@/components/Chat/ChatSideBar";
+import { PROJECT_NAME } from "@/const";
 export const Route = createFileRoute("/chat")({
   component: Chat,
 });
@@ -18,12 +19,23 @@ function Chat() {
     <AppShell
       padding="md"
       navbar={{
-        width: fullWidth,
+        width: sidebarWidth,
         breakpoint: "sm",
         collapsed: { mobile: false, desktop: false },
       }}
+      styles={{
+        root: {
+          ["--app-shell-navbar-width" as any]: `${sidebarWidth}px`,
+          transition: "var(--app-shell-transition)",
+        },
+        main: {
+          transition: "padding-left 0.3s ease",
+        },
+        header: {
+          transition: "padding-left 0.3s ease",
+        },
+      }}
     >
-      {/* Sidebar */}
       <AppShell.Navbar
         p="sm"
         w={sidebarWidth}
@@ -40,16 +52,13 @@ function Chat() {
         <ChatSideBar collapsed={collapsed} toggle={toggleCollapsed} />
       </AppShell.Navbar>
 
-      {/* Main content */}
-      <AppShell.Main
-        style={{
-          position: "relative",
-          cursor: "pointer",
-          borderRadius: "var(--mantine-radius-lg)",
-          overflow: "hidden",
-          transition: "transform 0.2s ease, box-shadow 0.2s ease",
-        }}
-      >
+      <AppShell.Header>
+        <Container h="60px" p="md">
+          <Text>{PROJECT_NAME}</Text>
+        </Container>
+      </AppShell.Header>
+
+      <AppShell.Main>
         <NewChatBanner />
         <Outlet />
       </AppShell.Main>
