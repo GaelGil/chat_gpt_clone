@@ -6,7 +6,7 @@ from openai import OpenAI
 from sqlmodel import Session, select
 
 from app.core.config import settings
-from app.models import Message, ToolCall, User
+from app.models import Message, ToolCall
 from app.schemas.Message import NewMessage, Role
 
 # logging stuff
@@ -32,19 +32,24 @@ class APIService:
 
         return chat_history.append({"role": role, "content": new_message})
 
-    def prep_request(self, user: User, new_message: NewMessage, session_id: uuid.UUID):
+    def prep_request(
+        self, user_id: uuid.UUID, session_id: uuid.UUID, message: NewMessage
+    ):
         chat_history = self.handle_chat_history(
-            new_message=new_message.content,
+            new_message=message.content,
             role=Role.USER,
             session_id=session_id,
         )
 
         self.process_message_stream(
             chat_history=chat_history,
-            model_name=new_message.model_name,
-            owner_id=user.id,
+            model_name=message.model_name,
+            owner_id=user_id,
             session_id=session_id,
         )
+
+    async def send_message(self):
+        pass
 
     def save_message(
         self, session_id: uuid.UUID, content: str, role: str, owner_id: uuid.UUID

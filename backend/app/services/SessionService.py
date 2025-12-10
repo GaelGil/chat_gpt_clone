@@ -7,10 +7,11 @@ from app.models import Session as SessionModel
 from app.models import User
 from app.schemas.Message import NewMessage
 from app.schemas.Session import NewSession, SessionDetail, SessionList, SessionSimple
+from app.services.APIService import APIService
 
 
 class SessionService:
-    def __init__(self, session: Session, api_service):
+    def __init__(self, session: Session, api_service: APIService):
         self.session = session
         self.api_service = api_service
         pass
@@ -79,7 +80,9 @@ class SessionService:
     def send_message(
         self, user_id: uuid.UUID, session_id: uuid.UUID, message: NewMessage
     ):
-        self.api_service.prep_request(user_id, message, session_id)
+        self.api_service.prep_request(
+            user_id=user_id, session_id=session_id, message=message
+        )
         pass
 
     def verify_permissions(
