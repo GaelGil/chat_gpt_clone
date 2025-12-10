@@ -3,10 +3,15 @@ import uuid
 from fastapi import HTTPException
 from sqlmodel import Session, select
 
+from app.models import Message, User
 from app.models import Session as SessionModel
-from app.models import User
-from app.schemas.Message import NewMessage
-from app.schemas.Session import NewSession, SessionDetail, SessionList, SessionSimple
+from app.schemas.Message import NewMessage, Role
+from app.schemas.Session import (
+    NewSession,
+    SessionDetail,
+    SessionList,
+    SessionSimple,
+)
 from app.services.APIService import APIService
 
 
@@ -106,12 +111,41 @@ class SessionService:
 
         return saved, None
 
-    async def stream_response(
-        self, user_id: uuid.UUID, session_id: uuid.UUID, message: NewMessage
-    ):
-        await self.api_service.process_stream()
+    def session_history(
+        self, session_id: uuid.UUID, role: Role = None, content: str = None
+    ) -> tuple[list | None, HTTPException | None]:
+        chat_history = [
+            {"role": msg.role, "content": msg.content}
+            for msg in self.session.exec(select(Message).where(session_id=session_id))
+        ]
+        if not role and not content:
+            return chat_history, None
 
-        pass
+        return chat_history.append({"role": role, "content": content}), None
+
+    async def stream_response(
+        self,
+        chat_history: list,
+        model_name: str,
+        message: NewMessage,
+        session_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ):
+        prompt = message.content
+
+        # This returns an async generator
+        gen = self.api_service.process_stream(
+            chat_history=chat_history,
+            model_name=model_name,
+            prompt=prompt,
+            owner_id=user_id,
+            session_id=session_id,
+        )
+
+        # Optionally wrap or intercept tokens:
+        async for token in gen:
+            # You can save tokens, log, meter usage, etc.
+            yield token
 
     def verify_permissions(
         self, user: User

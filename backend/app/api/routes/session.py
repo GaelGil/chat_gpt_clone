@@ -102,6 +102,11 @@ async def send_message(
     if permission_error:
         raise permission_error
 
+    session_history, session_history_error = session_service.session_history(
+        session_id=session_id, role=message.role, content=message.content
+    )
+    if session_history_error:
+        raise session_history_error
     saved, save_error = session_service.save_user_message(
         user_id=user.id, session_id=session_id, message=message
     )
@@ -110,9 +115,11 @@ async def send_message(
 
     # async generator from service
     gen = session_service.stream_response(
-        user=current_user,
+        chat_history=session_history,
+        model_name=message.model_name,
+        message=message,
         session_id=session_id,
-        user_message=message.content,
+        user_id=user.id,
     )
 
     return StreamingResponse(gen, media_type="text/event-stream")

@@ -4,7 +4,7 @@ import uuid
 
 from fastapi import HTTPException
 from openai import OpenAI
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from app.core.config import settings
 from app.models import Message, ToolCall
@@ -24,14 +24,6 @@ class APIService:
         self.openai: OpenAI = OpenAI(settings.OPENAI_API_KEY)
         self.tools = tool_definitions
         pass
-
-    def handle_chat_history(self, new_message: str, role: str, session_id: uuid.UUID):
-        chat_history = [
-            {"role": msg.role, "content": msg.content}
-            for msg in self.session.exec(select(Message).where(session_id=session_id))
-        ]
-
-        return chat_history.append({"role": role, "content": new_message})
 
     def save_message(
         self, session_id: uuid.UUID, content: str, role: Role, owner_id: uuid.UUID
@@ -206,9 +198,15 @@ class APIService:
             except TypeError:
                 result = self.execute_tool(tool_name, parsed_args.get("location"))
 
-            result = self.parse_tool_result(tool_name, result)
+            # result = self.parse_tool_result(tool_name, result)
             logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {result}")
-            self.add_tool_history(tool_name, parsed_args, result)
+            self.save_tool_call(
+                session_id=session_id,
+                name=tool_name,
+                args=parsed_args,
+                result=result,
+                owner_id=owner_id,
+            )
 
             # yield the tool result
             yield json.dumps(
@@ -279,3 +277,6 @@ class APIService:
             )
 
         pass
+
+    def execute_tool(self, tool_name: str, args: dict):
+        return f"Executed {tool_name} with args {args}"
