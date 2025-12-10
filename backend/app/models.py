@@ -40,5 +40,5 @@ class Message(MessageBase, table=True):
 class ToolCall(ToolCallBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
-    session_id: uuid.UUID = Field(foreign_key="chat_session.id", nullable=False)
+    session_id: uuid.UUID = Field(foreign_key="session.id", nullable=False)
     session: Session = Relationship(back_populates="tool_history")

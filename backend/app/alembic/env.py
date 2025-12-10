@@ -7,7 +7,7 @@ from sqlalchemy import engine_from_config, pool
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-
+ 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
@@ -17,8 +17,13 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
+from    sqlmodel import SQLModel
 
-from app.models import SQLModel  # noqa
+from app.models import *  # noqa
+# from app.models_.Canvas import Canvas  # noqa
+# from app.models_.Media import Media  # noqa
+# from app.models_.RequestModel import Request  # noqa
+# from app.models_.User import User  # noqa
 from app.core.config import settings # noqa
 
 target_metadata = SQLModel.metadata
