@@ -1,18 +1,18 @@
-import { AppShell, Burger, Flex, Text, Anchor } from "@mantine/core";
+import { AppShell, Burger, Flex, Text, Anchor, Box } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { PROJECT_NAME } from "@/const";
 import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
-import Chats from "@/components/Chat/ChatSideBar";
 import NewChatBanner from "@/components/Chat/NewChatBanner";
-
+import ChatSideBar from "@/components/Chat/ChatSideBar";
 export const Route = createFileRoute("/chat")({
   component: Chat,
 });
 function Chat() {
   const [collapsed, { toggle: toggleCollapsed }] = useDisclosure(false);
 
-  const fullWidth = 250; // full sidebar width
-  const collapsedWidth = fullWidth * 0.2; // 10% width (25px)
+  const fullWidth = 300;
+  const collapsedWidth = 60;
+
+  const sidebarWidth = collapsed ? collapsedWidth : fullWidth;
 
   return (
     <AppShell
@@ -32,23 +32,21 @@ function Chat() {
           overflow: "hidden",
         }}
       >
-        {/* Sidebar top: logo + toggle button */}
-        <Flex align="center" justify="space-between" mb="md">
-          {/* Show logo only when sidebar is open */}
-          {!collapsed && (
-            <Anchor component={Link} to="/" underline="never">
-              <Text fz="xl" fw={700}>
-                {PROJECT_NAME}
-              </Text>
-            </Anchor>
-          )}
-
-          {/* Toggle button */}
-          <Burger opened={!collapsed} onClick={toggleCollapsed} size="sm" />
-        </Flex>
-
-        {/* Sidebar content */}
-        {!collapsed && <Chats />}
+        <Box
+          w={sidebarWidth}
+          h="100vh"
+          style={{
+            flexShrink: 0,
+            transition: "width 0.3s ease",
+            borderRight:
+              "1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4))",
+            backgroundColor:
+              "light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))",
+          }}
+        >
+          {/* <SideBar collapsed={collapsed} toggle={toggleCollapsed} /> */}
+          <ChatSideBar collapsed={collapsed} toggle={toggleCollapsed} />
+        </Box>
       </AppShell.Navbar>
 
       {/* Main content */}

@@ -1,6 +1,13 @@
-import { Box, Text, Anchor, Flex, Stack } from "@mantine/core";
+import { Box, Text, Anchor, Flex, Stack, Image } from "@mantine/core";
 import { Link } from "@tanstack/react-router";
-
+import { ActionIcon } from "@mantine/core";
+import { FiArrowRight, FiColumns } from "react-icons/fi";
+import { PROJECT_NAME, LOGO } from "@/const";
+// import { FaBars } from "react-icons/fa";
+// import { FiLogOut } from "react-icons/fi";
+// import type { UserPublic } from "@/client";
+// import useAuth from "@/hooks/useAuth";
+import { useState } from "react";
 const items = [
   { id: 0, title: "Research", link: "https://openai.com/research" },
   { id: 1, title: "Safety", link: "https://openai.com/safety" },
@@ -16,36 +23,86 @@ const items = [
   { id: 11, title: "News", link: "https://openai.com/news" },
   { id: 12, title: "News", link: "https://openai.com/news" },
 ];
-const Chats = () => {
+interface SidebarProps {
+  collapsed: boolean;
+  toggle: () => void;
+}
+
+const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
+  const [hovered, setHovered] = useState(false);
+
   const listItems = items.map((item) => (
-    <Flex mb="sm">
-      <Link
-        to="/chat/$chatId"
-        params={{ chatId: item.id.toString() }}
-        key={item.id}
-      >
-        <Text fz={"sm"}>{item.title}</Text>
-      </Link>
-    </Flex>
+    <>
+      {collapsed ? (
+        <></>
+      ) : (
+        <Flex mb="sm">
+          <Link
+            to="/chat/$chatId"
+            params={{ chatId: item.id.toString() }}
+            key={item.id}
+          >
+            <Text fz={"sm"}>{item.title}</Text>
+          </Link>
+        </Flex>
+      )}
+    </>
   ));
 
   return (
     <Stack>
       {/* Controls */}
-      <Anchor component={Link} to="/chat/new" underline="never">
-        New chat
-      </Anchor>
+      <Flex
+        align="center"
+        justify={collapsed ? "center" : "space-between"}
+        px={collapsed ? "xs" : "md"}
+        py="sm"
+        gap="sm"
+      >
+        {collapsed ? (
+          <Box
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            onClick={() => {
+              toggle();
+              setHovered(false);
+            }}
+            style={{ cursor: "pointer", position: "relative" }}
+          >
+            {hovered ? (
+              <ActionIcon variant="subtle" h={32} w={32}>
+                <FiArrowRight size={18} color="var(--mantine-color-text)" />
+              </ActionIcon>
+            ) : (
+              <Image src={LOGO} alt={`${PROJECT_NAME} Logo`} h={25} w={25} />
+            )}
+          </Box>
+        ) : (
+          <>
+            <Flex align="center" gap="xs">
+              <Anchor underline="never" component={Link} to="/">
+                <Image src={LOGO} alt={`${PROJECT_NAME} Logo`} h={32} w={32} />
+              </Anchor>
+              <Text size="xl" fw={700}>
+                {PROJECT_NAME}
+              </Text>
+            </Flex>
+            <ActionIcon onClick={toggle} variant="subtle" size="sm">
+              <FiColumns size={18} color="var(--mantine-color-text)" />
+            </ActionIcon>
+          </>
+        )}
+      </Flex>
+      {}
+      {!collapsed && (
+        <Anchor component={Link} to="/chat/new" underline="never">
+          New chat
+        </Anchor>
+      )}
 
-      {/* Chats Section */}
-      <Text fw={600} fz="sm" mb="xs" c="dimmed">
-        Chats
-      </Text>
-
-      {/* <ScrollArea style={{ flex: 1, maxHeight: "300px" }} offsetScrollbars> */}
       <Box>{listItems}</Box>
-      {/* </ScrollArea> */}
     </Stack>
   );
 };
 
-export default Chats;
+export default ChatSideBar;

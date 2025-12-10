@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Group, Text } from "@mantine/core";
+import { Box, Group, Text, Flex, Tooltip } from "@mantine/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link as RouterLink } from "@tanstack/react-router";
 import { FiHome, FiSettings, FiUsers, FiImage, FiEdit2 } from "react-icons/fi";
@@ -17,6 +17,7 @@ const items = [
 
 interface SidebarItemsProps {
   onClose?: () => void;
+  collapsed?: boolean;
 }
 
 interface Item {
@@ -25,7 +26,7 @@ interface Item {
   path: string;
 }
 
-const SidebarItems = ({ onClose }: SidebarItemsProps) => {
+const SidebarItems = ({ onClose, collapsed = false }: SidebarItemsProps) => {
   const queryClient = useQueryClient();
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"]);
 
@@ -35,10 +36,23 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
 
   const listItems = finalItems.map(({ icon: Icon, title, path }) => (
     <RouterLink key={title} to={path} onClick={onClose}>
-      <Group gap="sm" px="md" py="sm" align="center" fz={"14px"}>
-        <Icon size={18} />
-        <Text ml={2}>{title}</Text>
-      </Group>
+      {collapsed ? (
+        <Tooltip label={title} position="right">
+          <Flex
+            justify="center"
+            align="center"
+            py="sm"
+            style={{ cursor: "pointer" }}
+          >
+            <Icon size={20} />
+          </Flex>
+        </Tooltip>
+      ) : (
+        <Flex gap="sm" px="md" py="sm" align="center" fz="14px">
+          <Icon size={18} />
+          <Text ml={2}>{title}</Text>
+        </Flex>
+      )}
     </RouterLink>
   ));
 
