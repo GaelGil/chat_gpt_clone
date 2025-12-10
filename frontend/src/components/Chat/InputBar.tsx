@@ -1,9 +1,10 @@
-"use client";
-
 import { useState } from "react";
 import { Flex, Textarea, Button } from "@mantine/core";
 import { FiSend } from "react-icons/fi";
-const InputBar = () => {
+interface InputBarProps {
+  chatId: string;
+}
+const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const handleSubmit = () => {
     console.log("Prompt:", prompt);
     setIsDisabled(!isDisabled);
