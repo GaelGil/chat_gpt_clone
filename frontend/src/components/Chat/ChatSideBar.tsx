@@ -1,7 +1,7 @@
 import { Box, Text, Anchor, Flex, Stack, Image } from "@mantine/core";
 import { Link } from "@tanstack/react-router";
 import { ActionIcon } from "@mantine/core";
-import { FiArrowRight, FiColumns } from "react-icons/fi";
+import { FiArrowRight, FiColumns, FiEdit } from "react-icons/fi";
 import { PROJECT_NAME, LOGO } from "@/const";
 // import { FaBars } from "react-icons/fa";
 // import { FiLogOut } from "react-icons/fi";
@@ -96,10 +96,18 @@ const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
       {}
       {!collapsed && (
         <Anchor fw={700} component={Link} to="/chat/new" underline="never">
-          New chat
+          <Flex align="center" gap="xs">
+            <FiEdit size={18} />
+            <Text fz="sm" fw={500}>
+              New chat
+            </Text>
+          </Flex>
         </Anchor>
       )}
 
+      <Text c="dimmed" fz="sm">
+        Your Chats
+      </Text>
       <Box>{listItems}</Box>
     </Stack>
   );
