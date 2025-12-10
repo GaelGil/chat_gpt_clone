@@ -55,318 +55,6 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
-export const CanvasDataSchema = {
-    properties: {
-        title: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Title'
-        },
-        id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Id'
-        },
-        owner_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Owner Id'
-        },
-        generations: {
-            items: {
-                '$ref': '#/components/schemas/GenerationData'
-            },
-            type: 'array',
-            title: 'Generations'
-        },
-        created_at: {
-            type: 'string',
-            format: 'date-time',
-            title: 'Created At'
-        }
-    },
-    type: 'object',
-    required: ['id', 'owner_id', 'generations', 'created_at'],
-    title: 'CanvasData'
-} as const;
-
-export const CanvasPublicSchema = {
-    properties: {
-        title: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Title'
-        },
-        id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Id'
-        },
-        owner_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Owner Id'
-        }
-    },
-    type: 'object',
-    required: ['id', 'owner_id'],
-    title: 'CanvasPublic'
-} as const;
-
-export const CanvasesPublicSchema = {
-    properties: {
-        data: {
-            items: {
-                '$ref': '#/components/schemas/CanvasPublic'
-            },
-            type: 'array',
-            title: 'Data'
-        },
-        count: {
-            type: 'integer',
-            title: 'Count'
-        }
-    },
-    type: 'object',
-    required: ['data', 'count'],
-    title: 'CanvasesPublic'
-} as const;
-
-export const GenerationDataSchema = {
-    properties: {
-        prompt: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Prompt'
-        },
-        cost: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Cost',
-            default: 0.05
-        },
-        provider: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Provider'
-        },
-        model: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Model'
-        },
-        num_images: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Num Images'
-        },
-        image_size: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Image Size'
-        },
-        status: {
-            '$ref': '#/components/schemas/GenerationStatus'
-        },
-        id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Id'
-        },
-        owner_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Owner Id'
-        },
-        created_at: {
-            type: 'string',
-            format: 'date-time',
-            title: 'Created At'
-        },
-        images: {
-            items: {
-                '$ref': '#/components/schemas/ImageGenerationPublic'
-            },
-            type: 'array',
-            title: 'Images'
-        }
-    },
-    type: 'object',
-    required: ['status', 'id', 'owner_id', 'created_at', 'images'],
-    title: 'GenerationData'
-} as const;
-
-export const GenerationPublicSchema = {
-    properties: {
-        prompt: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Prompt'
-        },
-        cost: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Cost',
-            default: 0.05
-        },
-        provider: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Provider'
-        },
-        model: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Model'
-        },
-        num_images: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Num Images'
-        },
-        image_size: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Image Size'
-        },
-        status: {
-            '$ref': '#/components/schemas/GenerationStatus'
-        },
-        id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Id'
-        },
-        owner_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Owner Id'
-        }
-    },
-    type: 'object',
-    required: ['status', 'id', 'owner_id'],
-    title: 'GenerationPublic'
-} as const;
-
-export const GenerationStatusSchema = {
-    type: 'string',
-    enum: ['pending', 'completed', 'failed'],
-    title: 'GenerationStatus'
-} as const;
-
-export const GenerationsPublicSchema = {
-    properties: {
-        data: {
-            items: {
-                '$ref': '#/components/schemas/GenerationPublic'
-            },
-            type: 'array',
-            title: 'Data'
-        },
-        count: {
-            type: 'integer',
-            title: 'Count'
-        }
-    },
-    type: 'object',
-    required: ['data', 'count'],
-    title: 'GenerationsPublic'
-} as const;
-
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
@@ -381,191 +69,87 @@ export const HTTPValidationErrorSchema = {
     title: 'HTTPValidationError'
 } as const;
 
-export const ImageGenerationPublicSchema = {
+export const MessageBaseSchema = {
     properties: {
+        role: {
+            '$ref': '#/components/schemas/Role',
+            default: 'user'
+        },
+        content: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Content'
+        }
+    },
+    type: 'object',
+    required: ['content'],
+    title: 'MessageBase'
+} as const;
+
+export const MessageDetailSchema = {
+    properties: {
+        role: {
+            '$ref': '#/components/schemas/Role',
+            default: 'user'
+        },
+        content: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Content'
+        },
         id: {
             type: 'string',
             format: 'uuid',
             title: 'Id'
         },
-        image_url: {
-            type: 'string',
-            title: 'Image Url'
-        },
         created_at: {
             type: 'string',
-            format: 'date-time',
             title: 'Created At'
-        },
-        generation_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Generation Id'
         }
     },
     type: 'object',
-    required: ['id', 'image_url', 'created_at', 'generation_id'],
-    title: 'ImageGenerationPublic'
+    required: ['content', 'id', 'created_at'],
+    title: 'MessageDetail'
 } as const;
 
-export const ImageGenerationsPublicSchema = {
+export const NewMessageSchema = {
     properties: {
-        data: {
-            items: {
-                '$ref': '#/components/schemas/ImageGenerationPublic'
-            },
-            type: 'array',
-            title: 'Data'
-        },
-        count: {
-            type: 'integer',
-            title: 'Count'
-        }
-    },
-    type: 'object',
-    required: ['data', 'count'],
-    title: 'ImageGenerationsPublic'
-} as const;
-
-export const MessageSchema = {
-    properties: {
-        message: {
-            type: 'string',
-            title: 'Message'
-        }
-    },
-    type: 'object',
-    required: ['message'],
-    title: 'Message'
-} as const;
-
-export const NewCanvasRequestSchema = {
-    properties: {
-        title: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Title'
-        }
-    },
-    type: 'object',
-    title: 'NewCanvasRequest'
-} as const;
-
-export const NewGenerationRequestSchema = {
-    properties: {
-        prompt: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Prompt'
-        },
-        cost: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Cost',
-            default: 0.05
-        },
-        provider: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Provider'
-        },
-        model: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Model'
-        },
-        num_images: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Num Images'
-        },
-        image_size: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Image Size'
-        },
-        status: {
-            '$ref': '#/components/schemas/GenerationStatus',
-            default: 'pending'
-        },
-        canvas_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Canvas Id'
-        }
-    },
-    type: 'object',
-    required: ['canvas_id'],
-    title: 'NewGenerationRequest'
-} as const;
-
-export const NewGenerationResponseSchema = {
-    properties: {
-        message: {
-            type: 'string',
-            title: 'Message'
-        },
-        request_id: {
-            type: 'string',
-            title: 'Request Id'
-        },
         role: {
-            '$ref': '#/components/schemas/RoleEnum'
+            '$ref': '#/components/schemas/Role',
+            default: 'user'
+        },
+        content: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Content'
+        },
+        session_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Session Id'
+        },
+        model_name: {
+            type: 'string',
+            title: 'Model Name'
+        },
+        prev_messages: {
+            anyOf: [
+                {
+                    items: {
+                        '$ref': '#/components/schemas/MessageBase'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Prev Messages'
         }
     },
     type: 'object',
-    required: ['message', 'request_id', 'role'],
-    title: 'NewGenerationResponse'
+    required: ['content', 'session_id', 'model_name'],
+    title: 'NewMessage'
 } as const;
 
 export const NewPasswordSchema = {
@@ -584,6 +168,19 @@ export const NewPasswordSchema = {
     type: 'object',
     required: ['token', 'new_password'],
     title: 'NewPassword'
+} as const;
+
+export const NewSessionSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Title'
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'NewSession'
 } as const;
 
 export const PrivateUserCreateSchema = {
@@ -611,10 +208,68 @@ export const PrivateUserCreateSchema = {
     title: 'PrivateUserCreate'
 } as const;
 
-export const RoleEnumSchema = {
+export const RoleSchema = {
     type: 'string',
-    enum: ['user', 'system'],
-    title: 'RoleEnum'
+    enum: ['user', 'assistant', 'system'],
+    title: 'Role'
+} as const;
+
+export const SessionDetailSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Title'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        messages: {
+            items: {
+                '$ref': '#/components/schemas/MessageDetail'
+            },
+            type: 'array',
+            title: 'Messages'
+        }
+    },
+    type: 'object',
+    required: ['title', 'id', 'messages'],
+    title: 'SessionDetail'
+} as const;
+
+export const SessionListSchema = {
+    properties: {
+        sessions: {
+            items: {
+                '$ref': '#/components/schemas/SessionSimple'
+            },
+            type: 'array',
+            title: 'Sessions'
+        }
+    },
+    type: 'object',
+    required: ['sessions'],
+    title: 'SessionList'
+} as const;
+
+export const SessionSimpleSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Title'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        }
+    },
+    type: 'object',
+    required: ['title', 'id'],
+    title: 'SessionSimple'
 } as const;
 
 export const TokenSchema = {
@@ -632,110 +287,6 @@ export const TokenSchema = {
     type: 'object',
     required: ['access_token'],
     title: 'Token'
-} as const;
-
-export const UpdateCanvasRequestSchema = {
-    properties: {
-        title: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Title'
-        }
-    },
-    type: 'object',
-    title: 'UpdateCanvasRequest'
-} as const;
-
-export const UpdateGenerationRequestSchema = {
-    properties: {
-        prompt: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Prompt'
-        },
-        cost: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Cost',
-            default: 0.05
-        },
-        provider: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Provider'
-        },
-        model: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Model'
-        },
-        num_images: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Num Images'
-        },
-        image_size: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Image Size'
-        },
-        status: {
-            '$ref': '#/components/schemas/GenerationStatus',
-            default: 'pending'
-        }
-    },
-    type: 'object',
-    title: 'UpdateGenerationRequest'
 } as const;
 
 export const UpdatePasswordSchema = {
@@ -1007,4 +558,48 @@ export const ValidationErrorSchema = {
     type: 'object',
     required: ['loc', 'msg', 'type'],
     title: 'ValidationError'
+} as const;
+
+export const app__models__MessageSchema = {
+    properties: {
+        role: {
+            '$ref': '#/components/schemas/Role',
+            default: 'user'
+        },
+        content: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Content'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        owner_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Owner Id'
+        },
+        session_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Session Id'
+        }
+    },
+    type: 'object',
+    required: ['content', 'owner_id', 'session_id'],
+    title: 'Message'
+} as const;
+
+export const app__schemas__Utils__MessageSchema = {
+    properties: {
+        message: {
+            type: 'string',
+            title: 'Message'
+        }
+    },
+    type: 'object',
+    required: ['message'],
+    title: 'Message'
 } as const;

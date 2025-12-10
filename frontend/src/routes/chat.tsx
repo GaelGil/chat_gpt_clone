@@ -4,8 +4,17 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import NewChatBanner from "@/components/Chat/NewChatBanner";
 import ChatSideBar from "@/components/Chat/ChatSideBar";
 import { PROJECT_NAME } from "@/const";
+import { isLoggedIn } from "@/hooks/useAuth";
+import { redirect } from "@tanstack/react-router";
 export const Route = createFileRoute("/chat")({
   component: Chat,
+  beforeLoad: async () => {
+    if (!isLoggedIn()) {
+      throw redirect({
+        to: "/auth/login",
+      });
+    }
+  },
 });
 function Chat() {
   const [collapsed, { toggle: toggleCollapsed }] = useDisclosure(false);
