@@ -75,7 +75,9 @@ class SessionService:
 
         return True, None
 
-    def send_message(self, user: User, id: uuid.UUID, message: NewMessage):
+    def send_message(
+        self, user_id: uuid.UUID, session_id: uuid.UUID, message: NewMessage
+    ):
         pass
 
     def verify_permissions(

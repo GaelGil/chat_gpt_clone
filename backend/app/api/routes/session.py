@@ -18,9 +18,14 @@ def get_sessions(
     """
     Retrieve sessions
     """
-    session_service.verify_permissions(user=current_user)
-    sessions: SessionList = session_service.get_sessions(user=current_user)
+    user, permission_error = session_service.verify_permissions(user=current_user)
+    if permission_error:
+        raise permission_error
 
+    sessions, error = session_service.get_sessions(user=user)
+
+    if error:
+        raise error
     return sessions
 
 
