@@ -31,13 +31,18 @@ def get_sessions(
 
 @router.get("/{id}", response_model=SessionDetail)
 def get_session(
-    current_user: CurrentUser, id: uuid.UUID, session_service: SessionServiceDep
+    current_user: CurrentUser, session_id: uuid.UUID, session_service: SessionServiceDep
 ) -> SessionDetail:
     """
     Get a Session by ID.
     """
-    session_service.verify_permissions(user=current_user)
-    session: SessionDetail = session_service.get_session(user=current_user, id=id)
+    user, permission_error = session_service.verify_permissions(user=current_user)
+    if permission_error:
+        raise permission_error
+    session, error = session_service.get_session(user=user, session_id=session_id)
+
+    if error:
+        raise error
 
     return session
 
@@ -51,8 +56,14 @@ def new_session(
     """
     Create a new Session
     """
-    session_service.verify_permissions(user=current_user)
-    session_service.new_session(user=current_user, new_session=new_session)
+    user, permission_error = session_service.verify_permissions(user=current_user)
+    if permission_error:
+        raise permission_error
+
+    session_id, error = session_service.new_session(user=user, new_session=new_session)
+
+    if error:
+        raise error
     return Message(message="Session created successfully")
 
 
@@ -60,13 +71,19 @@ def new_session(
 def delete_session(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
-    id: uuid.UUID,
+    session_id: uuid.UUID,
 ) -> Any:
     """
     Delete a Session
     """
-    session_service.verify_permissions(user=current_user)
-    session_service.delete_session(user=current_user, id=id)
+    user, permission_error = session_service.verify_permissions(user=current_user)
+    if permission_error:
+        raise permission_error
+
+    deleted, error = session_service.delete_session(user=user, session_id=session_id)
+    if not deleted and error:
+        raise error
+
     return Message(message="Session deleted successfully")
 
 
@@ -80,6 +97,8 @@ def send_message(
     """
     Add message to a session
     """
-    session_service.verify_permissions(user=current_user)
+    user, permission_error = session_service.verify_permissions(user=current_user)
+    if permission_error:
+        raise permission_error
     session_service.send_message(user=current_user, id=id, message=message)
     return Message(message="Message added successfully")

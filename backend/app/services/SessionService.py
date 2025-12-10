@@ -32,9 +32,9 @@ class SessionService:
         ), None
 
     def get_session(
-        self, user: User, id: uuid.UUID
+        self, user: User, session_id: uuid.UUID
     ) -> tuple[SessionDetail | None, None | HTTPException]:
-        session_obj = self.session.get(SessionModel, id)
+        session_obj = self.session.get(SessionModel, session_id)
         if not session_obj:
             return None, HTTPException(status_code=404, detail="Session not found")
         if user.id != session_obj.owner_id:
@@ -59,9 +59,9 @@ class SessionService:
         return session_obj.id, None
 
     def delete_session(
-        self, user: User, id: uuid.UUID
+        self, user: User, session_id: uuid.UUID
     ) -> tuple[bool, HTTPException | None]:
-        session_obj = self.session.get(SessionModel, id)
+        session_obj = self.session.get(SessionModel, session_id)
         if not session_obj:
             return False, HTTPException(status_code=404, detail="Session not found")
         if not user.is_superuser:
