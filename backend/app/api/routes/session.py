@@ -88,7 +88,7 @@ def delete_session(
     return Message(message="Session deleted successfully")
 
 
-@router.post("/{id}", response_model=StreamingResponse)
+@router.post("/{id}")
 async def send_message(
     session_service: SessionServiceDep,
     current_user: CurrentUser,

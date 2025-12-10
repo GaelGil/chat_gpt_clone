@@ -2,7 +2,7 @@ import uuid
 
 from sqlmodel import Field, SQLModel
 
-from app.schemas.Message import Message
+from app.schemas.Message import MessageDetail
 
 
 class SessionBase(SQLModel):
@@ -22,7 +22,7 @@ class SessionSimple(SessionBase):
 
 
 class SessionDetail(SessionSimple):
-    messages: list[Message]
+    messages: list[MessageDetail]
 
 
 class SessionList(SQLModel):

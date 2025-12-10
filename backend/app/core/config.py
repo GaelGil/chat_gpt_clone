@@ -43,13 +43,8 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: Annotated[
         list[AnyUrl] | str, BeforeValidator(parse_cors)
     ] = []
-    CLOUDFLARE_ACCOUNT_ID: str
-    R2_ACCESS_KEY_ID: str
-    R2_SECRET_ACCESS_KEY: str
-    R2_BUCKET_NAME: str
 
     OPENAI_API_KEY: str
-    FAL_API_KEY: str | None = None
 
     @computed_field  # type: ignore[prop-decorator]
     @property
