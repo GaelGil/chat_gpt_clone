@@ -92,7 +92,7 @@ def send_message(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
     message: NewMessage,
-    id: uuid.UUID,
+    session_id: uuid.UUID,
 ) -> Message:
     """
     Add message to a session
@@ -100,5 +100,7 @@ def send_message(
     user, permission_error = session_service.verify_permissions(user=current_user)
     if permission_error:
         raise permission_error
-    session_service.send_message(user=current_user, id=id, message=message)
+    session_service.send_message(
+        user=current_user, session_id=session_id, message=message
+    )
     return Message(message="Message added successfully")
