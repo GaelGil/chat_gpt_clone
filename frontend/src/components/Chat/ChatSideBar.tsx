@@ -95,7 +95,7 @@ const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
       </Flex>
       {}
       {!collapsed && (
-        <Anchor component={Link} to="/chat/new" underline="never">
+        <Anchor fw={700} component={Link} to="/chat/new" underline="never">
           New chat
         </Anchor>
       )}

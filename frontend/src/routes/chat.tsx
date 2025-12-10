@@ -1,6 +1,6 @@
-import { AppShell, Burger, Flex, Text, Anchor, Box } from "@mantine/core";
+import { AppShell, Box } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import NewChatBanner from "@/components/Chat/NewChatBanner";
 import ChatSideBar from "@/components/Chat/ChatSideBar";
 export const Route = createFileRoute("/chat")({

@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Group, Text, Flex, Tooltip } from "@mantine/core";
+import { Box, Text, Flex, Tooltip } from "@mantine/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link as RouterLink } from "@tanstack/react-router";
 import { FiHome, FiSettings, FiUsers, FiImage, FiEdit2 } from "react-icons/fi";
