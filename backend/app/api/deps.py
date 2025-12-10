@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.db import engine
 from app.models import User
 from app.schemas.Utils import TokenPayload
+from app.services.APIService import APIService
 from app.services.SessionService import SessionService
 
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -59,8 +60,19 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
     return current_user
 
 
-def get_session_service(session: SessionDep) -> SessionService:
-    return SessionService(session=session)
+def get_api_service(
+    session: SessionDep,
+) -> APIService:
+    return APIService(session=session, tool_definitions=None)
+
+
+APIServiceDep = Annotated[Session, Depends(get_db)]
+
+
+def get_session_service(
+    session: SessionDep, api_service: APIServiceDep
+) -> SessionService:
+    return SessionService(session=session, api_service=api_service)
 
 
 SessionServiceDep = Annotated[SessionService, Depends(get_session_service)]

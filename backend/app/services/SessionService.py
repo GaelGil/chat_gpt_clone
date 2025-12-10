@@ -10,8 +10,9 @@ from app.schemas.Session import NewSession, SessionDetail, SessionList, SessionS
 
 
 class SessionService:
-    def __init__(self, session: Session):
+    def __init__(self, session: Session, api_service):
         self.session = session
+        self.api_service = api_service
         pass
 
     def get_sessions(
@@ -78,6 +79,7 @@ class SessionService:
     def send_message(
         self, user_id: uuid.UUID, session_id: uuid.UUID, message: NewMessage
     ):
+        self.api_service.prep_request(user_id, message, session_id)
         pass
 
     def verify_permissions(
