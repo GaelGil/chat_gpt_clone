@@ -3,10 +3,6 @@ import { Link } from "@tanstack/react-router";
 import { ActionIcon } from "@mantine/core";
 import { FiArrowRight, FiColumns, FiEdit } from "react-icons/fi";
 import { PROJECT_NAME, LOGO } from "@/const";
-// import { FaBars } from "react-icons/fa";
-// import { FiLogOut } from "react-icons/fi";
-// import type { UserPublic } from "@/client";
-// import useAuth from "@/hooks/useAuth";
 import { useState } from "react";
 const items = [
   { id: 0, title: "Research", link: "https://openai.com/research" },

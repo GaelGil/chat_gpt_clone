@@ -14,29 +14,38 @@ class SessionService:
         self.session = session
         pass
 
-    def get_sessions(self, user: User) -> SessionList:
+    def get_sessions(
+        self, user: User
+    ) -> tuple[SessionList | None, None | HTTPException]:
         if user.is_superuser:
             sessions = self.session.exec(select(SessionModel)).all()
         else:
-            sessions = self.session.exec(
-                select(SessionModel).where(SessionModel.owner_id == user.id)
-            ).all()
+            try:
+                sessions = self.session.exec(
+                    select(SessionModel).where(SessionModel.owner_id == user.id)
+                ).all()
+            except Exception as e:
+                return None, HTTPException(status_code=400, detail=str(e))
 
         return SessionList(
             sessions=[SessionSimple.model_validate(session) for session in sessions]
-        )
+        ), None
 
-    def get_session(self, user: User, id: uuid.UUID) -> SessionDetail:
+    def get_session(
+        self, user: User, id: uuid.UUID
+    ) -> tuple[SessionDetail | None, None | HTTPException]:
         session_obj = self.session.get(SessionModel, id)
         if not session_obj:
-            raise HTTPException(status_code=404, detail="Session not found")
+            return None, HTTPException(status_code=404, detail="Session not found")
         if user.id != session_obj.owner_id:
-            raise HTTPException(
+            return None, HTTPException(
                 status_code=403, detail="The user doesn't have enough privileges"
             )
-        return SessionDetail.model_validate(session_obj)
+        return SessionDetail.model_validate(session_obj), None
 
-    def new_session(self, user: User, new_session: NewSession):
+    def new_session(
+        self, user: User, new_session: NewSession
+    ) -> tuple[uuid.UUID | None, HTTPException | None]:
         session_obj = SessionModel.model_validate(
             new_session, update={"owner_id": user.id}
         )
@@ -45,24 +54,34 @@ class SessionService:
             self.session.commit()
         except Exception as e:
             self.session.rollback()
-            raise HTTPException(status_code=400, detail=str(e))
+            return None, HTTPException(status_code=400, detail=str(e))
 
-    def delete_session(self, user: User, id: uuid.UUID):
+        return session_obj.id, None
+
+    def delete_session(
+        self, user: User, id: uuid.UUID
+    ) -> tuple[bool, HTTPException | None]:
         session_obj = self.session.get(SessionModel, id)
         if not session_obj:
-            raise HTTPException(status_code=404, detail="Session not found")
+            return False, HTTPException(status_code=404, detail="Session not found")
         if not user.is_superuser:
             if user.id != session_obj.owner_id:
-                raise HTTPException(
+                return False, HTTPException(
                     status_code=403, detail="The user doesn't have enough privileges"
                 )
 
         self.session.delete(session_obj)
         self.session.commit()
 
+        return True, None
+
     def send_message(self, user: User, id: uuid.UUID, message: NewMessage):
         pass
 
-    def verify_permissions(self, user: User):
+    def verify_permissions(
+        self, user: User
+    ) -> tuple[User | None, HTTPException | None]:
         if not user:
-            raise HTTPException(status_code=401, detail="Not authenticated")
+            return None, HTTPException(status_code=401, detail="Not authenticated")
+
+        return user, None
