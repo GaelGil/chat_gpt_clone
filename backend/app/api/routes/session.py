@@ -2,6 +2,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 
 from app.api.deps import CurrentUser, SessionServiceDep
 from app.schemas.Message import NewMessage
@@ -87,20 +88,31 @@ def delete_session(
     return Message(message="Session deleted successfully")
 
 
-@router.post("/{id}", response_model=Message)
-def send_message(
+@router.post("/{id}", response_model=StreamingResponse)
+async def send_message(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
     message: NewMessage,
     session_id: uuid.UUID,
-) -> Message:
+) -> StreamingResponse:
     """
     Add message to a session
     """
     user, permission_error = session_service.verify_permissions(user=current_user)
     if permission_error:
         raise permission_error
-    session_service.send_message(
-        user=current_user, session_id=session_id, message=message
+
+    saved, save_error = session_service.save_user_message(
+        user_id=user.id, session_id=session_id, message=message
     )
-    return Message(message="Message added successfully")
+    if not saved and save_error:
+        raise save_error
+
+    # async generator from service
+    gen = session_service.stream_response(
+        user=current_user,
+        session_id=session_id,
+        user_message=message.content,
+    )
+
+    return StreamingResponse(gen, media_type="text/event-stream")

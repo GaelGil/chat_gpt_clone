@@ -21,6 +21,6 @@ class NewMessage(MessageBase):
     prev_messages: list[MessageBase] | None = None
 
 
-class Message(MessageBase):
+class MessageDetail(MessageBase):
     id: uuid.UUID
     created_at: str

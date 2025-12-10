@@ -2,12 +2,13 @@ import json
 import logging
 import uuid
 
+from fastapi import HTTPException
 from openai import OpenAI
 from sqlmodel import Session, select
 
 from app.core.config import settings
 from app.models import Message, ToolCall
-from app.schemas.Message import NewMessage, Role
+from app.schemas.Message import Role
 
 # logging stuff
 logging.basicConfig(
@@ -32,34 +33,30 @@ class APIService:
 
         return chat_history.append({"role": role, "content": new_message})
 
-    def prep_request(
-        self, user_id: uuid.UUID, session_id: uuid.UUID, message: NewMessage
-    ):
-        chat_history = self.handle_chat_history(
-            new_message=message.content,
-            role=Role.USER,
-            session_id=session_id,
-        )
-
-        self.process_message_stream(
-            chat_history=chat_history,
-            model_name=message.model_name,
-            owner_id=user_id,
-            session_id=session_id,
-        )
-
-    async def send_message(self):
-        pass
-
     def save_message(
-        self, session_id: uuid.UUID, content: str, role: str, owner_id: uuid.UUID
-    ):
+        self, session_id: uuid.UUID, content: str, role: Role, owner_id: uuid.UUID
+    ) -> tuple[bool, HTTPException | None]:
+        """Save user message to session
+
+        Args:
+            session_id (uuid.UUID): session id
+            content (str): message content
+            role (Role): message role
+            owner_id (uuid.UUID): user id
+
+        Returns:
+            tuple[bool, HTTPException | None]:"""
         message_obj = Message(
             role=role, content=content, owner_id=owner_id, session_id=session_id
         )
+        try:
+            self.session.add(message_obj)
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            return False, HTTPException(status_code=400, detail=str(e))
 
-        self.session.add(message_obj)
-        self.session.commit()
+        return True, None
 
     def save_tool_call(
         self,
@@ -81,7 +78,7 @@ class APIService:
         self.session.commit()
         pass
 
-    async def process_message_stream(
+    async def process_stream(
         self,
         chat_history: list,
         model_name: str,

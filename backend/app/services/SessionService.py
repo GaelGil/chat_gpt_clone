@@ -77,14 +77,39 @@ class SessionService:
 
         return True, None
 
-    def send_message(
+    def save_user_message(
         self, user_id: uuid.UUID, session_id: uuid.UUID, message: NewMessage
-    ):
-        self.api_service.prep_request(
-            user_id=user_id, session_id=session_id, message=message
+    ) -> tuple[bool, HTTPException | None]:
+        """
+        Save user message to session
+
+        Args:
+            user_id (uuid.UUID): user id
+            session_id (uuid.UUID): session id
+            message (NewMessage): message
+
+        Returns:
+            tuple[bool, HTTPException | None]:
+
+        """
+        if user_id is None:
+            return False, HTTPException(status_code=401, detail="Not authenticated")
+        saved, save_error = self.api_service.save_message(
+            content=message.content,
+            session_id=session_id,
+            role=message.role,
+            owner_id=user_id,
         )
 
-        self.api_service.send_message_and_stream()
+        if not saved and save_error:
+            return saved, save_error
+
+        return saved, None
+
+    async def stream_response(
+        self, user_id: uuid.UUID, session_id: uuid.UUID, message: NewMessage
+    ):
+        await self.api_service.process_stream()
 
         pass
 
