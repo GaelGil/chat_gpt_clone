@@ -115,13 +115,14 @@ class SessionService:
         self, session_id: uuid.UUID, role: Role = None, content: str = None
     ) -> tuple[list | None, HTTPException | None]:
         chat_history = [
-            {"role": msg.role, "content": msg.content}
-            for msg in self.session.exec(select(Message).where(session_id=session_id))
+            {"role": str(msg.role.value), "content": msg.content}
+            for msg in self.session.exec(
+                select(Message).where(Message.session_id == session_id)
+            )
         ]
-        if not role and not content:
-            return chat_history, None
 
-        return chat_history.append({"role": role, "content": content}), None
+        chat_history.append({"role": role, "content": content})
+        return chat_history, None
 
     async def stream_response(
         self,

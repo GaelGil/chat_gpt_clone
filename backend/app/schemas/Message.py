@@ -23,4 +23,4 @@ class NewMessage(MessageBase):
 
 class MessageDetail(MessageBase):
     id: uuid.UUID
-    created_at: str
+    # created_at: str

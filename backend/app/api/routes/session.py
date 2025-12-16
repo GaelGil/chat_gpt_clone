@@ -49,7 +49,7 @@ def get_session(
 
 
 @router.post("/")
-def new_session(
+async def new_session(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
     new_session: NewSession,
@@ -64,7 +64,7 @@ def new_session(
     if permission_error:
         raise permission_error
 
-    session_id, new_session_error = session_service.new_session(
+    session_id, new_session_error = await session_service.new_session(
         user=user, new_session=new_session
     )
 
@@ -74,20 +74,21 @@ def new_session(
     saved, save_error = session_service.save_user_message(
         user_id=user.id, session_id=session_id, message=new_message
     )
+    print(f"SAVED: {saved}, save_error: {save_error}")
 
-    if not saved and save_error:
-        raise save_error
+    # if not saved and save_error:
+    #     raise save_error
 
-    # async generator from service
-    gen = session_service.stream_response(
-        chat_history=[{"role": new_message.role, "content": new_message.content}],
-        model_name=new_message.model_name,
-        message=new_message,
-        session_id=session_id,
-        user_id=user.id,
-    )
+    # # async generator from service
+    # gen = session_service.stream_response(
+    #     chat_history=[{"role": new_message.role, "content": new_message.content}],
+    #     model_name=new_message.model_name,
+    #     message=new_message,
+    #     session_id=session_id,
+    #     user_id=user.id,
+    # )
 
-    return StreamingResponse(gen, media_type="text/event-stream")
+    # return StreamingResponse(gen, media_type="text/event-stream")
 
 
 @router.delete("/{id}", response_model=Message)
@@ -135,6 +136,7 @@ async def send_message(
     if not saved and save_error:
         raise save_error
 
+    print(f"SESSION HISTORY: {session_history}")
     # async generator from service
     gen = session_service.stream_response(
         chat_history=session_history,

@@ -72,9 +72,6 @@ APIServiceDep = Annotated[APIService, Depends(get_api_service)]
 def get_session_service(
     session: SessionDep, api_service: APIServiceDep
 ) -> SessionService:
-    print(f"api_service: {type(api_service)}")
-    print(f"session: {type(session)}")
-
     return SessionService(session=session, api_service=api_service)
 
 
