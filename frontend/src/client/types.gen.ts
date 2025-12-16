@@ -21,13 +21,13 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
-export type HTTPValidationError = {
-    detail?: Array<ValidationError>;
+export type Body_session_new_session = {
+    new_session: NewSession;
+    new_message: NewMessage;
 };
 
-export type MessageBase = {
-    role?: Role;
-    content: string;
+export type HTTPValidationError = {
+    detail?: Array<ValidationError>;
 };
 
 export type MessageDetail = {
@@ -41,7 +41,6 @@ export type NewMessage = {
     role?: Role;
     content: string;
     model_name: string;
-    prev_messages?: (Array<MessageBase> | null);
 };
 
 export type NewPassword = {
@@ -168,10 +167,10 @@ export type PrivateCreateUserResponse = (UserPublic);
 export type SessionGetSessionsResponse = (SessionList);
 
 export type SessionNewSessionData = {
-    requestBody: NewSession;
+    requestBody: Body_session_new_session;
 };
 
-export type SessionNewSessionResponse = (app__schemas__Utils__Message);
+export type SessionNewSessionResponse = (unknown);
 
 export type SessionGetSessionData = {
     sessionId: string;

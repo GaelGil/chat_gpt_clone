@@ -18,7 +18,7 @@ class MessageBase(SQLModel):
 class NewMessage(MessageBase):
     # session_id: uuid.UUID
     model_name: str
-    prev_messages: list[MessageBase] | None = None
+    # prev_messages: list[MessageBase] | None = None
 
 
 class MessageDetail(MessageBase):

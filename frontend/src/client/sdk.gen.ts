@@ -143,7 +143,7 @@ export class SessionService {
      * Create a new Session
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns app__schemas__Utils__Message Successful Response
+     * @returns unknown Successful Response
      * @throws ApiError
      */
     public static newSession(data: SessionNewSessionData): CancelablePromise<SessionNewSessionResponse> {
