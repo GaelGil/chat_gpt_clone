@@ -40,7 +40,6 @@ export type MessageDetail = {
 export type NewMessage = {
     role?: Role;
     content: string;
-    session_id: string;
     model_name: string;
     prev_messages?: (Array<MessageBase> | null);
 };

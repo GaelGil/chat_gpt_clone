@@ -123,11 +123,6 @@ export const NewMessageSchema = {
             maxLength: 255,
             title: 'Content'
         },
-        session_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Session Id'
-        },
         model_name: {
             type: 'string',
             title: 'Model Name'
@@ -148,7 +143,7 @@ export const NewMessageSchema = {
         }
     },
     type: 'object',
-    required: ['content', 'session_id', 'model_name'],
+    required: ['content', 'model_name'],
     title: 'NewMessage'
 } as const;
 

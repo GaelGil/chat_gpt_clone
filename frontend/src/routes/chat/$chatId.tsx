@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Container, Text } from "@mantine/core";
+import { Container } from "@mantine/core";
 import InputBar from "@/components/Chat/InputBar";
 import { SessionService } from "@/client";
 import InitMessage from "@/components/Chat/Messages/InitMesssage";
@@ -42,7 +42,6 @@ function ChatDetail() {
         <Messages messages={messages} />
       )}
       <InputBar chatId={chatId ?? ""} />
-      <Text>HELLLLO</Text>
     </Container>
   );
 }
