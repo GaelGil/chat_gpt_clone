@@ -12,7 +12,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
       {messages.map((message) => (
         <>
           {message.role === "user" ? (
-            <Flex justify="flex-end" m="md" bg="white" bdrs={"md"} w={"50%"}>
+            <Flex justify="flex-end" m="md" bg="#303030" bdrs={"md"} w={"50%"}>
               <Box p="lg" bdrs="md" ta="right">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {message.content}
@@ -23,7 +23,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
               </Box>
             </Flex>
           ) : (
-            <Flex key={message.id}>
+            <Flex key={message.id} justify="flex-start" m="md">
               <Box p="sm">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {message.content || ""}
