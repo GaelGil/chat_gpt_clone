@@ -38,7 +38,7 @@ function HomePage() {
             to={loggedIn ? "/chat" : "/auth/login"}
             underline="never"
           >
-            <Button radius="xl">{loggedIn ? "Dashboard" : "Login"}</Button>
+            <Button radius="xl">{loggedIn ? "Chat" : "Login"}</Button>
           </Anchor>
         </Group>
       </AppShell.Header>
