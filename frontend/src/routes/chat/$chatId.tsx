@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Container, Text } from "@mantine/core";
+import { Container } from "@mantine/core";
 import InputBar from "@/components/Chat/InputBar";
 import { SessionService } from "@/client";
 import InitMessage from "@/components/Chat/Messages/InitMesssage";
+import Messages from "@/components/Chat/Messages/Messages";
 import { useQuery } from "@tanstack/react-query";
 export const Route = createFileRoute("/chat/$chatId")({
   component: ChatDetail,
@@ -34,7 +35,11 @@ function ChatDetail() {
 
   return (
     <Container>
-      {messages.length === 0 && <InitMessage />}
+      {messages.length === 0 ? (
+        <InitMessage />
+      ) : (
+        <Messages messages={messages} />
+      )}
       <InputBar chatId={chatId} />
     </Container>
   );
