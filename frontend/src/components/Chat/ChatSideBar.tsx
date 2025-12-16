@@ -56,7 +56,7 @@ const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
       {}
       {!collapsed && (
         <>
-          <Anchor fw={700} component={Link} to="/chat/new" underline="never">
+          <Anchor fw={700} component={Link} to={`/chat`} underline="never">
             <Flex align="center" gap="xs">
               <FiEdit size={18} />
               <Text fz="sm" fw={500}>

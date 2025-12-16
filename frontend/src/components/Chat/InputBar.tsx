@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Flex, Textarea, Button } from "@mantine/core";
 import { FiSend } from "react-icons/fi";
 interface InputBarProps {
-  chatId: string;
+  chatId: string | undefined;
 }
 const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const handleSubmit = () => {

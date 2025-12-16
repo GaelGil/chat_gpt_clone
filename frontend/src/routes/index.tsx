@@ -1,65 +1,77 @@
-// routes/index.tsx
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { AppShell, Container, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { AppShell, Burger, Text, Anchor, Flex } from "@mantine/core";
-import { Button } from "@/components/ui/button";
-import HomeBanner from "../components/Common/Home/HomeBanner";
-import { isLoggedIn } from "@/hooks/useAuth";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import ChatSideBar from "@/components/Chat/ChatSideBar";
+import InitMessage from "@/components/Chat/Messages/InitMesssage";
 import { PROJECT_NAME } from "@/const";
-import HomeItems from "../components/Common/Home/HomeItems";
+import { isLoggedIn } from "@/hooks/useAuth";
+import { redirect } from "@tanstack/react-router";
 export const Route = createFileRoute("/")({
-  component: HomePage,
+  component: Chat,
+  beforeLoad: async () => {
+    if (!isLoggedIn()) {
+      throw redirect({
+        to: "/auth/login",
+      });
+    }
+  },
 });
+function Chat() {
+  const [collapsed, { toggle: toggleCollapsed }] = useDisclosure(false);
 
-function HomePage() {
-  const [opened, { toggle }] = useDisclosure();
-  const loggedIn = isLoggedIn();
+  const fullWidth = 300;
+  const collapsedWidth = 60;
+
+  const sidebarWidth = collapsed ? collapsedWidth : fullWidth;
+
   return (
     <AppShell
-      header={{ height: 60 }}
-      navbar={{ width: 300, breakpoint: "sm", collapsed: { mobile: !opened } }}
       padding="md"
-      bg={"black"}
-      c={"white"}
+      navbar={{
+        width: sidebarWidth,
+        breakpoint: "sm",
+        collapsed: { mobile: false, desktop: false },
+      }}
+      styles={{
+        root: {
+          ["--app-shell-navbar-width" as any]: `${sidebarWidth}px`,
+          transition: "var(--app-shell-transition)",
+        },
+        main: {
+          transition: "padding-left 0.3s ease",
+        },
+        header: {
+          transition: "padding-left 0.3s ease",
+        },
+      }}
     >
-      <AppShell.Header withBorder={false} bg={"black"}>
-        <Flex h="100%" px="md" align="center" justify="space-between">
-          {/* Left side: logo + project name */}
-          <Flex align="center">
-            <Burger
-              opened={opened}
-              onClick={toggle}
-              hiddenFrom="sm"
-              size="sm"
-            />
-            <Anchor
-              component={Link}
-              to="/"
-              display="flex"
-              underline="never"
-              style={{ alignItems: "center" }}
-            >
-              <Text fz="xl" fw={700} ml="sm">
-                {PROJECT_NAME}
-              </Text>
-            </Anchor>
-          </Flex>
-
-          {/* Right side: button */}
-          <Anchor
-            component={Link}
-            to={loggedIn ? "/chat" : "/auth/login"}
-            underline="never"
-          >
-            <Button radius="xl">{loggedIn ? "Dashboard" : "Login"}</Button>
-          </Anchor>
-        </Flex>
-      </AppShell.Header>
-      <AppShell.Navbar p="md" withBorder={false} bg={"black"}>
-        <HomeItems />
+      <AppShell.Navbar
+        p="sm"
+        w={sidebarWidth}
+        h="100vh"
+        bg="#181818"
+        style={{
+          flexShrink: 0,
+          transition: "width 0.3s ease",
+        }}
+        withBorder={false}
+      >
+        {/* sidebar: #181818",
+          main: #212121
+          inputbar: #303030
+        */}
+        <ChatSideBar collapsed={collapsed} toggle={toggleCollapsed} />
       </AppShell.Navbar>
-      <AppShell.Main>
-        <HomeBanner />
+
+      <AppShell.Header bg="#212121">
+        <Container h="60px" p="md">
+          <Text>{PROJECT_NAME}</Text>
+        </Container>
+      </AppShell.Header>
+
+      <AppShell.Main bg={"#212121"}>
+        <InitMessage />
+        <Outlet />
       </AppShell.Main>
     </AppShell>
   );
