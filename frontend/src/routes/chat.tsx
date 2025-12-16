@@ -18,7 +18,7 @@ export const Route = createFileRoute("/chat")({
 function Chat() {
   const [collapsed, { toggle: toggleCollapsed }] = useDisclosure(false);
 
-  const fullWidth = 300;
+  const fullWidth = 260;
   const collapsedWidth = 60;
 
   const sidebarWidth = collapsed ? collapsedWidth : fullWidth;
@@ -45,10 +45,6 @@ function Chat() {
         }}
         withBorder={false}
       >
-        {/* sidebar: #181818",
-          main: #212121
-          inputbar: #303030
-        */}
         <ChatSideBar collapsed={collapsed} toggle={toggleCollapsed} />
       </AppShell.Navbar>
       <AppShell.Header bg="#212121">
