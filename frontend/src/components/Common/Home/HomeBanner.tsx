@@ -4,14 +4,8 @@ import { Text, Container, Stack, Anchor, Box, Title } from "@mantine/core";
 import { Button } from "../../../components/ui/button";
 const HomeBanner = () => {
   const today = new Date().toLocaleDateString();
-  //   const user = useUser();
   return (
-    <Container
-    // size="md"
-    // // mih="100vh"
-    // // display="flex"
-    // h={"100%"}
-    >
+    <Container>
       <Stack align="center" gap="xl" mt={"xl"}>
         {/* Project name and date */}
         <Box ta={"center"}>
