@@ -1,8 +1,7 @@
-import { AppShell, Container, Text } from "@mantine/core";
+import { AppShell, Group, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import ChatSideBar from "@/components/Chat/ChatSideBar";
-import InitMessage from "@/components/Chat/Messages/InitMesssage";
 import { PROJECT_NAME } from "@/const";
 import { isLoggedIn } from "@/hooks/useAuth";
 import { redirect } from "@tanstack/react-router";
@@ -26,24 +25,14 @@ function Chat() {
 
   return (
     <AppShell
-      padding="md"
+      layout="alt"
+      header={{ height: 60 }}
       navbar={{
         width: sidebarWidth,
         breakpoint: "sm",
         collapsed: { mobile: false, desktop: false },
       }}
-      styles={{
-        root: {
-          ["--app-shell-navbar-width" as any]: `${sidebarWidth}px`,
-          transition: "var(--app-shell-transition)",
-        },
-        main: {
-          transition: "padding-left 0.3s ease",
-        },
-        header: {
-          transition: "padding-left 0.3s ease",
-        },
-      }}
+      padding="md"
     >
       <AppShell.Navbar
         p="sm"
@@ -62,13 +51,11 @@ function Chat() {
         */}
         <ChatSideBar collapsed={collapsed} toggle={toggleCollapsed} />
       </AppShell.Navbar>
-
       <AppShell.Header bg="#212121">
-        <Container h="60px" p="md">
+        <Group h="100%" px="md" justify="flex-start">
           <Text>{PROJECT_NAME}</Text>
-        </Container>
+        </Group>
       </AppShell.Header>
-
       <AppShell.Main bg={"#212121"}>
         <Outlet />
       </AppShell.Main>
