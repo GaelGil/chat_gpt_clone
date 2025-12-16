@@ -58,6 +58,8 @@ def new_session(
     """
     Create a new Session
     """
+    print(f"session service: {type(session_service.api_service)}")
+
     user, permission_error = session_service.verify_permissions(user=current_user)
     if permission_error:
         raise permission_error
@@ -72,14 +74,15 @@ def new_session(
     saved, save_error = session_service.save_user_message(
         user_id=user.id, session_id=session_id, message=new_message
     )
+
     if not saved and save_error:
         raise save_error
 
     # async generator from service
     gen = session_service.stream_response(
-        chat_history=[],
+        chat_history=[{"role": new_message.role, "content": new_message.content}],
         model_name=new_message.model_name,
-        message=new_message.content,
+        message=new_message,
         session_id=session_id,
         user_id=user.id,
     )

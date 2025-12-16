@@ -14,8 +14,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const { showSuccessToast, showErrorToast } = useCustomToast();
   const sendMessage = useMutation({
     mutationFn: async (data: NewMessage) => {
-      alert(JSON.stringify(data));
-      console.log(data);
       if (chatId === undefined) {
         const newSession: NewSession = { title: "New Chat" };
         await SessionService.newSession({

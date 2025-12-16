@@ -131,13 +131,10 @@ class SessionService:
         session_id: uuid.UUID,
         user_id: uuid.UUID,
     ):
-        prompt = message.content
-
         # This returns an async generator
         gen = self.api_service.process_stream(
             chat_history=chat_history,
             model_name=model_name,
-            prompt=prompt,
             owner_id=user_id,
             session_id=session_id,
         )
