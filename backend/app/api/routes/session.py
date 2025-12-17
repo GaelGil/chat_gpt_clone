@@ -53,8 +53,7 @@ async def new_session(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
     new_session: NewSession,
-    new_message: NewMessage,
-) -> StreamingResponse:
+) -> uuid.UUID:
     """
     Create a new Session
     """
@@ -70,23 +69,7 @@ async def new_session(
     if new_session_error:
         raise new_session_error
 
-    saved, save_error = session_service.save_user_message(
-        user_id=user.id, session_id=session_id, message=new_message
-    )
-
-    if not saved and save_error:
-        raise save_error
-
-    # # async generator from service
-    gen = session_service.stream_response(
-        chat_history=[{"role": new_message.role, "content": new_message.content}],
-        model_name=new_message.model_name,
-        message=new_message,
-        session_id=session_id,
-        user_id=user.id,
-    )
-
-    return StreamingResponse(gen, media_type="text/event-stream")
+    return session_id
 
 
 @router.delete("/{id}", response_model=Message)
