@@ -1,7 +1,7 @@
 import { SessionService } from "@/client";
 import { useQuery } from "@tanstack/react-query";
 import { Menu, Button, Stack, Flex, Text } from "@mantine/core";
-import { FiMoreHorizontal, FiEdit2 } from "react-icons/fi";
+import { FiMoreHorizontal, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { Link } from "@tanstack/react-router";
 
 import DeleteSession from "./Delete";
@@ -15,7 +15,7 @@ function getUsersQueryOptions() {
 const Chats = () => {
   // const sessions;
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const { data, isLoading, isError } = useQuery({
     ...getUsersQueryOptions(),
     placeholderData: (prevData) => prevData,
@@ -43,7 +43,7 @@ const Chats = () => {
           align="center"
           justify="space-between"
           onMouseEnter={() => setHoveredId(item.id)}
-          onMouseLeave={() => setHoveredId(null)}
+          // onMouseLeave={() => setHoveredId(null)}
         >
           <Link
             to="/chat/$chatId"
@@ -67,11 +67,16 @@ const Chats = () => {
                   Rename
                 </Menu.Item>
 
-                <Menu.Item color="red">
-                  <DeleteSession id={item.id} />
-                </Menu.Item>
+                <Menu.Item
+                  color="red"
+                  leftSection={<FiTrash2 />}
+                  onClick={() => setDeleteId(item.id)}
+                ></Menu.Item>
               </Menu.Dropdown>
             </Menu>
+          )}
+          {deleteId === item.id && (
+            <DeleteSession id={deleteId} opened={true} />
           )}
         </Flex>
       ))}

@@ -52,9 +52,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       model_name: "gpt-3.5-turbo",
     },
     validateInputOnBlur: true,
-    validate: {
-      content: (value) => (value ? null : "Message is required"),
-    },
   });
 
   return (
@@ -80,7 +77,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
               radius="xl"
               size="xl"
               px="lg"
-              // bg={editProvider.isPending ? "white" : "transparent"}
             >
               {sendMessage.isPending ? (
                 <Loader color="white" />
