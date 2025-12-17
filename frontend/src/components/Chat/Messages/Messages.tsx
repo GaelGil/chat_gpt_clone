@@ -1,5 +1,5 @@
 import { MessageDetail } from "@/client";
-import { Flex, Box } from "@mantine/core";
+import { Flex, Box, Stack } from "@mantine/core";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
 interface MessagesProps {
@@ -8,34 +8,29 @@ interface MessagesProps {
 
 const Messages: React.FC<MessagesProps> = ({ messages }) => {
   return (
-    <>
-      {messages.map((message) =>
-        message.role === "user" ? (
-          <Flex
-            key={message.id}
-            justify="flex-end"
-            m="md"
-            bg="#303030"
+    <Stack gap="xs">
+      {messages.map((message) => (
+        <Flex
+          key={message.id}
+          justify={message.role === "user" ? "flex-end" : "flex-start"}
+        >
+          <Box
+            p="md"
+            bg={message.role === "user" ? "#303030" : "transparent"}
             bdrs="md"
-            w="50%"
+            style={{
+              maxWidth: "60%", // limit bubble width
+              wordBreak: "break-word",
+              textAlign: message.role === "user" ? "right" : "left",
+            }}
           >
-            <Box p="lg" bdrs="md" ta="right">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {message.content}
-              </ReactMarkdown>
-            </Box>
-          </Flex>
-        ) : (
-          <Flex key={message.id} justify="flex-start" m="md">
-            <Box p="sm">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {message.content || ""}
-              </ReactMarkdown>
-            </Box>
-          </Flex>
-        )
-      )}
-    </>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {message.content}
+            </ReactMarkdown>
+          </Box>
+        </Flex>
+      ))}
+    </Stack>
   );
 };
 

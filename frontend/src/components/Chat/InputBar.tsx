@@ -1,4 +1,4 @@
-import { Flex, Textarea, Button, Box, Loader } from "@mantine/core";
+import { Textarea, Button, Box, Loader } from "@mantine/core";
 import { FiArrowUp } from "react-icons/fi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SessionService, NewMessage, NewSession } from "@/client";
@@ -42,7 +42,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       handleError(err);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
     },
   });
 
@@ -60,33 +60,32 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         sendMessage.mutate(values);
       })}
     >
-      <Flex gap="sm" align="flex-end" pos={"relative"}>
-        <Textarea
-          placeholder="Ask Anything"
-          radius="xl"
-          w="100%"
-          size="lg"
-          mah={"400px"}
-          {...chatForm.getInputProps("content")}
-        />
-        {chatForm.values.content && (
-          <Box pos="absolute" right={0}>
-            <Button
-              type="submit"
-              disabled={!chatForm.isValid()}
-              radius="xl"
-              size="xl"
-              px="lg"
-            >
-              {sendMessage.isPending ? (
-                <Loader color="white" />
-              ) : (
-                <FiArrowUp color="black" />
-              )}
-            </Button>
-          </Box>
-        )}
-      </Flex>
+      <Textarea
+        placeholder="Ask Anything"
+        radius="xl"
+        autosize
+        w="100%"
+        size="lg"
+        rightSection={
+          chatForm.values.content && (
+            <Box>
+              <Button
+                type="submit"
+                disabled={!chatForm.isValid()}
+                radius="xl"
+                bg="white"
+              >
+                {sendMessage.isPending ? (
+                  <Loader color="white" />
+                ) : (
+                  <FiArrowUp size={"24px"} color="black" />
+                )}
+              </Button>
+            </Box>
+          )
+        }
+        {...chatForm.getInputProps("content")}
+      />
     </form>
   );
 };

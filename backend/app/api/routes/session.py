@@ -63,7 +63,7 @@ async def new_session(
     if permission_error:
         raise permission_error
 
-    session_id, new_session_error = await session_service.new_session(
+    session_id, new_session_error = session_service.new_session(
         user=user, new_session=new_session
     )
 

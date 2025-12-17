@@ -12,7 +12,7 @@ export const Route = createFileRoute("/chat/$chatId")({
 function getUsersQueryOptions({ chatId }: { chatId: string }) {
   return {
     queryFn: () => SessionService.getSession({ sessionId: chatId }),
-    queryKey: ["messages"],
+    queryKey: ["messages", chatId],
   };
 }
 function ChatDetail() {
@@ -36,13 +36,15 @@ function ChatDetail() {
   console.log(messages);
 
   return (
-    <Container>
+    <Container size="md" w="75%">
+      {/* Scrollable messages area */}
       {messages.length === 0 ? (
         <InitMessage />
       ) : (
         <Messages messages={messages} />
       )}
-      <InputBar chatId={chatId ?? ""} />
+
+      <InputBar chatId={chatId} />
     </Container>
   );
 }
