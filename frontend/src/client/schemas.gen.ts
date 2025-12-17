@@ -55,20 +55,6 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
-export const Body_session_new_sessionSchema = {
-    properties: {
-        new_session: {
-            '$ref': '#/components/schemas/NewSession'
-        },
-        new_message: {
-            '$ref': '#/components/schemas/NewMessage'
-        }
-    },
-    type: 'object',
-    required: ['new_session', 'new_message'],
-    title: 'Body_session-new_session'
-} as const;
-
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
@@ -98,14 +84,10 @@ export const MessageDetailSchema = {
             type: 'string',
             format: 'uuid',
             title: 'Id'
-        },
-        created_at: {
-            type: 'string',
-            title: 'Created At'
         }
     },
     type: 'object',
-    required: ['content', 'id', 'created_at'],
+    required: ['content', 'id'],
     title: 'MessageDetail'
 } as const;
 

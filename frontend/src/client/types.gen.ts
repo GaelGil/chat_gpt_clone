@@ -21,11 +21,6 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
-export type Body_session_new_session = {
-    new_session: NewSession;
-    new_message: NewMessage;
-};
-
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
@@ -34,7 +29,6 @@ export type MessageDetail = {
     role?: Role;
     content: string;
     id: string;
-    created_at: string;
 };
 
 export type NewMessage = {
@@ -167,10 +161,10 @@ export type PrivateCreateUserResponse = (UserPublic);
 export type SessionGetSessionsResponse = (SessionList);
 
 export type SessionNewSessionData = {
-    requestBody: Body_session_new_session;
+    requestBody: NewSession;
 };
 
-export type SessionNewSessionResponse = (unknown);
+export type SessionNewSessionResponse = (string);
 
 export type SessionGetSessionData = {
     sessionId: string;

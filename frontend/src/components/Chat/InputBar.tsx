@@ -1,4 +1,4 @@
-import { Textarea, Button, Box, Loader } from "@mantine/core";
+import { Textarea, Button, Box } from "@mantine/core";
 import { FiArrowUp } from "react-icons/fi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SessionService, NewMessage, NewSession } from "@/client";
@@ -6,27 +6,45 @@ import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
 import { useForm } from "@mantine/form";
+import { FaSquare } from "react-icons/fa";
+import { useState } from "react";
 interface InputBarProps {
   chatId: string | undefined;
 }
 const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const queryClient = useQueryClient();
   const { showSuccessToast, showErrorToast } = useCustomToast();
+  const [partialMessage, setPartialMessage] = useState(""); // streaming AI response
   const sendMessage = useMutation({
     mutationFn: async (data: NewMessage) => {
+      chatForm.reset();
+      let sessionId = chatId;
       if (chatId === undefined) {
         const newSession: NewSession = { title: "New Chat" };
-        await SessionService.newSession({
-          requestBody: {
-            new_session: newSession,
-            new_message: data,
-          },
+        const newSessionId = await SessionService.newSession({
+          requestBody: newSession,
         });
-      } else {
-        await SessionService.sendMessage({
-          sessionId: chatId ?? "",
-          requestBody: data,
-        });
+        sessionId = newSessionId;
+      }
+      const res: any = await SessionService.sendMessage({
+        sessionId: sessionId as string,
+        requestBody: data,
+      });
+
+      if (!res.body) throw new Error("No response body from server");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let done = false;
+
+      setPartialMessage(""); // reset before streaming
+      while (!done) {
+        const { value: chunk, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (chunk) {
+          const text = decoder.decode(chunk);
+          setPartialMessage((prev) => prev + text); // append chunk
+        }
       }
     },
     onSuccess: (res: any) => {
@@ -60,6 +78,17 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         sendMessage.mutate(values);
       })}
     >
+      {/* Display partial AI response live */}
+      {partialMessage && (
+        <Box
+          mt="sm"
+          p="sm"
+          bg="#f0f0f0"
+          style={{ whiteSpace: "pre-wrap", borderRadius: 8 }}
+        >
+          {partialMessage}
+        </Box>
+      )}
       <Textarea
         placeholder="Ask Anything"
         radius="xl"
@@ -73,10 +102,10 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
                 type="submit"
                 disabled={!chatForm.isValid()}
                 radius="xl"
-                bg="white"
+                bg={sendMessage.isPending ? "gray" : "white"}
               >
                 {sendMessage.isPending ? (
-                  <Loader color="white" />
+                  <FaSquare size={"24px"} color="black" />
                 ) : (
                   <FiArrowUp size={"24px"} color="black" />
                 )}
