@@ -7,6 +7,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
+import DeleteSession from "./Delete";
+import { useState } from "react";
 function getUsersQueryOptions() {
   return {
     queryFn: () => SessionService.getSessions(),
@@ -15,6 +17,9 @@ function getUsersQueryOptions() {
 }
 const Chats = () => {
   // const sessions;
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // const [hovered, setHovered] = useState(false);
   const queryClient = useQueryClient();
   const { showSuccessToast, showErrorToast } = useCustomToast();
 
@@ -58,33 +63,40 @@ const Chats = () => {
   return (
     <Stack>
       {sessions.map((item) => (
-        <Flex mb="sm">
+        <Flex
+          key={item.id}
+          align="center"
+          justify="space-between"
+          onMouseEnter={() => setHoveredId(item.id)}
+          onMouseLeave={() => setHoveredId(null)}
+        >
           <Link
             to="/chat/$chatId"
             params={{ chatId: item.id.toString() }}
-            key={item.id}
+            style={{ textDecoration: "none" }}
           >
-            <Text fz={"sm"}>{item.title}</Text>
+            <Text fz="sm">{item.title}</Text>
           </Link>
-          <Menu position="bottom-end" withinPortal shadow="md">
-            <Menu.Target>
-              <Button variant="subtle" size="xs" px={6}>
-                <FiMoreHorizontal />
-              </Button>
-            </Menu.Target>
 
-            <Menu.Dropdown>
-              <Menu.Item icon={<FiEdit2 size={14} />}>Rename</Menu.Item>
+          {hoveredId === item.id && (
+            <Menu position="bottom-end" withinPortal>
+              <Menu.Target>
+                <Button variant="subtle" size="xs" px={6}>
+                  <FiMoreHorizontal />
+                </Button>
+              </Menu.Target>
 
-              <Menu.Item
-                color="red"
-                icon={<FiTrash size={14} />}
-                onClick={() => deleteMutation}
-              >
-                Delete
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+              <Menu.Dropdown>
+                <Menu.Item leftSection={<FiEdit2 size={14} />}>
+                  Rename
+                </Menu.Item>
+
+                <Menu.Item color="red">
+                  <DeleteSession id={item.id} />
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          )}
         </Flex>
       ))}
     </Stack>

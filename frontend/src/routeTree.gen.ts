@@ -16,7 +16,6 @@ import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardAdminRouteImport } from './routes/dashboard/admin'
 import { Route as ChatChatIdRouteImport } from './routes/chat/$chatId'
-import { Route as CanvasCanvasIdRouteImport } from './routes/canvas/$canvasId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRecoverPasswordRouteImport } from './routes/auth/recover-password'
@@ -33,9 +32,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DashboardRoute,
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
   id: '/',
@@ -43,24 +42,19 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
   getParentRoute: () => ChatRoute,
 } as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => DashboardRoute,
+  id: '/dashboard/settings',
+  path: '/dashboard/settings',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardAdminRoute = DashboardAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => DashboardRoute,
+  id: '/dashboard/admin',
+  path: '/dashboard/admin',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ChatChatIdRoute = ChatChatIdRouteImport.update({
   id: '/$chatId',
   path: '/$chatId',
   getParentRoute: () => ChatRoute,
-} as any)
-const CanvasCanvasIdRoute = CanvasCanvasIdRouteImport.update({
-  id: '/canvas/$canvasId',
-  path: '/canvas/$canvasId',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/auth/signup',
@@ -90,12 +84,11 @@ export interface FileRoutesByFullPath {
   '/auth/recover-password': typeof AuthRecoverPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
-  '/canvas/$canvasId': typeof CanvasCanvasIdRoute
   '/chat/$chatId': typeof ChatChatIdRoute
   '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/chat/': typeof ChatIndexRoute
-  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,7 +96,6 @@ export interface FileRoutesByTo {
   '/auth/recover-password': typeof AuthRecoverPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
-  '/canvas/$canvasId': typeof CanvasCanvasIdRoute
   '/chat/$chatId': typeof ChatChatIdRoute
   '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -118,7 +110,6 @@ export interface FileRoutesById {
   '/auth/recover-password': typeof AuthRecoverPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
-  '/canvas/$canvasId': typeof CanvasCanvasIdRoute
   '/chat/$chatId': typeof ChatChatIdRoute
   '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -134,12 +125,11 @@ export interface FileRouteTypes {
     | '/auth/recover-password'
     | '/auth/reset-password'
     | '/auth/signup'
-    | '/canvas/$canvasId'
     | '/chat/$chatId'
     | '/dashboard/admin'
     | '/dashboard/settings'
     | '/chat/'
-    | '/dashboard/'
+    | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -147,7 +137,6 @@ export interface FileRouteTypes {
     | '/auth/recover-password'
     | '/auth/reset-password'
     | '/auth/signup'
-    | '/canvas/$canvasId'
     | '/chat/$chatId'
     | '/dashboard/admin'
     | '/dashboard/settings'
@@ -161,7 +150,6 @@ export interface FileRouteTypes {
     | '/auth/recover-password'
     | '/auth/reset-password'
     | '/auth/signup'
-    | '/canvas/$canvasId'
     | '/chat/$chatId'
     | '/dashboard/admin'
     | '/dashboard/settings'
@@ -176,7 +164,9 @@ export interface RootRouteChildren {
   AuthRecoverPasswordRoute: typeof AuthRecoverPasswordRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
-  CanvasCanvasIdRoute: typeof CanvasCanvasIdRoute
+  DashboardAdminRoute: typeof DashboardAdminRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -197,10 +187,10 @@ declare module '@tanstack/react-router' {
     }
     '/dashboard/': {
       id: '/dashboard/'
-      path: '/'
-      fullPath: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof rootRouteImport
     }
     '/chat/': {
       id: '/chat/'
@@ -211,17 +201,17 @@ declare module '@tanstack/react-router' {
     }
     '/dashboard/settings': {
       id: '/dashboard/settings'
-      path: '/settings'
+      path: '/dashboard/settings'
       fullPath: '/dashboard/settings'
       preLoaderRoute: typeof DashboardSettingsRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard/admin': {
       id: '/dashboard/admin'
-      path: '/admin'
+      path: '/dashboard/admin'
       fullPath: '/dashboard/admin'
       preLoaderRoute: typeof DashboardAdminRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof rootRouteImport
     }
     '/chat/$chatId': {
       id: '/chat/$chatId'
@@ -229,13 +219,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/chat/$chatId'
       preLoaderRoute: typeof ChatChatIdRouteImport
       parentRoute: typeof ChatRoute
-    }
-    '/canvas/$canvasId': {
-      id: '/canvas/$canvasId'
-      path: '/canvas/$canvasId'
-      fullPath: '/canvas/$canvasId'
-      preLoaderRoute: typeof CanvasCanvasIdRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/auth/signup': {
       id: '/auth/signup'
@@ -287,7 +270,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRecoverPasswordRoute: AuthRecoverPasswordRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
-  CanvasCanvasIdRoute: CanvasCanvasIdRoute,
+  DashboardAdminRoute: DashboardAdminRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

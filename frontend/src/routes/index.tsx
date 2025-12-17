@@ -14,7 +14,7 @@ function HomePage() {
   const loggedIn = isLoggedIn();
   const [collapsed, { toggle: toggleCollapsed }] = useDisclosure(false);
 
-  const fullWidth = 260;
+  const fullWidth = 200;
   const collapsedWidth = 60;
 
   const sidebarWidth = collapsed ? collapsedWidth : fullWidth;
