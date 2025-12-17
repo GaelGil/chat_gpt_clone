@@ -3,7 +3,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FiTrash2 } from "react-icons/fi";
-
+import { handleError } from "@/utils";
+import type { ApiError } from "@/client/core/ApiError";
 import { SessionService } from "@/client";
 import {
   DialogContent,
@@ -27,22 +28,27 @@ const DeleteSession = ({ id }: { id: string }) => {
     await SessionService.deleteSession({ sessionId: id });
   };
 
-  const mutation = useMutation({
+  const deleteMutation = useMutation({
     mutationFn: deleteSession,
-    onSuccess: () => {
-      showSuccessToast("The user was deleted successfully");
+    onSuccess: (res: any) => {
+      const message = res.message;
+      showSuccessToast(message);
       setIsOpen(false);
     },
-    onError: () => {
-      showErrorToast("An error occurred while deleting the user");
+    onError: (err: ApiError) => {
+      const body = err.body as { detail?: string } | undefined;
+      const message = body?.detail ?? "An error occurred";
+      console.error(message);
+      showErrorToast(message);
+      handleError(err);
     },
     onSettled: () => {
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
     },
   });
 
   const onSubmit = async () => {
-    mutation.mutate(id);
+    deleteMutation.mutate(id);
   };
 
   return (
@@ -68,15 +74,11 @@ const DeleteSession = ({ id }: { id: string }) => {
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Delete User</DialogTitle>
+            <DialogTitle>Delete Session</DialogTitle>
           </DialogHeader>
 
           <DialogBody>
-            <Text mb="md">
-              All items associated with this user will also be{" "}
-              <strong>permanently deleted.</strong> Are you sure? You will not
-              be able to undo this action.
-            </Text>
+            <Text mb="md">All messages in this session will be deleted.</Text>
           </DialogBody>
 
           <DialogFooter>
