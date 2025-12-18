@@ -1,5 +1,5 @@
 import { Textarea, Button, Box } from "@mantine/core";
-import { FiArrowUp, FiPlus } from "react-icons/fi";
+import { FiArrowUp } from "react-icons/fi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SessionService, NewMessage, NewSession } from "@/client";
 import useCustomToast from "@/hooks/useCustomToast";
@@ -68,7 +68,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const chatForm = useForm<NewMessage>({
     initialValues: {
       content: "",
-      model_name: "gpt-4.1-mini",
+      model_name: "gpt-5-mini",
     },
     validateInputOnBlur: true,
   });
@@ -117,7 +117,12 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         leftSection={
           !sendMessage.isPending && (
             <Box w={40}>
-              <ModelSelection />
+              <ModelSelection
+                value={chatForm.values.model_name}
+                onChange={(model) =>
+                  chatForm.setFieldValue("model_name", model)
+                }
+              />
             </Box>
           )
         }
