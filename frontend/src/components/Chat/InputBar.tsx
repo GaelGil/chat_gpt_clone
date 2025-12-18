@@ -1,5 +1,5 @@
 import { Textarea, Button, Box } from "@mantine/core";
-import { FiArrowUp } from "react-icons/fi";
+import { FiArrowUp, FiPlus } from "react-icons/fi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SessionService, NewMessage, NewSession } from "@/client";
 import useCustomToast from "@/hooks/useCustomToast";
@@ -8,6 +8,7 @@ import type { ApiError } from "@/client/core/ApiError";
 import { useForm } from "@mantine/form";
 import { FaSquare } from "react-icons/fa";
 import { useState } from "react";
+import ModelSelection from "./Settings/ModelSelection";
 interface InputBarProps {
   chatId: string | undefined;
 }
@@ -67,7 +68,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const chatForm = useForm<NewMessage>({
     initialValues: {
       content: "",
-      model_name: "gpt-3.5-turbo",
+      model_name: "gpt-4.1-mini",
     },
     validateInputOnBlur: true,
   });
@@ -105,11 +106,18 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
                 bg={sendMessage.isPending ? "gray" : "white"}
               >
                 {sendMessage.isPending ? (
-                  <FaSquare size={"24px"} color="black" />
+                  <FaSquare size={"24px"} color="white" />
                 ) : (
                   <FiArrowUp size={"24px"} color="black" />
                 )}
               </Button>
+            </Box>
+          )
+        }
+        leftSection={
+          !sendMessage.isPending && (
+            <Box w={40}>
+              <ModelSelection />
             </Box>
           )
         }
