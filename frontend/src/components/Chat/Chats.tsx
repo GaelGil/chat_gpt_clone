@@ -1,10 +1,10 @@
 import { SessionService } from "@/client";
 import { useQuery } from "@tanstack/react-query";
-import { Menu, Button, Stack, Flex, Text } from "@mantine/core";
+import { Menu, Button, Stack, Flex, Text, Input } from "@mantine/core";
 import { FiMoreHorizontal, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { Link } from "@tanstack/react-router";
 
-import DeleteSession from "./Delete";
+import DeleteSession from "./Settings/Delete";
 import { useState } from "react";
 function getUsersQueryOptions() {
   return {
@@ -16,6 +16,7 @@ const Chats = () => {
   // const sessions;
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
   const { data, isLoading, isError } = useQuery({
     ...getUsersQueryOptions(),
     placeholderData: (prevData) => prevData,
@@ -53,6 +54,14 @@ const Chats = () => {
             <Text fz="sm">{item.title}</Text>
           </Link>
 
+          {editId === item.id && (
+            <Input
+              type="text"
+              defaultValue={item.title}
+              onBlur={() => setEditId(null)}
+            />
+          )}
+
           <Button variant="transparent" size="xs" px={6}></Button>
           {hoveredId === item.id && (
             <Menu position="bottom-end" withinPortal>
@@ -63,7 +72,10 @@ const Chats = () => {
               </Menu.Target>
 
               <Menu.Dropdown>
-                <Menu.Item leftSection={<FiEdit2 size={14} />}>
+                <Menu.Item
+                  leftSection={<FiEdit2 size={14} />}
+                  onClick={() => setEditId(item.id)}
+                >
                   Rename
                 </Menu.Item>
 
@@ -71,7 +83,9 @@ const Chats = () => {
                   color="red"
                   leftSection={<FiTrash2 />}
                   onClick={() => setDeleteId(item.id)}
-                ></Menu.Item>
+                >
+                  Delete
+                </Menu.Item>
               </Menu.Dropdown>
             </Menu>
           )}
