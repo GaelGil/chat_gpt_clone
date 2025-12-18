@@ -44,17 +44,18 @@ const Chats = () => {
           align="center"
           justify="space-between"
           onMouseEnter={() => setHoveredId(item.id)}
-          // onMouseLeave={() => setHoveredId(null)}
         >
-          <Link
-            to="/chat/$chatId"
-            params={{ chatId: item.id.toString() }}
-            style={{ textDecoration: "none" }}
-          >
-            <Text fz="sm">{item.title}</Text>
-          </Link>
-
-          {editId === item.id && <Rename item={item} />}
+          {editId === item.id ? (
+            <Rename item={item} />
+          ) : (
+            <Link
+              to="/chat/$chatId"
+              params={{ chatId: item.id.toString() }}
+              style={{ textDecoration: "none" }}
+            >
+              <Text fz="sm">{item.title}</Text>
+            </Link>
+          )}
 
           <Button variant="transparent" size="xs" px={6}></Button>
           {hoveredId === item.id && (
