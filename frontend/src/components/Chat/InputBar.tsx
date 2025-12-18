@@ -9,17 +9,21 @@ import { useForm } from "@mantine/form";
 import { FaSquare } from "react-icons/fa";
 import { useState } from "react";
 import ModelSelection from "./Settings/ModelSelection";
+import { useNavigate } from "@tanstack/react-router";
 interface InputBarProps {
   chatId: string | undefined;
 }
 const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const queryClient = useQueryClient();
   const { showSuccessToast, showErrorToast } = useCustomToast();
+  const navigate = useNavigate();
+
   const [partialMessage, setPartialMessage] = useState(""); // streaming AI response
   const sendMessage = useMutation({
     mutationFn: async (data: NewMessage) => {
-      chatForm.reset();
       let sessionId = chatId;
+
+      chatForm.reset();
       if (chatId === undefined) {
         const newSession: NewSession = { title: "New Chat" };
         const newSessionId = await SessionService.newSession({
@@ -27,6 +31,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         });
         sessionId = newSessionId;
       }
+
       const res: any = await SessionService.sendMessage({
         sessionId: sessionId as string,
         requestBody: data,
@@ -52,6 +57,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       const message = res.message;
       showSuccessToast(message);
       chatForm.setFieldValue("prompt", "");
+      navigate({ to: `/chat/${res.session_id}` });
     },
     onError: (err: ApiError) => {
       const body = err.body as { detail?: string } | undefined;
