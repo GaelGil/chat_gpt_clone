@@ -1,9 +1,9 @@
 import { SessionService } from "@/client";
 import { useQuery } from "@tanstack/react-query";
-import { Menu, Button, Stack, Flex, Text, Input } from "@mantine/core";
+import { Menu, Button, Stack, Flex, Text } from "@mantine/core";
 import { FiMoreHorizontal, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { Link } from "@tanstack/react-router";
-
+import Rename from "./Settings/Rename";
 import DeleteSession from "./Settings/Delete";
 import { useState } from "react";
 function getUsersQueryOptions() {
@@ -54,13 +54,7 @@ const Chats = () => {
             <Text fz="sm">{item.title}</Text>
           </Link>
 
-          {editId === item.id && (
-            <Input
-              type="text"
-              defaultValue={item.title}
-              onBlur={() => setEditId(null)}
-            />
-          )}
+          {editId === item.id && <Rename item={item} />}
 
           <Button variant="transparent" size="xs" px={6}></Button>
           {hoveredId === item.id && (
