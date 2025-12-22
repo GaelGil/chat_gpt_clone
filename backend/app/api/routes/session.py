@@ -135,7 +135,7 @@ async def rename_session(
     current_user: CurrentUser,
     session_updates: UpdateSession,
     session_id: uuid.UUID,
-) -> SessionDetail:
+) -> Message:
     """
     Update a Session
     """
@@ -143,13 +143,8 @@ async def rename_session(
     if permission_error:
         raise permission_error
 
-    session, error = session_service.get_session(user=user, session=session_id)
-
-    if error:
-        raise error
-
     updated, update_error = session_service.rename_session(
-        user=user, session=session, new_name=session_updates
+        user=user, session_id=session_id, update_session=session_updates
     )
 
     if not updated and update_error:

@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, SessionGetSessionsResponse, SessionNewSessionData, SessionNewSessionResponse, SessionGetSessionData, SessionGetSessionResponse, SessionDeleteSessionData, SessionDeleteSessionResponse, SessionSendMessageData, SessionSendMessageResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, SessionGetSessionsResponse, SessionNewSessionData, SessionNewSessionResponse, SessionGetSessionData, SessionGetSessionResponse, SessionDeleteSessionData, SessionDeleteSessionResponse, SessionSendMessageData, SessionSendMessageResponse, SessionRenameSessionData, SessionRenameSessionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class LoginService {
     /**
@@ -212,6 +212,30 @@ export class SessionService {
     public static sendMessage(data: SessionSendMessageData): CancelablePromise<SessionSendMessageResponse> {
         return __request(OpenAPI, {
             method: 'POST',
+            url: '/api/v1/session/{id}',
+            query: {
+                session_id: data.sessionId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Rename Session
+     * Update a Session
+     * @param data The data for the request.
+     * @param data.sessionId
+     * @param data.requestBody
+     * @returns SessionDetail Successful Response
+     * @throws ApiError
+     */
+    public static renameSession(data: SessionRenameSessionData): CancelablePromise<SessionRenameSessionResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
             url: '/api/v1/session/{id}',
             query: {
                 session_id: data.sessionId

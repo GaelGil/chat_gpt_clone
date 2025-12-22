@@ -38,27 +38,27 @@ const Chats = () => {
 
   return (
     <Stack>
-      {sessions.map((item) => (
+      {sessions.map((session) => (
         <Flex
-          key={item.id}
+          key={session.id}
           align="center"
           justify="space-between"
-          onMouseEnter={() => setHoveredId(item.id)}
+          onMouseEnter={() => setHoveredId(session.id)}
         >
-          {editId === item.id ? (
-            <Rename item={item} onCancel={() => setEditId(null)} />
+          {editId === session.id ? (
+            <Rename session={session} onCancel={() => setEditId(null)} />
           ) : (
             <Link
               to="/chat/$chatId"
-              params={{ chatId: item.id.toString() }}
+              params={{ chatId: session.id.toString() }}
               style={{ textDecoration: "none" }}
             >
-              <Text fz="sm">{item.title}</Text>
+              <Text fz="sm">{session.title}</Text>
             </Link>
           )}
 
           <Button variant="transparent" size="xs" px={6}></Button>
-          {hoveredId === item.id && (
+          {hoveredId === session.id && (
             <Menu position="bottom-end" withinPortal>
               <Menu.Target>
                 <Button variant="transparent" size="xs" px={6}>
@@ -69,7 +69,7 @@ const Chats = () => {
               <Menu.Dropdown>
                 <Menu.Item
                   leftSection={<FiEdit2 size={14} />}
-                  onClick={() => setEditId(item.id)}
+                  onClick={() => setEditId(session.id)}
                 >
                   Rename
                 </Menu.Item>
@@ -77,14 +77,14 @@ const Chats = () => {
                 <Menu.Item
                   color="red"
                   leftSection={<FiTrash2 />}
-                  onClick={() => setDeleteId(item.id)}
+                  onClick={() => setDeleteId(session.id)}
                 >
                   Delete
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
           )}
-          {deleteId === item.id && (
+          {deleteId === session.id && (
             <DeleteSession id={deleteId} opened={true} />
           )}
         </Flex>

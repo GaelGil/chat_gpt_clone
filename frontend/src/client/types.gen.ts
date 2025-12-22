@@ -80,6 +80,10 @@ export type UpdatePassword = {
     new_password: string;
 };
 
+export type UpdateSession = {
+    title: string;
+};
+
 export type UserCreate = {
     email: string;
     is_active?: boolean;
@@ -184,6 +188,13 @@ export type SessionSendMessageData = {
 };
 
 export type SessionSendMessageResponse = (unknown);
+
+export type SessionRenameSessionData = {
+    requestBody: UpdateSession;
+    sessionId: string;
+};
+
+export type SessionRenameSessionResponse = (SessionDetail);
 
 export type UsersReadUsersData = {
     limit?: number;

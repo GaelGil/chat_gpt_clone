@@ -269,6 +269,19 @@ export const UpdatePasswordSchema = {
     title: 'UpdatePassword'
 } as const;
 
+export const UpdateSessionSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Title'
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'UpdateSession'
+} as const;
+
 export const UserCreateSchema = {
     properties: {
         email: {

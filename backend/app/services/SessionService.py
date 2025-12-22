@@ -147,7 +147,7 @@ class SessionService:
             yield token
 
     def rename_session(
-        self, session: SessionDetail, update_session: UpdateSession
+        self, user: User, session_id: uuid.UUID, update_session: UpdateSession
     ) -> tuple[bool | None, HTTPException | None]:
         """
         Args:
@@ -155,9 +155,19 @@ class SessionService:
             session (SessionDetail): session
             update_session (UpdateSession): update session
         """
+        session = self.session.get(SessionModel, session_id)
+        if not session:
+            return False, HTTPException(status_code=404, detail="Session not found")
+        if user.id != session.owner_id:
+            return False, HTTPException(
+                status_code=403, detail="The user doesn't have enough privileges"
+            )
+
         session.title = update_session.title
         try:
+            self.session.add(session)
             self.session.commit()
+            self.session.refresh(session)
         except Exception:
             self.session.rollback()
             return False, HTTPException(
