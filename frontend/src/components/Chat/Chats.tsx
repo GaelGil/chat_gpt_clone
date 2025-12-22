@@ -46,7 +46,7 @@ const Chats = () => {
           onMouseEnter={() => setHoveredId(item.id)}
         >
           {editId === item.id ? (
-            <Rename item={item} />
+            <Rename item={item} onCancel={() => setEditId(null)} />
           ) : (
             <Link
               to="/chat/$chatId"
