@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Container } from "@mantine/core";
+import { Container, Box } from "@mantine/core";
 import InputBar from "@/components/Chat/InputBar";
 import { SessionService } from "@/client";
 import InitMessage from "@/components/Chat/Messages/InitMesssage";
@@ -36,15 +36,32 @@ function ChatDetail() {
   console.log(messages);
 
   return (
-    <Container size="md" w="75%">
-      {/* Scrollable messages area */}
-      {messages.length === 0 ? (
-        <InitMessage />
-      ) : (
-        <Messages messages={messages} />
-      )}
+    <Container
+      fluid
+      style={{ display: "flex", flexDirection: "column" }}
+      w="75%"
+      h="100%"
+    >
+      <Box
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        px="md"
+        display={"flex"}
+      >
+        {/* Scrollable messages area */}
+        {messages.length === 0 ? (
+          <InitMessage />
+        ) : (
+          <Messages messages={messages} />
+        )}
+      </Box>
 
-      <InputBar chatId={chatId} />
+      <Box w="100%" bottom={0} pos={"sticky"} p="md">
+        <InputBar chatId={chatId} />
+      </Box>
     </Container>
   );
 }

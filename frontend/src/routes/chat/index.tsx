@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Container } from "@mantine/core";
+import { Container, Box } from "@mantine/core";
 import InputBar from "@/components/Chat/InputBar";
 import InitMessage from "@/components/Chat/Messages/InitMesssage";
 
@@ -10,9 +10,27 @@ export const Route = createFileRoute("/chat/")({
 
 function NewChat() {
   return (
-    <Container>
-      <InitMessage />
-      <InputBar chatId={undefined} />
+    <Container
+      fluid
+      style={{ display: "flex", flexDirection: "column" }}
+      w="75%"
+      h="100%"
+    >
+      <Box
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        px="md"
+        display={"flex"}
+      >
+        <InitMessage />
+      </Box>
+
+      <Box w="100%" bottom={0} pos={"sticky"} p="md">
+        <InputBar chatId={undefined} />
+      </Box>
     </Container>
   );
 }

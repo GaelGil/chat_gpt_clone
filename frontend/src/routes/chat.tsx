@@ -52,7 +52,7 @@ function Chat() {
           <Text>{PROJECT_NAME}</Text>
         </Group>
       </AppShell.Header>
-      <AppShell.Main bg={"#212121"}>
+      <AppShell.Main bg={"#212121"} h="100vh">
         <Outlet />
       </AppShell.Main>
     </AppShell>
