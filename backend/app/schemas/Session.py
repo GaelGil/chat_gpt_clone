@@ -27,3 +27,7 @@ class SessionDetail(SessionSimple):
 
 class SessionList(SQLModel):
     sessions: list[SessionSimple]
+
+
+class UpdateSession(SessionBase):
+    pass

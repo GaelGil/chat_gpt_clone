@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 
 from app.api.deps import CurrentUser, SessionServiceDep
 from app.schemas.Message import NewMessage
-from app.schemas.Session import NewSession, SessionDetail, SessionList
+from app.schemas.Session import NewSession, SessionDetail, SessionList, UpdateSession
 from app.schemas.Utils import Message
 
 router = APIRouter(prefix="/session", tags=["session"])
@@ -127,3 +127,32 @@ async def send_message(
     )
 
     return StreamingResponse(gen, media_type="text/event-stream")
+
+
+@router.put("/{id}")
+async def rename_session(
+    session_service: SessionServiceDep,
+    current_user: CurrentUser,
+    session_updates: UpdateSession,
+    session_id: uuid.UUID,
+) -> SessionDetail:
+    """
+    Update a Session
+    """
+    user, permission_error = session_service.verify_permissions(user=current_user)
+    if permission_error:
+        raise permission_error
+
+    session, error = session_service.get_session(user=user, session=session_id)
+
+    if error:
+        raise error
+
+    updated, update_error = session_service.rename_session(
+        user=user, session=session, new_name=session_updates
+    )
+
+    if not updated and update_error:
+        raise update_error
+
+    return Message(message="Session was updated successfully")

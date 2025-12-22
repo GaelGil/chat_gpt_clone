@@ -11,6 +11,7 @@ from app.schemas.Session import (
     SessionDetail,
     SessionList,
     SessionSimple,
+    UpdateSession,
 )
 from app.services.APIService import APIService
 
@@ -144,6 +145,26 @@ class SessionService:
         async for token in gen:
             # You can save tokens, log, meter usage, etc.
             yield token
+
+    def rename_session(
+        self, session: SessionDetail, update_session: UpdateSession
+    ) -> tuple[bool | None, HTTPException | None]:
+        """
+        Args:
+            user (User): user
+            session (SessionDetail): session
+            update_session (UpdateSession): update session
+        """
+        session.title = update_session.title
+        try:
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            return False, HTTPException(
+                status_code=400, detail="Error updating session {error}"
+            )
+
+        return True, None
 
     def verify_permissions(
         self, user: User
