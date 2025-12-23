@@ -38,12 +38,12 @@ function Chat() {
         p="sm"
         w={sidebarWidth}
         h="100vh"
-        bg="#181818"
+        bg={collapsed ? "#212121" : "#181818"}
         style={{
           flexShrink: 0,
           transition: "width 0.3s ease",
         }}
-        withBorder={false}
+        withBorder={collapsed}
       >
         <ChatSideBar collapsed={collapsed} toggle={toggleCollapsed} />
       </AppShell.Navbar>

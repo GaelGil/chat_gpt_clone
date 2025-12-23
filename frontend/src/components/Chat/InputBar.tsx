@@ -17,7 +17,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const queryClient = useQueryClient();
   const { showSuccessToast, showErrorToast } = useCustomToast();
   const navigate = useNavigate();
-
   const [partialMessage, setPartialMessage] = useState(""); // streaming AI response
   const sendMessage = useMutation({
     mutationFn: async (data: NewMessage) => {
