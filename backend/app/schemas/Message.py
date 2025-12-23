@@ -1,6 +1,7 @@
 import uuid
 from enum import Enum
 
+from sqlalchemy import Column, Text
 from sqlmodel import Field, SQLModel
 
 
@@ -12,7 +13,7 @@ class Role(str, Enum):
 
 class MessageBase(SQLModel):
     role: Role = Field(default=Role.USER, nullable=False)
-    content: str = Field(max_length=255, nullable=False)
+    content: str = Field(sa_column=Column(Text, nullable=False))
 
 
 class NewMessage(MessageBase):

@@ -3,9 +3,8 @@ import { Container, Box } from "@mantine/core";
 import InputBar from "@/components/Chat/InputBar";
 import { SessionService } from "@/client";
 import InitMessage from "@/components/Chat/Messages/InitMesssage";
-import { useQuery } from "@tanstack/react-query";
 import Messages from "@/components/Chat/Messages/Messages";
-import { useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 export const Route = createFileRoute("/chat/$chatId")({
   component: ChatDetail,
 });
@@ -18,7 +17,6 @@ function getUsersQueryOptions({ chatId }: { chatId: string }) {
 }
 function ChatDetail() {
   const { chatId } = Route.useParams();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     ...getUsersQueryOptions({ chatId }),
@@ -36,13 +34,6 @@ function ChatDetail() {
 
   const messages = data?.messages ?? [];
   console.log(messages);
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (el) {
-      // instant or smooth as you like
-      el.scrollTop = el.scrollHeight;
-    }
-  }, [messages.length, messages?.[messages.length - 1]?.content]);
 
   return (
     <Container
@@ -64,25 +55,7 @@ function ChatDetail() {
         {messages.length === 0 ? (
           <InitMessage />
         ) : (
-          <Box
-            ref={scrollRef}
-            h="100%"
-            mih="100%"
-            p="md"
-            style={{
-              overflowY: "auto",
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
-          >
-            {" "}
-            {messages.length === 0 ? (
-              <InitMessage />
-            ) : (
-              <Messages messages={messages} />
-            )}
-          </Box>
+          <Messages messages={messages} />
         )}
       </Box>
 
