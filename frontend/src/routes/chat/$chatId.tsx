@@ -49,6 +49,7 @@ function ChatDetail() {
           justifyContent: "center",
         }}
         px="md"
+        w="100%"
         display={"flex"}
       >
         {/* Scrollable messages area */}

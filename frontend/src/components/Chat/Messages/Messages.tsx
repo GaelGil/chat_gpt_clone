@@ -8,7 +8,7 @@ interface MessagesProps {
 
 const Messages: React.FC<MessagesProps> = ({ messages }) => {
   return (
-    <Stack gap="xs">
+    <Stack gap="xs" w="100%">
       {messages.map((message) => (
         <Flex
           key={message.id}
