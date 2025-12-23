@@ -10,6 +10,7 @@ import { FaSquare } from "react-icons/fa";
 import { useState } from "react";
 import ModelSelection from "./Settings/ModelSelection";
 import { useNavigate } from "@tanstack/react-router";
+
 interface InputBarProps {
   chatId: string | undefined;
 }
@@ -69,6 +70,10 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
     },
   });
+
+  // TODO:
+  // - correctly stream AI response
+  // - add user message on submit (not once ai response is finished)
 
   const chatForm = useForm<NewMessage>({
     initialValues: {
