@@ -73,7 +73,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const chatForm = useForm<NewMessage>({
     initialValues: {
       content: "",
-      model_name: "gpt-5-mini",
+      model_name: "gpt-5-nano",
     },
     validateInputOnBlur: true,
   });
