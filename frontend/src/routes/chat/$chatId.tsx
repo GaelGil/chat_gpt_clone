@@ -33,7 +33,6 @@ function ChatDetail() {
   }
 
   const messages = data?.messages ?? [];
-  console.log(messages);
 
   return (
     <Container

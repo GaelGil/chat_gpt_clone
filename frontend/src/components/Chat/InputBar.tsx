@@ -10,6 +10,8 @@ import { FaSquare } from "react-icons/fa";
 import { useState } from "react";
 import ModelSelection from "./Settings/ModelSelection";
 import { useNavigate } from "@tanstack/react-router";
+import { sendMessageStream } from "./Messages/sendMessageStream";
+import { readSSEStream } from "./Messages/readSSEStream";
 
 interface InputBarProps {
   chatId: string | undefined;
@@ -32,26 +34,22 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         sessionId = newSessionId;
       }
 
-      const res: any = await SessionService.sendMessage({
-        sessionId: sessionId as string,
-        requestBody: data,
+      const controller = new AbortController();
+
+      const stream = await sendMessageStream(
+        sessionId as string,
+        data,
+        controller.signal
+      );
+
+      await readSSEStream(stream, {
+        onToken: (token) => {
+          setPartialMessage((prev) => prev + token);
+        },
+        onDone: () => {
+          console.log("stream finished");
+        },
       });
-
-      if (!res.body) throw new Error("No response body from server");
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let done = false;
-
-      setPartialMessage(""); // reset before streaming
-      while (!done) {
-        const { value: chunk, done: readerDone } = await reader.read();
-        done = readerDone;
-        if (chunk) {
-          const text = decoder.decode(chunk);
-          setPartialMessage((prev) => prev + text); // append chunk
-        }
-      }
     },
     onSuccess: (res: any) => {
       const message = res.message;
@@ -91,12 +89,14 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
     >
       {/* Display partial AI response live */}
       {partialMessage && (
+        // <></>
         <Box
           mt="sm"
           p="sm"
           bg="#f0f0f0"
           style={{ whiteSpace: "pre-wrap", borderRadius: 8 }}
         >
+          PARTIAL MESSAGE
           {partialMessage}
         </Box>
       )}
