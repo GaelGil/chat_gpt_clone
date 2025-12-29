@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, SessionGetSessionsResponse, SessionNewSessionData, SessionNewSessionResponse, SessionGetSessionData, SessionGetSessionResponse, SessionDeleteSessionData, SessionDeleteSessionResponse, SessionSendMessageData, SessionSendMessageResponse, SessionRenameSessionData, SessionRenameSessionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, SessionGetSessionsResponse, SessionNewSessionData, SessionNewSessionResponse, SessionGetSessionData, SessionGetSessionResponse, SessionDeleteSessionData, SessionDeleteSessionResponse, SessionRenameSessionData, SessionRenameSessionResponse, SessionSendMessageData, SessionSendMessageResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class LoginService {
     /**
@@ -201,17 +201,17 @@ export class SessionService {
     }
     
     /**
-     * Send Message
-     * Add message to a session
+     * Rename Session
+     * Update a Session
      * @param data The data for the request.
      * @param data.sessionId
      * @param data.requestBody
-     * @returns unknown Successful Response
+     * @returns app__schemas__Utils__Message Successful Response
      * @throws ApiError
      */
-    public static sendMessage(data: SessionSendMessageData): CancelablePromise<SessionSendMessageResponse> {
+    public static renameSession(data: SessionRenameSessionData): CancelablePromise<SessionRenameSessionResponse> {
         return __request(OpenAPI, {
-            method: 'POST',
+            method: 'PUT',
             url: '/api/v1/session/{id}',
             query: {
                 session_id: data.sessionId
@@ -225,19 +225,19 @@ export class SessionService {
     }
     
     /**
-     * Rename Session
-     * Update a Session
+     * Send Message
+     * Add message to a session
      * @param data The data for the request.
      * @param data.sessionId
      * @param data.requestBody
-     * @returns SessionDetail Successful Response
+     * @returns unknown Successful Response
      * @throws ApiError
      */
-    public static renameSession(data: SessionRenameSessionData): CancelablePromise<SessionRenameSessionResponse> {
+    public static sendMessage(data: SessionSendMessageData): CancelablePromise<SessionSendMessageResponse> {
         return __request(OpenAPI, {
-            method: 'PUT',
-            url: '/api/v1/session/{id}',
-            query: {
+            method: 'POST',
+            url: '/api/v1/session/{session_id}',
+            path: {
                 session_id: data.sessionId
             },
             body: data.requestBody,

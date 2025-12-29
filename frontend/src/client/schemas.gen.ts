@@ -77,7 +77,6 @@ export const MessageDetailSchema = {
         },
         content: {
             type: 'string',
-            maxLength: 255,
             title: 'Content'
         },
         id: {
@@ -99,7 +98,6 @@ export const NewMessageSchema = {
         },
         content: {
             type: 'string',
-            maxLength: 255,
             title: 'Content'
         },
         model_name: {
@@ -541,7 +539,6 @@ export const app__models__MessageSchema = {
         },
         content: {
             type: 'string',
-            maxLength: 255,
             title: 'Content'
         },
         id: {

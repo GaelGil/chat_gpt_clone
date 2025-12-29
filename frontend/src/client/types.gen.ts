@@ -182,19 +182,19 @@ export type SessionDeleteSessionData = {
 
 export type SessionDeleteSessionResponse = (app__schemas__Utils__Message);
 
+export type SessionRenameSessionData = {
+    requestBody: UpdateSession;
+    sessionId: string;
+};
+
+export type SessionRenameSessionResponse = (app__schemas__Utils__Message);
+
 export type SessionSendMessageData = {
     requestBody: NewMessage;
     sessionId: string;
 };
 
 export type SessionSendMessageResponse = (unknown);
-
-export type SessionRenameSessionData = {
-    requestBody: UpdateSession;
-    sessionId: string;
-};
-
-export type SessionRenameSessionResponse = (SessionDetail);
 
 export type UsersReadUsersData = {
     limit?: number;

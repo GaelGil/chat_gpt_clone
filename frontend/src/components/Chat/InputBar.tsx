@@ -10,8 +10,8 @@ import { FaSquare } from "react-icons/fa";
 import { useState } from "react";
 import ModelSelection from "./Settings/ModelSelection";
 import { useNavigate } from "@tanstack/react-router";
-import { sendMessageStream } from "./Messages/sendMessageStream";
-import { readSSEStream } from "./Messages/readSSEStream";
+import { sendMessageStream } from "./Utils/sendMessageStream";
+import { readSSEStream } from "./Utils/readSSEStream";
 
 interface InputBarProps {
   chatId: string | undefined;
