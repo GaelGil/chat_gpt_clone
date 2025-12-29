@@ -4,8 +4,9 @@ import { ActionIcon } from "@mantine/core";
 import { FiArrowRight, FiColumns, FiEdit } from "react-icons/fi";
 import { PROJECT_NAME, LOGO } from "@/const";
 import { useState } from "react";
-
 import Chats from "./Chats";
+import UserMenu from "../Common/UserMenu";
+
 interface SidebarProps {
   collapsed: boolean;
   toggle: () => void;
@@ -13,7 +14,6 @@ interface SidebarProps {
 
 const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
   const [hovered, setHovered] = useState(false);
-
   return (
     <Stack>
       {/* Controls */}
@@ -59,6 +59,9 @@ const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
               Your Chats
             </Text>
             <Chats />
+          </Box>
+          <Box>
+            <UserMenu />
           </Box>
         </>
       )}
