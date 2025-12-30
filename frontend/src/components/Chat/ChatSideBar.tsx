@@ -15,7 +15,7 @@ interface SidebarProps {
 const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
   const [hovered, setHovered] = useState(false);
   return (
-    <Stack>
+    <Stack h="100%">
       {/* Controls */}
       {collapsed ? (
         <Box
@@ -46,23 +46,30 @@ const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
               <FiColumns size={18} color="var(--mantine-color-text)" />
             </ActionIcon>
           </Flex>
-          <Box>
-            <Anchor fw={700} component={Link} to={`/chat`} underline="never">
-              <Flex align="center" gap="xs" mb={"md"}>
-                <FiEdit size={18} />
-                <Text fz="sm" fw={500}>
-                  New chat
-                </Text>
-              </Flex>
-            </Anchor>
-            <Text c="dimmed" fz="sm" mb={"sm"}>
-              Your Chats
-            </Text>
-            <Chats />
-          </Box>
-          <Box>
-            <UserMenu />
-          </Box>
+          <Flex
+            direction="column"
+            justify="space-between"
+            style={{ height: "100%" }}
+          >
+            {/* Top controls + chats */}
+            <Box>
+              <Anchor fw={700} component={Link} to={`/chat`} underline="never">
+                <Flex align="center" gap="xs" mb={"md"}>
+                  <FiEdit size={18} />
+                  <Text fz="sm" fw={500}>
+                    New chat
+                  </Text>
+                </Flex>
+              </Anchor>
+              <Text c="dimmed" fz="sm" mb={"sm"}>
+                Your Chats
+              </Text>
+              <Chats />
+            </Box>
+            <Box>
+              <UserMenu />
+            </Box>
+          </Flex>
         </>
       )}
     </Stack>
