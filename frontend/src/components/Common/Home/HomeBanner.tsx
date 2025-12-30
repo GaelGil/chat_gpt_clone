@@ -8,7 +8,7 @@ const HomeBanner = () => {
     <Container size="lg">
       <Stack align="center" gap="xl" mt={80}>
         <Box ta="center">
-          <Title order={1} fw={700} mb={4} style={{ letterSpacing: "-0.02em" }}>
+          <Title order={1} fw={700} mb={4} c="white">
             {PROJECT_NAME}
           </Title>
 
@@ -25,7 +25,7 @@ const HomeBanner = () => {
 
         {/* Main content */}
         <Box maw={720} ta="center">
-          <Title order={2} mb="md" fw={600} style={{ lineHeight: 1.2 }}>
+          <Title order={2} mb="md" fw={600} c="white">
             Lorem ipsum dolor sit amet consectetur adipisicing elit.
           </Title>
 
