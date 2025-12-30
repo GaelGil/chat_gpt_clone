@@ -130,7 +130,6 @@ class SessionService:
         self,
         chat_history: list,
         model_name: str,
-        message: NewMessage,
         session_id: uuid.UUID,
         user_id: uuid.UUID,
     ):

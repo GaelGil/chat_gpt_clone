@@ -116,11 +116,11 @@ async def add_message(
     return Message(message="Message added successfully")
 
 
-@router.post("/{session_id}")
+@router.post("/{session_id}/stream")
 async def stream_response(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
-    message: NewMessage,
+    body: dict,
     session_id: uuid.UUID,
 ) -> StreamingResponse:
     """
@@ -139,8 +139,7 @@ async def stream_response(
     # async generator from service
     gen = session_service.stream_response(
         chat_history=session_history,
-        model_name=message.model_name,
-        message=message,
+        model_name=body.get("model_name"),
         session_id=session_id,
         user_id=user.id,
     )

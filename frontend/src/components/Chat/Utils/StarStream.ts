@@ -1,5 +1,8 @@
-import { NewMessage } from "@/client";
-export async function startStream(sessionId: string, signal?: AbortSignal) {
+export async function startStream(
+  sessionId: string,
+  body: { model_name: string },
+  signal?: AbortSignal
+) {
   const token = localStorage.getItem("access_token");
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -13,6 +16,7 @@ export async function startStream(sessionId: string, signal?: AbortSignal) {
   const response = await fetch(url, {
     method: "POST",
     headers,
+    body: JSON.stringify(body),
     signal,
   });
 

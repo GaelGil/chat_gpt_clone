@@ -260,7 +260,7 @@ export class SessionService {
     public static streamResponse(data: SessionStreamResponseData): CancelablePromise<SessionStreamResponseResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/session/{session_id}',
+            url: '/api/v1/session/{session_id}/stream',
             path: {
                 session_id: data.sessionId
             },

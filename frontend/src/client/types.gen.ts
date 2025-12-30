@@ -202,7 +202,9 @@ export type SessionAddMessageData = {
 export type SessionAddMessageResponse = (app__schemas__Utils__Message);
 
 export type SessionStreamResponseData = {
-    requestBody: NewMessage;
+    requestBody: {
+        [key: string]: unknown;
+    };
     sessionId: string;
 };
 

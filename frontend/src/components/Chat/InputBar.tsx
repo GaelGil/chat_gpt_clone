@@ -11,13 +11,14 @@ import ModelSelection from "./Settings/ModelSelection";
 import { useNavigate } from "@tanstack/react-router";
 import { startStream } from "./Utils/StarStream";
 import { readSSEStream } from "./Utils/readSSEStream";
-
+import { useState } from "react";
 interface InputBarProps {
   chatId: string | undefined;
 }
 const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
+  const [partialMessage, setPartialMessage] = useState<string>("");
   const navigate = useNavigate();
   const sendMessage = useMutation({
     mutationFn: async (data: NewMessage) => {
@@ -75,8 +76,13 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
 
   const handleSubmit = async (values: NewMessage) => {
     sendMessage.mutate(values);
-    const response = await startStream(chatId as string);
-    readSSEStream(response);
+    const response = await startStream(chatId as string, {
+      model_name: values.model_name,
+    });
+    // readSSEStream(response);
+    for await (const token of readSSEStream(response)) {
+      setPartialMessage((prev) => prev + token);
+    }
   };
 
   return (
@@ -86,6 +92,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         handleSubmit(chatForm.getValues());
       }}
     >
+      {partialMessage && <p>{partialMessage}</p>}
       <Textarea
         placeholder="Ask Anything"
         radius="xl"
