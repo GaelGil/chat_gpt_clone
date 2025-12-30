@@ -22,7 +22,7 @@ export const theme = createTheme({
   components: {}, // default theme (can be 'dark')
 });
 
-export const cssResolver: CSSVariablesResolver = (theme) => ({
+export const cssResolver: CSSVariablesResolver = () => ({
   variables: {
     // "--mantine-color-text-primary": theme.colors.brand[0],
     // "--mantine-color-text-secondary": theme.colors.black[1],
