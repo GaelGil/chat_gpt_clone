@@ -36,7 +36,7 @@ const HomeSideBar: React.FC<HomeSideBarProps> = ({ collapsed, toggle }) => {
 
   const listItems = items.map(({ title, link }) => (
     <Group gap="sm" px="md" py="sm" align="center" fz={"14px"}>
-      <Anchor key={title} href={link} target="_blank" onClick={toggle}>
+      <Anchor key={title} href={link} target="_blank">
         <Text c="white" ml={2}>
           {title}
         </Text>
