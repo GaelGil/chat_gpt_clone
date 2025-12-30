@@ -7,7 +7,6 @@ const HomeBanner = () => {
   return (
     <Container size="lg">
       <Stack align="center" gap="xl" mt={80}>
-        {/* Project name + date + CTA */}
         <Box ta="center">
           <Title order={1} fw={700} mb={4} style={{ letterSpacing: "-0.02em" }}>
             {PROJECT_NAME}
@@ -19,7 +18,7 @@ const HomeBanner = () => {
 
           <Anchor component={Link} underline="never" to="/chat">
             <Button radius="xl" size="lg" variant="outline" px="xl">
-              Get Started
+              Get Startedddddd
             </Button>
           </Anchor>
         </Box>
