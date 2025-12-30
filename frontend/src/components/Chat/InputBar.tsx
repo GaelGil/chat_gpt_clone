@@ -1,7 +1,7 @@
 import { Textarea, Button, Box } from "@mantine/core";
 import { FiArrowUp } from "react-icons/fi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { SessionService, NewMessage, NewSession } from "@/client";
+import { SessionService, NewMessage, NewSession, Role, Status } from "@/client";
 import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
@@ -9,7 +9,6 @@ import { useForm } from "@mantine/form";
 import { FaSquare } from "react-icons/fa";
 import ModelSelection from "./Settings/ModelSelection";
 import { useNavigate } from "@tanstack/react-router";
-import { Role } from "@/client";
 import { sendMessageStream } from "./Utils/sendMessageStream";
 import { readSSEStream } from "./Utils/readSSEStream";
 
@@ -42,6 +41,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
           content: "",
           role: "assistant" as Role,
           model_name: data.model_name,
+          status: "streaming" as Status,
         } as NewMessage,
       });
     },
@@ -64,10 +64,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
     },
   });
-
-  // TODO:
-  // - correctly stream AI response
-  // - add user message on submit (not once ai response is finished)
 
   const chatForm = useForm<NewMessage>({
     initialValues: {

@@ -3,6 +3,7 @@
 export type app__models__Message = {
     role?: Role;
     content: string;
+    status?: Status;
     id?: string;
     owner_id: string;
     session_id: string;
@@ -28,12 +29,14 @@ export type HTTPValidationError = {
 export type MessageDetail = {
     role?: Role;
     content: string;
+    status?: Status;
     id: string;
 };
 
 export type NewMessage = {
     role?: Role;
     content: string;
+    status?: Status;
     model_name: string;
 };
 
@@ -69,6 +72,8 @@ export type SessionSimple = {
     title: string;
     id: string;
 };
+
+export type Status = 'complete' | 'failure' | 'streaming';
 
 export type Token = {
     access_token: string;

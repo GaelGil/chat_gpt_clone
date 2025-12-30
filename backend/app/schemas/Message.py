@@ -11,9 +11,16 @@ class Role(str, Enum):
     SYSTEM = "system"
 
 
+class Status(str, Enum):
+    COMPLETE = "complete"
+    FAILURE = "failure"
+    STREAMING = "streaming"
+
+
 class MessageBase(SQLModel):
     role: Role = Field(default=Role.USER, nullable=False)
     content: str = Field(sa_column=Column(Text, nullable=False))
+    status: Status = Field(default=Status.COMPLETE, nullable=False)
 
 
 class NewMessage(MessageBase):

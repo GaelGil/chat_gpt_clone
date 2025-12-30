@@ -79,6 +79,10 @@ export const MessageDetailSchema = {
             type: 'string',
             title: 'Content'
         },
+        status: {
+            '$ref': '#/components/schemas/Status',
+            default: 'complete'
+        },
         id: {
             type: 'string',
             format: 'uuid',
@@ -99,6 +103,10 @@ export const NewMessageSchema = {
         content: {
             type: 'string',
             title: 'Content'
+        },
+        status: {
+            '$ref': '#/components/schemas/Status',
+            default: 'complete'
         },
         model_name: {
             type: 'string',
@@ -228,6 +236,12 @@ export const SessionSimpleSchema = {
     type: 'object',
     required: ['title', 'id'],
     title: 'SessionSimple'
+} as const;
+
+export const StatusSchema = {
+    type: 'string',
+    enum: ['complete', 'failure', 'streaming'],
+    title: 'Status'
 } as const;
 
 export const TokenSchema = {
@@ -540,6 +554,10 @@ export const app__models__MessageSchema = {
         content: {
             type: 'string',
             title: 'Content'
+        },
+        status: {
+            '$ref': '#/components/schemas/Status',
+            default: 'complete'
         },
         id: {
             type: 'string',
