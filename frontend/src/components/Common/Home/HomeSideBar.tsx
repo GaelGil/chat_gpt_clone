@@ -36,9 +36,11 @@ const HomeSideBar: React.FC<HomeSideBarProps> = ({ collapsed, toggle }) => {
 
   const listItems = items.map(({ title, link }) => (
     <Group gap="sm" px="md" py="sm" align="center" fz={"14px"}>
-      <a key={title} href={link} onClick={toggle}>
-        <Text ml={2}>{title}</Text>
-      </a>
+      <Anchor key={title} href={link} target="_blank" onClick={toggle}>
+        <Text c="white" ml={2}>
+          {title}
+        </Text>
+      </Anchor>
     </Group>
   ));
 
@@ -62,7 +64,7 @@ const HomeSideBar: React.FC<HomeSideBarProps> = ({ collapsed, toggle }) => {
           >
             {hovered ? (
               <ActionIcon variant="subtle" h={32} w={32}>
-                <FiArrowRight size={18} color="var(--mantine-color-text)" />
+                <FiArrowRight size={18} color="white" />
               </ActionIcon>
             ) : (
               <Image src={LOGO} alt={`${PROJECT_NAME} Logo`} h={25} w={25} />
@@ -76,7 +78,7 @@ const HomeSideBar: React.FC<HomeSideBarProps> = ({ collapsed, toggle }) => {
               </Anchor>
             </Flex>
             <ActionIcon onClick={toggle} variant="subtle" size="sm">
-              <FiColumns size={18} color="var(--mantine-color-text)" />
+              <FiColumns size={18} color="white" />
             </ActionIcon>
           </>
         )}
