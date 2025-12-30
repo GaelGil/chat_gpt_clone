@@ -9,15 +9,15 @@ import { useForm } from "@mantine/form";
 import { FaSquare } from "react-icons/fa";
 import ModelSelection from "./Settings/ModelSelection";
 import { useNavigate } from "@tanstack/react-router";
-import { sendMessageStream } from "./Utils/sendMessageStream";
-import { readSSEStream } from "./Utils/readSSEStream";
+import { startStream } from "./Utils/StarStream";
+// import { readSSEStream } from "./Utils/readSSEStream";
 
 interface InputBarProps {
   chatId: string | undefined;
 }
 const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const queryClient = useQueryClient();
-  const { showSuccessToast, showErrorToast } = useCustomToast();
+  const { showErrorToast } = useCustomToast();
   const navigate = useNavigate();
   const sendMessage = useMutation({
     mutationFn: async (data: NewMessage) => {
@@ -48,12 +48,10 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       });
     },
     onSuccess: (res: any) => {
-      const message = res.message;
-      showSuccessToast(message);
       chatForm.setFieldValue("prompt", "");
-      // if (chatId === undefined) {
-      navigate({ to: `/chat/${res.session_id}` });
-      // }
+      if (chatId === undefined) {
+        navigate({ to: `/chat/${res.session_id}` });
+      }
     },
     onError: (err: ApiError) => {
       const body = err.body as { detail?: string } | undefined;
@@ -75,8 +73,8 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
     validateInputOnBlur: true,
   });
 
-  const handleSubmit = (values: NewMessage) => {
-    sendMessage.mutate(values);
+  const handleSubmit = async (values: NewMessage) => {
+    await sendMessage.mutate(values);
   };
 
   return (
