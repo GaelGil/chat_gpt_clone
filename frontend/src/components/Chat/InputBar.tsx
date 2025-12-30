@@ -7,7 +7,6 @@ import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
 import { useForm } from "@mantine/form";
 import { FaSquare } from "react-icons/fa";
-import { useState } from "react";
 import ModelSelection from "./Settings/ModelSelection";
 import { useNavigate } from "@tanstack/react-router";
 import { Role } from "@/client";
@@ -21,7 +20,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const queryClient = useQueryClient();
   const { showSuccessToast, showErrorToast } = useCustomToast();
   const navigate = useNavigate();
-  const [partialMessage, setPartialMessage] = useState(""); // streaming AI response
   const sendMessage = useMutation({
     mutationFn: async (data: NewMessage) => {
       let sessionId = chatId;
@@ -51,7 +49,9 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       const message = res.message;
       showSuccessToast(message);
       chatForm.setFieldValue("prompt", "");
-      navigate({ to: `/chat/${res.session_id}` });
+      if (chatId === undefined) {
+        navigate({ to: `/chat/${res.session_id}` });
+      }
     },
     onError: (err: ApiError) => {
       const body = err.body as { detail?: string } | undefined;
@@ -83,19 +83,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         sendMessage.mutate(values);
       })}
     >
-      {/* Display partial AI response live */}
-      {partialMessage && (
-        // <></>
-        <Box
-          mt="sm"
-          p="sm"
-          bg="#f0f0f0"
-          style={{ whiteSpace: "pre-wrap", borderRadius: 8 }}
-        >
-          PARTIAL MESSAGE
-          {partialMessage}
-        </Box>
-      )}
       <Textarea
         placeholder="Ask Anything"
         radius="xl"
