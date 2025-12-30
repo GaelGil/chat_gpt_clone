@@ -31,10 +31,12 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         });
         sessionId = newSessionId;
       }
+      // send user message
       SessionService.addMessage({
         sessionId: sessionId as string,
         requestBody: data,
       });
+      // send assistant message (blank for now)
       SessionService.addMessage({
         sessionId: sessionId as string,
         requestBody: {
@@ -49,9 +51,9 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       const message = res.message;
       showSuccessToast(message);
       chatForm.setFieldValue("prompt", "");
-      if (chatId === undefined) {
-        navigate({ to: `/chat/${res.session_id}` });
-      }
+      // if (chatId === undefined) {
+      navigate({ to: `/chat/${res.session_id}` });
+      // }
     },
     onError: (err: ApiError) => {
       const body = err.body as { detail?: string } | undefined;
@@ -73,11 +75,16 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
     validateInputOnBlur: true,
   });
 
+  const handleSubmit = (values: NewMessage) => {
+    sendMessage.mutate(values);
+  };
+
   return (
     <form
-      onSubmit={chatForm.onSubmit((values) => {
-        sendMessage.mutate(values);
-      })}
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit(chatForm.getValues());
+      }}
     >
       <Textarea
         placeholder="Ask Anything"
