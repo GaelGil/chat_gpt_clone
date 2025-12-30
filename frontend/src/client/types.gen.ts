@@ -189,12 +189,19 @@ export type SessionRenameSessionData = {
 
 export type SessionRenameSessionResponse = (app__schemas__Utils__Message);
 
-export type SessionSendMessageData = {
+export type SessionAddMessageData = {
     requestBody: NewMessage;
     sessionId: string;
 };
 
-export type SessionSendMessageResponse = (unknown);
+export type SessionAddMessageResponse = (app__schemas__Utils__Message);
+
+export type SessionStreamResponseData = {
+    requestBody: NewMessage;
+    sessionId: string;
+};
+
+export type SessionStreamResponseResponse = (unknown);
 
 export type UsersReadUsersData = {
     limit?: number;

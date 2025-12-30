@@ -10,6 +10,7 @@ import { FaSquare } from "react-icons/fa";
 import { useState } from "react";
 import ModelSelection from "./Settings/ModelSelection";
 import { useNavigate } from "@tanstack/react-router";
+import { Role } from "@/client";
 import { sendMessageStream } from "./Utils/sendMessageStream";
 import { readSSEStream } from "./Utils/readSSEStream";
 
@@ -33,22 +34,17 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         });
         sessionId = newSessionId;
       }
-
-      const controller = new AbortController();
-
-      const stream = await sendMessageStream(
-        sessionId as string,
-        data,
-        controller.signal
-      );
-
-      await readSSEStream(stream, {
-        onToken: (token) => {
-          setPartialMessage((prev) => prev + token);
-        },
-        onDone: () => {
-          console.log("stream finished");
-        },
+      SessionService.addMessage({
+        sessionId: sessionId as string,
+        requestBody: data,
+      });
+      SessionService.addMessage({
+        sessionId: sessionId as string,
+        requestBody: {
+          content: "",
+          role: "assistant" as Role,
+          model_name: data.model_name,
+        } as NewMessage,
       });
     },
     onSuccess: (res: any) => {

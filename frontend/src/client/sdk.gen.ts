@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, SessionGetSessionsResponse, SessionNewSessionData, SessionNewSessionResponse, SessionGetSessionData, SessionGetSessionResponse, SessionDeleteSessionData, SessionDeleteSessionResponse, SessionRenameSessionData, SessionRenameSessionResponse, SessionSendMessageData, SessionSendMessageResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, SessionGetSessionsResponse, SessionNewSessionData, SessionNewSessionResponse, SessionGetSessionData, SessionGetSessionResponse, SessionDeleteSessionData, SessionDeleteSessionResponse, SessionRenameSessionData, SessionRenameSessionResponse, SessionAddMessageData, SessionAddMessageResponse, SessionStreamResponseData, SessionStreamResponseResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class LoginService {
     /**
@@ -225,7 +225,31 @@ export class SessionService {
     }
     
     /**
-     * Send Message
+     * Add Message
+     * Add message to a session
+     * @param data The data for the request.
+     * @param data.sessionId
+     * @param data.requestBody
+     * @returns app__schemas__Utils__Message Successful Response
+     * @throws ApiError
+     */
+    public static addMessage(data: SessionAddMessageData): CancelablePromise<SessionAddMessageResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/session/{session_id}/add_message',
+            path: {
+                session_id: data.sessionId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Stream Response
      * Add message to a session
      * @param data The data for the request.
      * @param data.sessionId
@@ -233,7 +257,7 @@ export class SessionService {
      * @returns unknown Successful Response
      * @throws ApiError
      */
-    public static sendMessage(data: SessionSendMessageData): CancelablePromise<SessionSendMessageResponse> {
+    public static streamResponse(data: SessionStreamResponseData): CancelablePromise<SessionStreamResponseResponse> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/v1/session/{session_id}',
