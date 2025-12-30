@@ -122,7 +122,8 @@ class SessionService:
             )
         ]
 
-        chat_history.append({"role": role, "content": content})
+        if role and content:
+            chat_history.append({"role": role, "content": content})
         return chat_history, None
 
     async def stream_response(

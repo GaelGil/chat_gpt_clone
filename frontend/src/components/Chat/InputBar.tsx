@@ -10,7 +10,7 @@ import { FaSquare } from "react-icons/fa";
 import ModelSelection from "./Settings/ModelSelection";
 import { useNavigate } from "@tanstack/react-router";
 import { startStream } from "./Utils/StarStream";
-// import { readSSEStream } from "./Utils/readSSEStream";
+import { readSSEStream } from "./Utils/readSSEStream";
 
 interface InputBarProps {
   chatId: string | undefined;
@@ -74,7 +74,9 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   });
 
   const handleSubmit = async (values: NewMessage) => {
-    await sendMessage.mutate(values);
+    sendMessage.mutate(values);
+    const response = await startStream(chatId as string);
+    readSSEStream(response);
   };
 
   return (

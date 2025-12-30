@@ -131,15 +131,10 @@ async def stream_response(
         raise permission_error
 
     session_history, session_history_error = session_service.session_history(
-        session_id=session_id, role=message.role, content=message.content
+        session_id=session_id
     )
     if session_history_error:
         raise session_history_error
-    saved, save_error = session_service.save_user_message(
-        user_id=user.id, session_id=session_id, message=message
-    )
-    if not saved and save_error:
-        raise save_error
 
     # async generator from service
     gen = session_service.stream_response(
