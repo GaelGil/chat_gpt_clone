@@ -11,7 +11,7 @@ export async function startStream(
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  const url = `/api/v1/session/${sessionId}`;
+  const url = `/api/v1/session/${sessionId}/stream`;
 
   const response = await fetch(url, {
     method: "POST",
