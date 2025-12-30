@@ -83,7 +83,7 @@ class SessionService:
 
         return True, None
 
-    def save_user_message(
+    def save_message(
         self, user_id: uuid.UUID, session_id: uuid.UUID, message: NewMessage
     ) -> tuple[bool, HTTPException | None]:
         """

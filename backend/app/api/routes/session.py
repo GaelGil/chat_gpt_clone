@@ -92,8 +92,32 @@ def delete_session(
     return Message(message="Session deleted successfully")
 
 
+@router.post("/{session_id}/add_message")
+async def add_message(
+    session_service: SessionServiceDep,
+    current_user: CurrentUser,
+    message: NewMessage,
+    session_id: uuid.UUID,
+) -> Message:
+    """
+    Add message to a session
+    """
+    user, permission_error = session_service.verify_permissions(user=current_user)
+    if permission_error:
+        raise permission_error
+
+    saved, save_error = session_service.save_message(
+        user_id=user.id, session_id=session_id, message=message
+    )
+
+    if not saved and save_error:
+        raise save_error
+
+    return Message(message="Message added successfully")
+
+
 @router.post("/{session_id}")
-async def send_message(
+async def stream_response(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
     message: NewMessage,
