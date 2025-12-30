@@ -24,14 +24,14 @@ export const theme = createTheme({
 
 export const cssResolver: CSSVariablesResolver = (theme) => ({
   variables: {
-    "--mantine-color-text-primary": theme.colors.brand[0],
-    "--mantine-color-text-secondary": theme.colors.black[1],
-    "--mantine-color-text-tertiary": theme.colors.black[8],
-    "--mantine-color-text-quaternary": theme.colors.black[2],
-    "--mantine-color-accent": theme.colors.red[1],
-    "--mantine-color-background": theme.colors.brand[7],
-    "--mantine-color-background-secondary": theme.colors.brand[1],
-    "--mantine-color-background-tertiary": theme.colors.brand[6],
+    // "--mantine-color-text-primary": theme.colors.brand[0],
+    // "--mantine-color-text-secondary": theme.colors.black[1],
+    // "--mantine-color-text-tertiary": theme.colors.black[8],
+    // "--mantine-color-text-quaternary": theme.colors.black[2],
+    // "--mantine-color-accent": theme.colors.red[1],
+    // "--mantine-color-background": theme.colors.brand[7],
+    // "--mantine-color-background-secondary": theme.colors.brand[1],
+    // "--mantine-color-background-tertiary": theme.colors.brand[6],
   },
   light: {},
   dark: {},

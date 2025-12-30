@@ -18,7 +18,7 @@ export interface ColorModeProviderProps {
 }
 
 export function ColorModeProvider({
-  initialColorScheme = "light",
+  initialColorScheme = "dark",
   children,
 }: ColorModeProviderProps) {
   return (
