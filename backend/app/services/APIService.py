@@ -7,7 +7,7 @@ from openai import OpenAI
 from sqlmodel import Session
 
 from app.models import Message, ToolCall
-from app.schemas.Message import Role
+from app.schemas.Message import NewMessage, Role, Status
 
 # logging stuff
 logging.basicConfig(
@@ -25,20 +25,20 @@ class APIService:
         pass
 
     def save_message(
-        self, session_id: uuid.UUID, content: str, role: Role, owner_id: uuid.UUID
+        self, session_id: uuid.UUID, owner_id: uuid.UUID, new_message: NewMessage
     ) -> tuple[bool, HTTPException | None]:
         """Save user message to session
 
         Args:
             session_id (uuid.UUID): session id
-            content (str): message content
-            role (Role): message role
             owner_id (uuid.UUID): user id
+            new_message (NewMessage): message
 
         Returns:
             tuple[bool, HTTPException | None]:"""
-        message_obj = Message(
-            role=role, content=content, owner_id=owner_id, session_id=session_id
+
+        message_obj = Message.model_validate(
+            new_message, update={"owner_id": owner_id, "session_id": session_id}
         )
         try:
             self.session.add(message_obj)
@@ -162,12 +162,13 @@ class APIService:
 
         logger.info(f"TOOL CALLS: {tool_calls}")
         chat_history.append({"role": Role.ASSISTANT, "content": init_response})
-        self.save_message(
-            session_id=session_id,
-            content=init_response,
-            role=Role.ASSISTANT,
-            owner_id=owner_id,
-        )
+
+        # self.save_message(
+        #     session_id=session_id,
+        #     content=init_response,
+        #     role=Role.ASSISTANT,
+        #     owner_id=owner_id,
+        # )
 
         # self.
 
@@ -224,12 +225,12 @@ class APIService:
                     "content": f"TOOL_NAME: {tool_name}, RESULT: {result}",
                 }
             )
-            self.save_message(
-                session_id=session_id,
-                content=f"TOOL_NAME: {tool_name}, RESULT: {result}",
-                role=Role.ASSISTANT,
-                owner_id=owner_id,
-            )
+            # self.save_message(
+            #     session_id=session_id,
+            #     content=f"TOOL_NAME: {tool_name}, RESULT: {result}",
+            #     role=Role.ASSISTANT,
+            #     owner_id=owner_id,
+            # )
             self.save_tool_call(
                 session_id=session_id,
                 name=tool_name,
@@ -268,11 +269,18 @@ class APIService:
                 elif ev.type == "response.output_text.done":
                     logger.info("response.output_text.done")
             chat_history.append({"role": Role.ASSISTANT, "content": final_response})
+
+            message = NewMessage(
+                content=f"{init_response} {final_response}",
+                role=Role.ASSISTANT,
+                status=Status.COMPLETE,
+                model_name=model_name,
+            )
+
             self.save_message(
                 session_id=session_id,
-                content=final_response,
-                role=Role.ASSISTANT,
                 owner_id=owner_id,
+                new_message=message,
             )
 
         pass

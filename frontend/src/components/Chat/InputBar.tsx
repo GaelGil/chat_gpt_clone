@@ -63,14 +63,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
     },
     onSettled: async () => {
       queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
-      // const response = await startStream(chatId as string, {
-      //   model_name: chatForm.values.model_name,
-      // });
-      // // readSSEStream(response);
-      // for await (const token of readSSEStream(response)) {
-      //   setPartialMessage((prev) => prev + token);
-      //   console.log(token);
-      // }
     },
   });
 
@@ -84,6 +76,14 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
 
   const handleSubmit = async (values: NewMessage) => {
     await sendMessage.mutate(values);
+    const response = await startStream(chatId as string, {
+      model_name: chatForm.values.model_name,
+    });
+    // readSSEStream(response);
+    for await (const token of readSSEStream(response)) {
+      setPartialMessage((prev) => prev + token);
+      console.log(token);
+    }
   };
 
   return (

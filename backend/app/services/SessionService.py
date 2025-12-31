@@ -100,11 +100,11 @@ class SessionService:
         """
         if user_id is None:
             return False, HTTPException(status_code=401, detail="Not authenticated")
+
         saved, save_error = self.api_service.save_message(
-            content=message.content,
             session_id=session_id,
-            role=message.role,
             owner_id=user_id,
+            new_message=message,
         )
 
         if not saved and save_error:

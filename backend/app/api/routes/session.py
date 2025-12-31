@@ -102,6 +102,7 @@ async def add_message(
     """
     Add message to a session
     """
+
     user, permission_error = session_service.verify_permissions(user=current_user)
     if permission_error:
         raise permission_error

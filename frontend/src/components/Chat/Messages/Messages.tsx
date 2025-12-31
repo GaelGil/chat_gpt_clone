@@ -39,8 +39,11 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
             ) : message.role === "assistant" &&
               message.status === "streaming" ? (
               <Loader size="sm" color="white" />
+            ) : message.role === "assistant" &&
+              message.status === "complete" ? (
+              message.content + message.status
             ) : (
-              message.content
+              message.content + message.status
             )}
           </Box>
         </Flex>
