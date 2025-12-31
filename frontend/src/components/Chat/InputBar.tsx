@@ -36,6 +36,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       let sessionId = chatId;
 
       chatForm.reset();
+      // create new session if chatId is undefined
       if (chatId === undefined) {
         const newSession: NewSession = { title: "New Chat" };
         const newSessionId = await SessionService.newSession({
