@@ -33,12 +33,12 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         sessionId = newSessionId;
       }
       // send user message
-      SessionService.addMessage({
+      await SessionService.addMessage({
         sessionId: sessionId as string,
         requestBody: data,
       });
       // send assistant message (blank for now)
-      SessionService.addMessage({
+      await SessionService.addMessage({
         sessionId: sessionId as string,
         requestBody: {
           content: "",
@@ -75,7 +75,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   });
 
   const handleSubmit = async (values: NewMessage) => {
-    sendMessage.mutate(values);
+    await sendMessage.mutate(values);
     const response = await startStream(chatId as string, {
       model_name: values.model_name,
     });
