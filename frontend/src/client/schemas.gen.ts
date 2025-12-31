@@ -244,6 +244,23 @@ export const StatusSchema = {
     title: 'Status'
 } as const;
 
+export const StreamResponseBodySchema = {
+    properties: {
+        model_name: {
+            type: 'string',
+            title: 'Model Name'
+        },
+        message_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Message Id'
+        }
+    },
+    type: 'object',
+    required: ['model_name', 'message_id'],
+    title: 'StreamResponseBody'
+} as const;
+
 export const TokenSchema = {
     properties: {
         access_token: {

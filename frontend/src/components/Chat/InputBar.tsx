@@ -1,7 +1,14 @@
 import { Textarea, Button, Box } from "@mantine/core";
 import { FiArrowUp } from "react-icons/fi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { SessionService, NewMessage, NewSession, Role, Status } from "@/client";
+import {
+  SessionService,
+  NewMessage,
+  NewSession,
+  Role,
+  Status,
+  StreamResponseBody,
+} from "@/client";
 import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
@@ -15,13 +22,17 @@ import { useState } from "react";
 interface InputBarProps {
   chatId: string | undefined;
 }
+type SendMessageResult = {
+  sessionId: string;
+  assistantMessageId: string;
+};
 const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
   const [partialMessage, setPartialMessage] = useState<string>("");
   const navigate = useNavigate();
-  const sendMessage = useMutation({
-    mutationFn: async (data: NewMessage) => {
+  const sendMessage = useMutation<SendMessageResult, ApiError, NewMessage>({
+    mutationFn: async (data: NewMessage): Promise<SendMessageResult> => {
       let sessionId = chatId;
 
       chatForm.reset();
@@ -38,7 +49,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         requestBody: data,
       });
       // send assistant message (blank for now)
-      await SessionService.addMessage({
+      const assistantMessageId = await SessionService.addMessage({
         sessionId: sessionId as string,
         requestBody: {
           content: "",
@@ -47,6 +58,11 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
           status: "streaming" as Status,
         } as NewMessage,
       });
+
+      return {
+        sessionId,
+        assistantMessageId,
+      };
     },
     onSuccess: (res: any) => {
       chatForm.setFieldValue("prompt", "");
@@ -75,10 +91,14 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   });
 
   const handleSubmit = async (values: NewMessage) => {
-    await sendMessage.mutate(values);
-    const response = await startStream(chatId as string, {
-      model_name: chatForm.values.model_name,
-    });
+    const { sessionId, assistantMessageId } = await sendMessage.mutate(values);
+    const response = await startStream(
+      sessionId as string,
+      {
+        model_name: chatForm.values.model_name,
+        message_id: assistantMessageId,
+      } as StreamResponseBody
+    );
     // readSSEStream(response);
     for await (const token of readSSEStream(response)) {
       setPartialMessage((prev) => prev + token);

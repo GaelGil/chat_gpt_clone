@@ -75,6 +75,11 @@ export type SessionSimple = {
 
 export type Status = 'complete' | 'failure' | 'streaming';
 
+export type StreamResponseBody = {
+    model_name: string;
+    message_id: string;
+};
+
 export type Token = {
     access_token: string;
     token_type?: string;
@@ -199,12 +204,10 @@ export type SessionAddMessageData = {
     sessionId: string;
 };
 
-export type SessionAddMessageResponse = (app__schemas__Utils__Message);
+export type SessionAddMessageResponse = (string);
 
 export type SessionStreamResponseData = {
-    requestBody: {
-        [key: string]: unknown;
-    };
+    requestBody: StreamResponseBody;
     sessionId: string;
 };
 

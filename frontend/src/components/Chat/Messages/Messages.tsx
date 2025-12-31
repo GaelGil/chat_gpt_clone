@@ -26,8 +26,8 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
             p="md"
             bg={message.role === "user" ? "#303030" : "transparent"}
             bdrs="md"
+            maw={"60%"}
             style={{
-              maxWidth: "60%", // limit bubble width
               wordBreak: "break-word",
               textAlign: message.role === "user" ? "right" : "left",
             }}
@@ -41,7 +41,9 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
               <Loader size="sm" color="white" />
             ) : message.role === "assistant" &&
               message.status === "complete" ? (
-              message.content + message.status
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
             ) : (
               message.content + message.status
             )}

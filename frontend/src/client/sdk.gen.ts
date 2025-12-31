@@ -230,7 +230,7 @@ export class SessionService {
      * @param data The data for the request.
      * @param data.sessionId
      * @param data.requestBody
-     * @returns app__schemas__Utils__Message Successful Response
+     * @returns string Successful Response
      * @throws ApiError
      */
     public static addMessage(data: SessionAddMessageData): CancelablePromise<SessionAddMessageResponse> {
