@@ -26,7 +26,7 @@ class APIService:
 
     def save_message(
         self, session_id: uuid.UUID, owner_id: uuid.UUID, new_message: NewMessage
-    ) -> tuple[bool, HTTPException | None]:
+    ) -> tuple[uuid.UUID | None, HTTPException | None]:
         """Save user message to session
 
         Args:
@@ -35,7 +35,7 @@ class APIService:
             new_message (NewMessage): message
 
         Returns:
-            tuple[bool, HTTPException | None]:"""
+            tuple[uuid.UUID| None, HTTPException | None]:"""
 
         message_obj = Message.model_validate(
             new_message, update={"owner_id": owner_id, "session_id": session_id}
@@ -45,9 +45,9 @@ class APIService:
             self.session.commit()
         except Exception as e:
             self.session.rollback()
-            return False, HTTPException(status_code=400, detail=str(e))
+            return None, HTTPException(status_code=400, detail=str(e))
 
-        return True, None
+        return message_obj.id, None
 
     def save_tool_call(
         self,

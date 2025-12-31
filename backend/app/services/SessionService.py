@@ -85,7 +85,7 @@ class SessionService:
 
     def save_message(
         self, user_id: uuid.UUID, session_id: uuid.UUID, message: NewMessage
-    ) -> tuple[bool, HTTPException | None]:
+    ) -> tuple[uuid.UUID | None, HTTPException | None]:
         """
         Save user message to session
 
@@ -95,22 +95,22 @@ class SessionService:
             message (NewMessage): message
 
         Returns:
-            tuple[bool, HTTPException | None]:
+            tuple[uuid.UUID| None, HTTPException | None]:
 
         """
         if user_id is None:
             return False, HTTPException(status_code=401, detail="Not authenticated")
 
-        saved, save_error = self.api_service.save_message(
+        message_id, save_error = self.api_service.save_message(
             session_id=session_id,
             owner_id=user_id,
             new_message=message,
         )
 
-        if not saved and save_error:
-            return saved, save_error
+        if not message_id and save_error:
+            return None, save_error
 
-        return saved, None
+        return message_id, None
 
     def session_history(
         self, session_id: uuid.UUID, role: Role = None, content: str = None

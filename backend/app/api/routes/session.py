@@ -6,7 +6,13 @@ from fastapi.responses import StreamingResponse
 
 from app.api.deps import CurrentUser, SessionServiceDep
 from app.schemas.Message import NewMessage
-from app.schemas.Session import NewSession, SessionDetail, SessionList, UpdateSession
+from app.schemas.Session import (
+    NewSession,
+    SessionDetail,
+    SessionList,
+    StreamResponseBody,
+    UpdateSession,
+)
 from app.schemas.Utils import Message
 
 router = APIRouter(prefix="/session", tags=["session"])
@@ -98,7 +104,7 @@ async def add_message(
     current_user: CurrentUser,
     message: NewMessage,
     session_id: uuid.UUID,
-) -> Message:
+) -> uuid.UUID:
     """
     Add message to a session
     """
@@ -107,21 +113,21 @@ async def add_message(
     if permission_error:
         raise permission_error
 
-    saved, save_error = session_service.save_message(
+    message_id, save_error = session_service.save_message(
         user_id=user.id, session_id=session_id, message=message
     )
 
-    if not saved and save_error:
+    if not message_id and save_error:
         raise save_error
 
-    return Message(message="Message added successfully")
+    return message_id
 
 
 @router.post("/{session_id}/stream")
 async def stream_response(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
-    body: dict,
+    body: StreamResponseBody,
     session_id: uuid.UUID,
 ) -> StreamingResponse:
     """
@@ -141,6 +147,7 @@ async def stream_response(
     gen = session_service.stream_response(
         chat_history=session_history,
         model_name=body.get("model_name"),
+        message_id=body.get("message_id"),
         session_id=session_id,
         user_id=user.id,
     )

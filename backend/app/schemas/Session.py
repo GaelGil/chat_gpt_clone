@@ -31,3 +31,8 @@ class SessionList(SQLModel):
 
 class UpdateSession(SessionBase):
     pass
+
+
+class StreamResponseBody(SQLModel):
+    model_name: str
+    message_id: uuid.UUID
