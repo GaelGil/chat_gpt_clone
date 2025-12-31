@@ -1,5 +1,5 @@
 import { MessageDetail } from "@/client";
-import { Flex, Box, Stack } from "@mantine/core";
+import { Flex, Box, Stack, Loader } from "@mantine/core";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
 import { useEffect, useRef } from "react";
@@ -16,7 +16,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
     });
   }, [messages.length]);
   return (
-    <Stack gap="xs" w="100%" ref={bottomRef}>
+    <Stack gap="xs" w="100%">
       {messages.map((message) => (
         <Flex
           key={message.id}
@@ -32,12 +32,20 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
               textAlign: message.role === "user" ? "right" : "left",
             }}
           >
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {message.content}
-            </ReactMarkdown>
+            {message.role === "user" ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
+            ) : message.role === "assistant" &&
+              message.status === "streaming" ? (
+              <Loader size="sm" color="white" />
+            ) : (
+              message.content
+            )}
           </Box>
         </Flex>
       ))}
+      <div ref={bottomRef} />
     </Stack>
   );
 };
