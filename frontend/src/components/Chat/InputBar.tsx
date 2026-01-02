@@ -94,6 +94,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const handleSubmit = async (values: NewMessage) => {
     const { sessionId, assistantMessageId } =
       await sendMessage.mutateAsync(values);
+    // start stream
     const response = await startStream(
       sessionId as string,
       {
@@ -101,7 +102,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         message_id: assistantMessageId,
       } as StreamResponseBody
     );
-    // readSSEStream(response);
+    // read stream
     for await (const token of readSSEStream(response)) {
       setPartialMessage((prev) => prev + token);
       console.log(token);
