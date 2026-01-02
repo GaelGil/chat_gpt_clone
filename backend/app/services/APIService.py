@@ -14,7 +14,6 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-# load env
 
 
 class APIService:
@@ -187,15 +186,6 @@ class APIService:
         logger.info(f"TOOL CALLS: {tool_calls}")
         chat_history.append({"role": Role.ASSISTANT, "content": init_response})
 
-        # self.save_message(
-        #     session_id=session_id,
-        #     content=init_response,
-        #     role=Role.ASSISTANT,
-        #     owner_id=owner_id,
-        # )
-
-        # self.
-
         # Execute the tool calls
         for tool_idx, tool in tool_calls.items():
             tool_name = tool["name"]
@@ -249,12 +239,7 @@ class APIService:
                     "content": f"TOOL_NAME: {tool_name}, RESULT: {result}",
                 }
             )
-            # self.save_message(
-            #     session_id=session_id,
-            #     content=f"TOOL_NAME: {tool_name}, RESULT: {result}",
-            #     role=Role.ASSISTANT,
-            #     owner_id=owner_id,
-            # )
+
             self.save_tool_call(
                 session_id=session_id,
                 name=tool_name,
@@ -265,14 +250,8 @@ class APIService:
 
         logger.info(f"[DEBUG] CHAT HISTORY AFTER TOOL RUN: {chat_history}")
 
-        self.update_message(
-            message_id=message_id,
-            status=Status.COMPLETE,
-            role=Role.ASSISTANT,
-            content=f"{init_response}",
-        )
-
         # Get the final answer
+        final_response = ""
         # IF we called tools to get updated information then we must form a final response
         if tool_calls:
             logger.info("[DEBUG] Calling model for final answer...")
@@ -283,8 +262,6 @@ class APIService:
                 stream=True,
             )
             logger.info(f"[DEBUG] CHAT HISTORY AFTER FINAL LLM CALL: {chat_history}")
-
-            final_response = ""
 
             for ev in final_stream:
                 logger.info(
@@ -302,25 +279,12 @@ class APIService:
                     logger.info("response.output_text.done")
             chat_history.append({"role": Role.ASSISTANT, "content": final_response})
 
-            # message = NewMessage(
-            #     content=f"{init_response} {final_response}",
-            #     role=Role.ASSISTANT,
-            #     status=Status.COMPLETE,
-            #     model_name=model_name,
-            # )
-
-            # self.save_message(
-            #     session_id=session_id,
-            #     owner_id=owner_id,
-            #     new_message=message,
-            # )
-
-            self.update_message(
-                message_id=message_id,
-                status=Status.COMPLETE,
-                role=Role.ASSISTANT,
-                content=f"{init_response} {final_response}",
-            )
+        self.update_message(
+            message_id=message_id,
+            status=Status.COMPLETE,
+            role=Role.ASSISTANT,
+            content=f"{init_response} {final_response}",
+        )
 
         pass
 
