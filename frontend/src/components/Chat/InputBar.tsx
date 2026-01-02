@@ -61,7 +61,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       });
 
       return {
-        sessionId,
+        sessionId: sessionId as string,
         assistantMessageId,
       };
     },
@@ -92,7 +92,8 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   });
 
   const handleSubmit = async (values: NewMessage) => {
-    const { sessionId, assistantMessageId } = await sendMessage.mutate(values);
+    const { sessionId, assistantMessageId } =
+      await sendMessage.mutateAsync(values);
     const response = await startStream(
       sessionId as string,
       {

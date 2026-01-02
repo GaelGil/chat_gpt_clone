@@ -131,6 +131,7 @@ class SessionService:
         chat_history: list,
         model_name: str,
         session_id: uuid.UUID,
+        message_id: uuid.UUID,
         user_id: uuid.UUID,
     ):
         # This returns an async generator
@@ -139,6 +140,7 @@ class SessionService:
             model_name=model_name,
             owner_id=user_id,
             session_id=session_id,
+            message_id=message_id,
         )
 
         # Optionally wrap or intercept tokens:

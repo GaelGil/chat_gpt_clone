@@ -146,8 +146,8 @@ async def stream_response(
     # async generator from service
     gen = session_service.stream_response(
         chat_history=session_history,
-        model_name=body.get("model_name"),
-        message_id=body.get("message_id"),
+        model_name=body.model_name,
+        message_id=body.message_id,
         session_id=session_id,
         user_id=user.id,
     )

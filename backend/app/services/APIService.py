@@ -49,6 +49,29 @@ class APIService:
 
         return message_obj.id, None
 
+    def update_message(
+        self, message_id: uuid.UUID, status: Status, role: Role, content: str
+    ) -> tuple[uuid.UUID | None, HTTPException | None]:
+        """
+        Args:
+            message_id (uuid.UUID): descriptiond
+            status (Status): description
+            role (Role): description
+            content (str): description
+
+        """
+        msg = self.session.get(Message, message_id)
+        msg.status = status
+        msg.role = role
+        msg.content = content
+        try:
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            return None, HTTPException(status_code=400, detail=str(e))
+
+        return msg.id, None
+
     def save_tool_call(
         self,
         session_id: uuid.UUID,
@@ -75,6 +98,7 @@ class APIService:
         model_name: str,
         owner_id: uuid.UUID,
         session_id: uuid.UUID,
+        message_id: uuid.UUID,
     ):
         # stream the response
         stream = self.openai.responses.create(
@@ -240,6 +264,14 @@ class APIService:
             )
 
         logger.info(f"[DEBUG] CHAT HISTORY AFTER TOOL RUN: {chat_history}")
+
+        self.update_message(
+            message_id=message_id,
+            status=Status.COMPLETE,
+            role=Role.ASSISTANT,
+            content=f"{init_response}",
+        )
+
         # Get the final answer
         # IF we called tools to get updated information then we must form a final response
         if tool_calls:
@@ -270,17 +302,24 @@ class APIService:
                     logger.info("response.output_text.done")
             chat_history.append({"role": Role.ASSISTANT, "content": final_response})
 
-            message = NewMessage(
-                content=f"{init_response} {final_response}",
-                role=Role.ASSISTANT,
-                status=Status.COMPLETE,
-                model_name=model_name,
-            )
+            # message = NewMessage(
+            #     content=f"{init_response} {final_response}",
+            #     role=Role.ASSISTANT,
+            #     status=Status.COMPLETE,
+            #     model_name=model_name,
+            # )
 
-            self.save_message(
-                session_id=session_id,
-                owner_id=owner_id,
-                new_message=message,
+            # self.save_message(
+            #     session_id=session_id,
+            #     owner_id=owner_id,
+            #     new_message=message,
+            # )
+
+            self.update_message(
+                message_id=message_id,
+                status=Status.COMPLETE,
+                role=Role.ASSISTANT,
+                content=f"{init_response} {final_response}",
             )
 
         pass
