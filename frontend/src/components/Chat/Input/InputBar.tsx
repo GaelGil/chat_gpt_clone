@@ -1,5 +1,7 @@
-import { Textarea } from "@mantine/core";
+import { Textarea, Button, Box } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { FaSquare } from "react-icons/fa";
+import { FiArrowUp } from "react-icons/fi";
 import {
   SessionService,
   NewMessage,
@@ -16,7 +18,7 @@ import { startStream } from "../Utils/StarStream";
 import { readSSEStream } from "../Utils/readSSEStream";
 import { useState } from "react";
 import LeftSection from "./LeftSection";
-import RightSection from "./RightSection";
+// import RightSection from "./RightSection";
 interface InputBarProps {
   chatId: string | undefined;
 }
@@ -36,6 +38,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       // create new session if chatId is undefined
       if (chatId === undefined) {
         const newSession: NewSession = { title: "New Chat" };
+
         const newSessionId = await SessionService.newSession({
           requestBody: newSession,
         });
@@ -71,9 +74,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       showErrorToast(message);
       handleError(err);
     },
-    onSettled: async () => {
-      queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
-    },
   });
 
   const chatForm = useForm<NewMessage>({
@@ -84,19 +84,29 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   });
 
   const handleSubmit = async (values: NewMessage) => {
-    const { sessionId, assistantMessageId } =
-      await sendMessage.mutateAsync(values);
-    const response = await startStream(
-      sessionId as string,
-      {
-        model_name: chatForm.values.model_name,
-        message_id: assistantMessageId,
-      } as StreamResponseBody
-    );
-    // readSSEStream(response);
-    for await (const token of readSSEStream(response)) {
-      setPartialMessage((prev) => prev + token);
-      console.log(token);
+    try {
+      // Step 1: Send the message and get IDs
+      const { sessionId, assistantMessageId } =
+        await sendMessage.mutateAsync(values);
+
+      queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
+
+      // Step 2: Start the streaming response only after IDs are available
+      const response = await startStream(
+        sessionId as string,
+        {
+          model_name: chatForm.values.model_name,
+          message_id: assistantMessageId,
+        } as StreamResponseBody
+      );
+
+      // Step 3: Read the streaming response
+      for await (const token of readSSEStream(response)) {
+        setPartialMessage((prev) => prev + token);
+        console.log(token);
+      }
+    } catch (err) {
+      console.error("Error sending message or streaming:", err);
     }
   };
 
@@ -116,7 +126,20 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         size="lg"
         rightSection={
           chatForm.values.content && (
-            <RightSection sendMessage={sendMessage} chatForm={chatForm} />
+            <Box>
+              <Button
+                type="submit"
+                disabled={!chatForm.isValid()}
+                radius="xl"
+                bg={sendMessage.isPending ? "gray" : "white"}
+              >
+                {sendMessage.isPending ? (
+                  <FaSquare size={"24px"} color="white" />
+                ) : (
+                  <FiArrowUp size={"24px"} color="black" />
+                )}
+              </Button>
+            </Box>
           )
         }
         leftSection={

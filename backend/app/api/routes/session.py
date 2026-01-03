@@ -55,7 +55,7 @@ def get_session(
 
 
 @router.post("/")
-async def new_session(
+def new_session(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
     new_session: NewSession,
@@ -99,7 +99,7 @@ def delete_session(
 
 
 @router.post("/{session_id}/add_message")
-async def add_message(
+def add_message(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
     message: NewMessage,
