@@ -29,18 +29,19 @@ export async function* readSSEStream(
       for (const line of lines) {
         if (line.trim() === "") continue;
 
-        console.log("Processing line:", line);
-        // Parse SSE format
-        if (line.startsWith("data: ")) {
-          const data = line.slice(6);
-          console.log("Data after 'data:'", data);
-          try {
-            const chunk = JSON.parse(data);
-            yield chunk;
-          } catch (e) {
-            console.error("Failed to parse chunk:", e);
-          }
-        }
+        yield line;
+        // console.log("Processing line:", line);
+        // // Parse SSE format
+        // if (line.startsWith("data: ")) {
+        //   const data = line.slice(6);
+        //   console.log("Data after 'data:'", data);
+        //   try {
+        //     const chunk = JSON.parse(data);
+        //     yield chunk;
+        //   } catch (e) {
+        //     console.error("Failed to parse chunk:", e);
+        //   }
+        // }
       }
     }
   } finally {
