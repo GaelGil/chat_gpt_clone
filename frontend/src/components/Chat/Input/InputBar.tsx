@@ -1,5 +1,4 @@
-import { Textarea, Button, Box } from "@mantine/core";
-import { FiArrowUp } from "react-icons/fi";
+import { Textarea } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   SessionService,
@@ -13,12 +12,12 @@ import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
 import { useForm } from "@mantine/form";
-import { FaSquare } from "react-icons/fa";
-import ModelSelection from "./Settings/ModelSelection";
 import { useNavigate } from "@tanstack/react-router";
-import { startStream } from "./Utils/StarStream";
-import { readSSEStream } from "./Utils/readSSEStream";
+import { startStream } from "../Utils/StarStream";
+import { readSSEStream } from "../Utils/readSSEStream";
 import { useState } from "react";
+import LeftSection from "./LeftSection";
+import RightSection from "./RightSection";
 interface InputBarProps {
   chatId: string | undefined;
 }
@@ -94,7 +93,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const handleSubmit = async (values: NewMessage) => {
     const { sessionId, assistantMessageId } =
       await sendMessage.mutateAsync(values);
-    // start stream
     const response = await startStream(
       sessionId as string,
       {
@@ -102,7 +100,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         message_id: assistantMessageId,
       } as StreamResponseBody
     );
-    // read stream
+    // readSSEStream(response);
     for await (const token of readSSEStream(response)) {
       setPartialMessage((prev) => prev + token);
       console.log(token);
@@ -125,33 +123,11 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         size="lg"
         rightSection={
           chatForm.values.content && (
-            <Box>
-              <Button
-                type="submit"
-                disabled={!chatForm.isValid()}
-                radius="xl"
-                bg={sendMessage.isPending ? "gray" : "white"}
-              >
-                {sendMessage.isPending ? (
-                  <FaSquare size={"24px"} color="white" />
-                ) : (
-                  <FiArrowUp size={"24px"} color="black" />
-                )}
-              </Button>
-            </Box>
+            <RightSection sendMessage={sendMessage} chatForm={chatForm} />
           )
         }
         leftSection={
-          !sendMessage.isPending && (
-            <Box w={40}>
-              <ModelSelection
-                value={chatForm.values.model_name}
-                onChange={(model) =>
-                  chatForm.setFieldValue("model_name", model)
-                }
-              />
-            </Box>
-          )
+          !sendMessage.isPending && <LeftSection chatForm={chatForm} />
         }
         {...chatForm.getInputProps("content")}
       />

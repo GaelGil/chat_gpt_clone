@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Container, Box } from "@mantine/core";
-import InputBar from "@/components/Chat/InputBar";
+import InputBar from "@/components/Chat/Input/InputBar";
 import { SessionService } from "@/client";
 import InitMessage from "@/components/Chat/Messages/InitMesssage";
 import Messages from "@/components/Chat/Messages/Messages";

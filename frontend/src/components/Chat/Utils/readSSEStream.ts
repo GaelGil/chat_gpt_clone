@@ -1,37 +1,41 @@
 export async function* readSSEStream(
   response: Response
-): AsyncGenerator<string> {
-  if (!response.body) {
+): AsyncGenerator<any, void, unknown> {
+  const reader = response.body?.getReader();
+  const decoder = new TextDecoder();
+
+  if (!reader) {
     throw new Error("No response body");
   }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder("utf-8");
 
   let buffer = "";
 
   try {
     while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
 
       buffer += decoder.decode(value, { stream: true });
 
-      // SSE events are separated by a blank line
-      const events = buffer.split("\n\n");
-      buffer = events.pop() ?? "";
+      // Process complete lines
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || ""; // Keep incomplete line in buffer
 
-      for (const event of events) {
-        const lines = event.split("\n");
+      for (const line of lines) {
+        if (line.trim() === "") continue;
 
-        for (const line of lines) {
-          if (!line.startsWith("data:")) continue;
-
-          const data = line.replace(/^data:\s*/, "");
-
-          if (data === "[DONE]") return;
-
-          yield data; // ← plain text token
+        // Parse SSE format
+        if (line.startsWith("data: ")) {
+          const data = line.slice(6);
+          try {
+            const chunk = JSON.parse(data);
+            yield chunk;
+          } catch (e) {
+            console.error("Failed to parse chunk:", e);
+          }
         }
       }
     }
