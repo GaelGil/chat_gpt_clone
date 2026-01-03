@@ -19,17 +19,21 @@ export async function* readSSEStream(
       }
 
       buffer += decoder.decode(value, { stream: true });
+      console.log("Raw chunk from stream:", buffer);
 
       // Process complete lines
       const lines = buffer.split("\n");
-      buffer = lines.pop() || ""; // Keep incomplete line in buffer
+      buffer = lines.pop() || "";
+      console.log("Split lines:", lines);
 
       for (const line of lines) {
         if (line.trim() === "") continue;
 
+        console.log("Processing line:", line);
         // Parse SSE format
         if (line.startsWith("data: ")) {
           const data = line.slice(6);
+          console.log("Data after 'data:'", data);
           try {
             const chunk = JSON.parse(data);
             yield chunk;

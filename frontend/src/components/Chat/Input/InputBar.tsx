@@ -1,4 +1,4 @@
-import { Textarea, Button, Box } from "@mantine/core";
+import { Textarea, Button, Box, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaSquare } from "react-icons/fa";
 import { FiArrowUp } from "react-icons/fi";
@@ -74,6 +74,9 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       showErrorToast(message);
       handleError(err);
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
+    },
   });
 
   const chatForm = useForm<NewMessage>({
@@ -85,13 +88,14 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
 
   const handleSubmit = async (values: NewMessage) => {
     try {
-      // Step 1: Send the message and get IDs
+      // Send the message and get IDs
       const { sessionId, assistantMessageId } =
         await sendMessage.mutateAsync(values);
 
+      // invalidate
       queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
 
-      // Step 2: Start the streaming response only after IDs are available
+      //Start the streaming response only after IDs are available
       const response = await startStream(
         sessionId as string,
         {
@@ -99,11 +103,12 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
           message_id: assistantMessageId,
         } as StreamResponseBody
       );
-
-      // Step 3: Read the streaming response
+      console.log("Response from startStream:", response);
+      //  Read the streaming response
       for await (const token of readSSEStream(response)) {
-        setPartialMessage((prev) => prev + token);
         console.log(token);
+
+        setPartialMessage((prev) => prev + token);
       }
     } catch (err) {
       console.error("Error sending message or streaming:", err);
@@ -117,7 +122,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         handleSubmit(chatForm.getValues());
       }}
     >
-      {partialMessage && <p>{partialMessage}</p>}
+      {partialMessage && <Text>{partialMessage}</Text>}
       <Textarea
         placeholder="Ask Anything"
         radius="xl"

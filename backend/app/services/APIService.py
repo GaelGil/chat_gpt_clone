@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import uuid
@@ -48,6 +49,11 @@ class APIService:
 
         return message_obj.id, None
 
+    async def update_message_async(
+        self, message_id: uuid.UUID, status: Status, role: Role, content: str
+    ):
+        await asyncio.to_thread(self.update_message, message_id, status, role, content)
+
     def update_message(
         self, message_id: uuid.UUID, status: Status, role: Role, content: str
     ) -> tuple[uuid.UUID | None, HTTPException | None]:
@@ -70,6 +76,18 @@ class APIService:
             return None, HTTPException(status_code=400, detail=str(e))
 
         return msg.id, None
+
+    async def save_tool_call_async(
+        self,
+        session_id: uuid.UUID,
+        name: str,
+        args: dict,
+        result: str,
+        owner_id: uuid.UUID,
+    ):
+        await asyncio.to_thread(
+            self.save_tool_call, session_id, name, args, result, owner_id
+        )
 
     def save_tool_call(
         self,
@@ -115,7 +133,8 @@ class APIService:
             # if there is text, print it
             if event.type == "response.output_text.delta":
                 # yield the text
-                yield json.dumps({"type": "response", "text": event.delta})
+                # yield json.dumps({"type": "response", "text": event.delta})
+                yield event.delta
                 init_response += event.delta
                 # print(event.delta, end="", flush=True)
             # if there is no text, print a newline
@@ -204,9 +223,12 @@ class APIService:
                     f"[DEBUG] Failed to parse args for idx={tool_idx}, using empty dict"
                 )
             # yield the tool call
-            yield json.dumps(
-                {"type": "tool_use", "tool_name": tool_name, "tool_input": parsed_args}
-            )
+            # yield json.dumps(
+            #     {"type": "tool_use", "tool_name": tool_name, "tool_input": parsed_args}
+            # )
+            yield f"tool_name: {tool_name}, tool_input: {parsed_args}"
+
+            # execute the tool
             try:
                 result = self.execute_tool(tool_name, parsed_args)
             except TypeError:
@@ -214,7 +236,7 @@ class APIService:
 
             # result = self.parse_tool_result(tool_name, result)
             logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {result}")
-            self.save_tool_call(
+            self.save_tool_call_async(
                 session_id=session_id,
                 name=tool_name,
                 args=parsed_args,
@@ -223,14 +245,15 @@ class APIService:
             )
 
             # yield the tool result
-            yield json.dumps(
-                {
-                    "type": "tool_result",
-                    "tool_name": tool_name,
-                    "tool_input": parsed_args,
-                    "tool_result": result,
-                }
-            )
+            # yield json.dumps(
+            #     {
+            #         "type": "tool_result",
+            #         "tool_name": tool_name,
+            #         "tool_input": parsed_args,
+            #         "tool_result": result,
+            #     }
+            # )
+            yield f"tool_name: {tool_name}, tool_input: {parsed_args}, tool_result: {result}"
 
             # Add the tool call result to the chat history
             chat_history.append(
@@ -238,14 +261,6 @@ class APIService:
                     "role": Role.ASSISTANT,
                     "content": f"TOOL_NAME: {tool_name}, RESULT: {result}",
                 }
-            )
-
-            self.save_tool_call(
-                session_id=session_id,
-                name=tool_name,
-                args=parsed_args,
-                result=result,
-                owner_id=owner_id,
             )
 
         logger.info(f"[DEBUG] CHAT HISTORY AFTER TOOL RUN: {chat_history}")
@@ -269,7 +284,8 @@ class APIService:
                 )
                 # if there is text, print it/yield it
                 if ev.type == "response.output_text.delta":
-                    yield json.dumps({"type": "response", "text": ev.delta})
+                    # yield json.dumps({"type": "response", "text": ev.delta})
+                    yield ev.delta
                     logger.info(f"response.output_text.delta: {ev.delta}")
                     final_response += ev.delta
 
@@ -279,14 +295,12 @@ class APIService:
                     logger.info("response.output_text.done")
             chat_history.append({"role": Role.ASSISTANT, "content": final_response})
 
-        self.update_message(
+        await self.update_message_async(
             message_id=message_id,
             status=Status.COMPLETE,
             role=Role.ASSISTANT,
             content=f"{init_response} {final_response}",
         )
-
-        pass
 
     def execute_tool(self, tool_name: str, args: dict):
         return f"Executed {tool_name} with args {args}"
