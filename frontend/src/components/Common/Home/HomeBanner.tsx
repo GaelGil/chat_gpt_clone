@@ -18,7 +18,7 @@ const HomeBanner = () => {
 
           <Anchor component={Link} underline="never" to="/chat">
             <Button radius="xl" size="lg" variant="outline" px="xl">
-              Get Startedddddd
+              Get Started
             </Button>
           </Anchor>
         </Box>

@@ -12,7 +12,6 @@ import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
 import { useForm } from "@mantine/form";
-import { useNavigate } from "@tanstack/react-router";
 import { startStream } from "../Utils/StarStream";
 import { readSSEStream } from "../Utils/readSSEStream";
 import { useState } from "react";
@@ -29,7 +28,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
   const [partialMessage, setPartialMessage] = useState<string>("");
-  const navigate = useNavigate();
   const sendMessage = useMutation<SendMessageResult, ApiError, NewMessage>({
     mutationFn: async (data: NewMessage): Promise<SendMessageResult> => {
       let sessionId = chatId;
@@ -64,16 +62,12 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         assistantMessageId,
       };
     },
-    onSuccess: (res: any) => {
+    onSuccess: () => {
       chatForm.setFieldValue("prompt", "");
-      if (chatId === undefined) {
-        navigate({ to: `/chat/${res.session_id}` });
-      }
     },
     onError: (err: ApiError) => {
       const body = err.body as { detail?: string } | undefined;
       const message = body?.detail ?? "An error occurred";
-      console.error(message);
       showErrorToast(message);
       handleError(err);
     },
@@ -87,7 +81,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       content: "",
       model_name: "gpt-5-nano",
     },
-    validateInputOnBlur: true,
   });
 
   const handleSubmit = async (values: NewMessage) => {
