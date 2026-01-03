@@ -96,20 +96,19 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
 
       //Start the streaming response only after IDs are available
-      const response = await startStream(
-        sessionId as string,
-        {
-          model_name: chatForm.values.model_name,
-          message_id: assistantMessageId,
-        } as StreamResponseBody
-      );
-      console.log("Response from startStream:", response);
-      //  Read the streaming response
-      for await (const token of readSSEStream(response)) {
-        console.log(token);
+      // const response = await startStream(
+      //   sessionId as string,
+      //   {
+      //     model_name: chatForm.values.model_name,
+      //     message_id: assistantMessageId,
+      //   } as StreamResponseBody
+      // );
+      // //  Read the streaming response
+      // for await (const token of readSSEStream(response)) {
+      //   console.log("Token:", token);
 
-        setPartialMessage((prev) => prev + token);
-      }
+      //   setPartialMessage((prev) => prev + token);
+      // }
     } catch (err) {
       console.error("Error sending message or streaming:", err);
     }
