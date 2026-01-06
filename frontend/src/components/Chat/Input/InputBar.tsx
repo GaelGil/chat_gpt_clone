@@ -1,4 +1,4 @@
-import { Textarea, Button, Box, Text } from "@mantine/core";
+import { Textarea, Button, Box } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaSquare } from "react-icons/fa";
 import { FiArrowUp } from "react-icons/fi";
@@ -16,7 +16,6 @@ import type { ApiError } from "@/client/core/ApiError";
 import { useForm } from "@mantine/form";
 import { startStream } from "../Utils/StarStream";
 import { readSSEStream } from "../Utils/readSSEStream";
-import { useState } from "react";
 import LeftSection from "./LeftSection";
 // import RightSection from "./RightSection";
 interface InputBarProps {
@@ -29,7 +28,6 @@ type SendMessageResult = {
 const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
-  const [partialMessage, setPartialMessage] = useState<string>("");
   const sendMessage = useMutation<SendMessageResult, ApiError, NewMessage>({
     mutationFn: async (data: NewMessage): Promise<SendMessageResult> => {
       let sessionId = chatId;
@@ -107,8 +105,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       //  Read the streaming response
       for await (const token of readSSEStream(response)) {
         console.log("Token:", token);
-
-        setPartialMessage((prev) => prev + token);
       }
     } catch (err) {
       console.error("Error sending message or streaming:", err);
@@ -122,7 +118,6 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         handleSubmit(chatForm.getValues());
       }}
     >
-      {partialMessage && <Text>{partialMessage}</Text>}
       <Textarea
         placeholder="Ask Anything"
         radius="xl"
