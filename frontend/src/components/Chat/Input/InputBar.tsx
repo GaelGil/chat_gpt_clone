@@ -29,7 +29,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
   const [currentMessage, setCurrentMessage] = useState("");
-  const [messageId, setMessageId] = useState("");
+  const [newMessageId, setNewMessageId] = useState("");
 
   const sendMessage = useMutation<SendMessageResult, ApiError, NewMessage>({
     mutationFn: async (data: NewMessage): Promise<SendMessageResult> => {
@@ -95,8 +95,8 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
 
       // invalidate
       queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
-      console.log(sessionId, assistantMessageId);
-      setMessageId(assistantMessageId);
+      // console.log(sessionId, assistantMessageId);
+      setNewMessageId(assistantMessageId);
 
       SessionService.chat({
         sessionId: sessionId as string,
@@ -111,7 +111,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   };
 
   const { streamingMessage, isStreaming } = useMessageSocket({
-    messageId: chatId as string | null,
+    messageId: newMessageId,
     onMessageComplete: (fullTitle) => {
       setCurrentMessage(fullTitle);
       queryClient.invalidateQueries({ queryKey: ["session", chatId] });
@@ -119,9 +119,10 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
     },
   });
   useEffect(() => {
+    console.log(isStreaming, streamingMessage);
     if (isStreaming && streamingMessage) {
       // In your hook onmessage
-      setCurrentMessage((prev) => prev + streamingMessage);
+      setCurrentMessage(streamingMessage);
       console.log(streamingMessage);
     }
   }, [isStreaming, streamingMessage, ""]);

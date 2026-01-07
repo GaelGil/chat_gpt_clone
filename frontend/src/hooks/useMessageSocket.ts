@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 
-interface MessageChunkMessage {
+interface ChunkMessage {
   type: "message_chunk";
   chunk: string;
   is_complete: boolean;
 }
 
-interface MessageErrorMessage {
+interface ErrorMessage {
   type: "message_error";
   error: string;
 }
 
-type SocketMessage = MessageChunkMessage | MessageErrorMessage;
+type SocketMessage = ChunkMessage | ErrorMessage;
 
 interface UseMessageSocketOptions {
   messageId: string | null;
@@ -114,6 +114,7 @@ export function useMessageSocket({
     };
 
     wsRef.current = ws;
+    console.log("streamingMessage", streamingMessage);
 
     // Cleanup on unmount or messageId change
     return () => {
