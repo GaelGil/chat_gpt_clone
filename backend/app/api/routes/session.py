@@ -1,8 +1,7 @@
 import uuid
 from typing import Any
 
-from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, BackgroundTasks
 
 from app.api.deps import CurrentUser, SessionServiceDep
 from app.schemas.Message import NewMessage
@@ -128,8 +127,9 @@ async def stream_response(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
     body: StreamResponseBody,
+    background_tasks: BackgroundTasks,
     session_id: uuid.UUID,
-) -> StreamingResponse:
+) -> uuid.UUID:
     """
     Add message to a session
     """
@@ -143,8 +143,9 @@ async def stream_response(
     if session_history_error:
         raise session_history_error
 
-    # async generator from service
-    gen = session_service.stream_response(
+    # Start background task to generate and stream response
+    background_tasks.add_task(
+        session_service.generate_response,
         chat_history=session_history,
         model_name=body.model_name,
         message_id=body.message_id,
@@ -152,7 +153,7 @@ async def stream_response(
         user_id=user.id,
     )
 
-    return StreamingResponse(gen, media_type="text/event-stream")
+    return session_id
 
 
 @router.put("/{id}")

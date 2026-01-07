@@ -126,7 +126,7 @@ class SessionService:
             chat_history.append({"role": role, "content": content})
         return chat_history, None
 
-    async def stream_response(
+    async def generate_response(
         self,
         chat_history: list,
         model_name: str,
