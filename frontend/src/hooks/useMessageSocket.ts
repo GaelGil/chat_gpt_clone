@@ -15,40 +15,40 @@ type SocketMessage = MessageChunkMessage | MessageErrorMessage;
 
 interface UseMessageSocketOptions {
   messageId: string | null;
-  onTitleChunk?: (chunk: string) => void;
-  onTitleComplete?: (fullTitle: string) => void;
+  onMessageChunk?: (chunk: string) => void;
+  onMessageComplete?: (fullmessage: string) => void;
   onError?: (error: string) => void;
 }
 
 interface UseMessageSocketReturn {
   isConnected: boolean;
-  streamingTitle: string;
+  streamingMessage: string;
   isStreaming: boolean;
 }
 
 export function useMessageSocket({
   messageId,
-  onTitleChunk,
-  onTitleComplete,
+  onMessageChunk,
+  onMessageComplete,
   onError,
 }: UseMessageSocketOptions): UseMessageSocketReturn {
   const wsRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [streamingTitle, setStreamingTitle] = useState("");
+  const [streamingMessage, setstreamingMessage] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const fullTitleRef = useRef("");
+  const fullmessageRef = useRef("");
 
   // Store callbacks in refs to avoid reconnection loops
-  const onTitleChunkRef = useRef(onTitleChunk);
-  const onTitleCompleteRef = useRef(onTitleComplete);
+  const onmessageChunkRef = useRef(onMessageChunk);
+  const onmessageCompleteRef = useRef(onMessageComplete);
   const onErrorRef = useRef(onError);
 
   // Update refs when callbacks change
   useEffect(() => {
-    onTitleChunkRef.current = onTitleChunk;
-    onTitleCompleteRef.current = onTitleComplete;
+    onmessageChunkRef.current = onMessageChunk;
+    onmessageCompleteRef.current = onMessageComplete;
     onErrorRef.current = onError;
-  }, [onTitleChunk, onTitleComplete, onError]);
+  }, [onMessageChunk, onMessageComplete, onError]);
 
   // Single effect to manage WebSocket connection
   useEffect(() => {
@@ -66,8 +66,8 @@ export function useMessageSocket({
     const url = `${protocol}//${apiHost}/api/v1/ws/message/${messageId}`;
 
     // Reset state
-    setStreamingTitle("");
-    fullTitleRef.current = "";
+    setstreamingMessage("");
+    fullmessageRef.current = "";
     setIsStreaming(false);
 
     const ws = new WebSocket(url);
@@ -85,13 +85,14 @@ export function useMessageSocket({
           if (!message.is_complete) {
             setIsStreaming(true);
           }
-          fullTitleRef.current += message.chunk;
-          setStreamingTitle(fullTitleRef.current);
-          onTitleChunkRef.current?.(message.chunk);
+          fullmessageRef.current += message.chunk;
+          setstreamingMessage(fullmessageRef.current);
+          // setLatestChunk(message.chunk); // <-- emit only the new chunk
+          onmessageChunkRef.current?.(message.chunk);
 
           if (message.is_complete) {
             setIsStreaming(false);
-            onTitleCompleteRef.current?.(fullTitleRef.current.trim());
+            onmessageCompleteRef.current?.(fullmessageRef.current.trim());
           }
         } else if (message.type === "message_error") {
           setIsStreaming(false);
@@ -127,7 +128,7 @@ export function useMessageSocket({
 
   return {
     isConnected,
-    streamingTitle,
+    streamingMessage,
     isStreaming,
   };
 }

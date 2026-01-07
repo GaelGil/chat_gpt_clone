@@ -110,21 +110,21 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
     }
   };
 
-  const { streamingTitle, isStreaming } = useMessageSocket({
+  const { streamingMessage, isStreaming } = useMessageSocket({
     messageId: chatId as string | null,
-    onTitleComplete: (fullTitle) => {
+    onMessageComplete: (fullTitle) => {
       setCurrentMessage(fullTitle);
       queryClient.invalidateQueries({ queryKey: ["session", chatId] });
       // queryClient.invalidateQueries({ queryKey: [""] });
     },
   });
   useEffect(() => {
-    if (isStreaming && streamingTitle) {
+    if (isStreaming && streamingMessage) {
       // In your hook onmessage
-      setCurrentMessage((prev) => prev + streamingTitle);
-      console.log(streamingTitle);
+      setCurrentMessage((prev) => prev + streamingMessage);
+      console.log(streamingMessage);
     }
-  }, [isStreaming, streamingTitle, ""]);
+  }, [isStreaming, streamingMessage, ""]);
 
   return (
     <form
