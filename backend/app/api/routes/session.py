@@ -122,8 +122,8 @@ def add_message(
     return message_id
 
 
-@router.post("/{session_id}/stream")
-async def stream_response(
+@router.post("/{session_id}/chat")
+async def chat(
     session_service: SessionServiceDep,
     current_user: CurrentUser,
     body: StreamResponseBody,
@@ -133,6 +133,7 @@ async def stream_response(
     """
     Add message to a session
     """
+    # TODO: update function to just focus on adding generating and streaming to a background task
     user, permission_error = session_service.verify_permissions(user=current_user)
     if permission_error:
         raise permission_error
