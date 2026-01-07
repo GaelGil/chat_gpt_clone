@@ -173,11 +173,6 @@ class SessionService:
                 message={"type": "title_error", "error": str(e)},
             )
 
-        # # Optionally wrap or intercept tokens:
-        # async for token in gen:
-        #     # You can save tokens, log, meter usage, etc.
-        #     yield token
-
     def rename_session(
         self, user: User, session_id: uuid.UUID, update_session: UpdateSession
     ) -> tuple[bool | None, HTTPException | None]:

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-router = APIRouter(tags=["websocket"])
+router = APIRouter(prefix="/ws", tags=["websocket"])
 
 
 class ConnectionManager:
@@ -54,7 +54,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-@router.websocket("/ws/message/{canvas_id}")
+@router.websocket("/message/{message_id}")
 async def message_websocket(websocket: WebSocket, message_id: str):
     """WebSocket endpoint for real-time canvas updates."""
     await manager.connect(websocket, message_id)
