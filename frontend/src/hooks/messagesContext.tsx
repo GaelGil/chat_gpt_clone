@@ -1,68 +1,135 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useMemo,
-} from "react";
-// import { GenerationData as Generation } from "@/client/types.gen";
-// import { getUserChats, getChat } from "../api/chat";
-// import type { Chat, Message, ChatContextType } from "../types/Chat";
-// import { useUser } from "./UserContext";
-// import { useNavigate } from "react-router-dom";
-import useAuth, { isLoggedIn } from "@/hooks/useAuth";
-export interface MessageContextType {
-  messages: [];
-  loadingMessages: boolean;
-  setMessages: React.Dispatch<React.SetStateAction<[]>>;
+import { useEffect, useRef, useState } from "react";
+
+interface MessageChunkMessage {
+  type: "message_chunk";
+  chunk: string;
+  is_complete: boolean;
 }
 
-const MessageContext = createContext<MessageContextType | undefined>(undefined);
-export const MessagesProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const { user } = useAuth();
-  const [messages, setMessages] = useState<[]>([]);
-  const [loadingMessages, setLoadingMessages] = useState(false);
+interface MessageErrorMessage {
+  type: "message_error";
+  error: string;
+}
 
-  const fetchGenerations = async () => {
-    if (!isLoggedIn()) return;
-    setLoadingMessages(true);
-    try {
-      //   const data = await getUserChats(user.id);
-      // setMessages(["hello", "world"]);
-      console.log("Generation:", messages);
-    } catch (err) {
-      console.error("Error fetching chats:", err);
-    } finally {
-      setLoadingMessages(false);
-    }
-  };
+type SocketMessage = MessageChunkMessage | MessageErrorMessage;
 
+interface UseMessageSocketOptions {
+  messageId: string | null;
+  onTitleChunk?: (chunk: string) => void;
+  onTitleComplete?: (fullTitle: string) => void;
+  onError?: (error: string) => void;
+}
+
+interface UseMessageSocketReturn {
+  isConnected: boolean;
+  streamingTitle: string;
+  isStreaming: boolean;
+}
+
+export function useMessageSocket({
+  messageId,
+  onTitleChunk,
+  onTitleComplete,
+  onError,
+}: UseMessageSocketOptions): UseMessageSocketReturn {
+  const wsRef = useRef<WebSocket | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [streamingTitle, setStreamingTitle] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const fullTitleRef = useRef("");
+
+  // Store callbacks in refs to avoid reconnection loops
+  const onTitleChunkRef = useRef(onTitleChunk);
+  const onTitleCompleteRef = useRef(onTitleComplete);
+  const onErrorRef = useRef(onError);
+
+  // Update refs when callbacks change
   useEffect(() => {
-    if (user) fetchGenerations();
-  }, [user]);
+    onTitleChunkRef.current = onTitleChunk;
+    onTitleCompleteRef.current = onTitleComplete;
+    onErrorRef.current = onError;
+  }, [onTitleChunk, onTitleComplete, onError]);
 
-  const value = useMemo(
-    () => ({
-      messages,
-      loadingMessages,
-      setMessages,
-    }),
-    [messages, loadingMessages]
-  );
+  // Single effect to manage WebSocket connection
+  useEffect(() => {
+    if (!messageId) return;
 
-  // provider
-  return (
-    <MessageContext.Provider value={value}>{children}</MessageContext.Provider>
-  );
-};
+    // Determine WebSocket URL based on current location
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = window.location.host;
 
-export const useMessages = () => {
-  const contex = useContext(MessageContext);
-  if (!contex)
-    throw new Error("useMessages must be used inside MessagesProvider");
-  return contex;
-};
+    // In development, the API might be on a different port
+    const apiHost = import.meta.env.VITE_API_URL
+      ? new URL(import.meta.env.VITE_API_URL).host
+      : host;
+
+    const url = `${protocol}//${apiHost}/api/v1/ws/message/${messageId}`;
+
+    // Reset state
+    setStreamingTitle("");
+    fullTitleRef.current = "";
+    setIsStreaming(false);
+
+    const ws = new WebSocket(url);
+
+    ws.onopen = () => {
+      setIsConnected(true);
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const message: SocketMessage = JSON.parse(event.data);
+
+        if (message.type === "message_chunk") {
+          // Only set isStreaming when we actually receive content
+          if (!message.is_complete) {
+            setIsStreaming(true);
+          }
+          fullTitleRef.current += message.chunk;
+          setStreamingTitle(fullTitleRef.current);
+          onTitleChunkRef.current?.(message.chunk);
+
+          if (message.is_complete) {
+            setIsStreaming(false);
+            onTitleCompleteRef.current?.(fullTitleRef.current.trim());
+          }
+        } else if (message.type === "message_error") {
+          setIsStreaming(false);
+          onErrorRef.current?.(message.error);
+        }
+      } catch (e) {
+        console.error("Failed to parse WebSocket message:", e);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      onErrorRef.current?.("WebSocket connection error");
+    };
+
+    ws.onclose = () => {
+      setIsConnected(false);
+      setIsStreaming(false);
+    };
+
+    wsRef.current = ws;
+
+    // Cleanup on unmount or messageId change
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+      setIsConnected(false);
+      setIsStreaming(false);
+    };
+  }, [messageId]); // Only depend on messageId
+
+  return {
+    isConnected,
+    streamingTitle,
+    isStreaming,
+  };
+}
+
+export default useMessageSocket;
