@@ -2,12 +2,22 @@ import { Textarea, Button, Box } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaSquare } from "react-icons/fa";
 import { FiArrowUp } from "react-icons/fi";
-import { SessionService, NewMessage, NewSession, Role, Status } from "@/client";
+import {
+  SessionService,
+  NewMessage,
+  NewSession,
+  Role,
+  Status,
+  StreamResponseBody,
+} from "@/client";
 import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
 import { useForm } from "@mantine/form";
 import LeftSection from "./LeftSection";
+import { useState, useEffect } from "react";
+import { useMessageSocket } from "@/hooks/useMessageSocket";
+import { set } from "react-hook-form";
 // import RightSection from "./RightSection";
 interface InputBarProps {
   chatId: string | undefined;
@@ -19,6 +29,10 @@ type SendMessageResult = {
 const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
+  const [currentMessage, setCurrentMessage] = useState("");
+  const [messageId, setMessageId] = useState("");
+  const [streaming, setStreaming] = useState(false);
+  const [streamTitle, setStreamTitle] = useState("");
   const sendMessage = useMutation<SendMessageResult, ApiError, NewMessage>({
     mutationFn: async (data: NewMessage): Promise<SendMessageResult> => {
       let sessionId = chatId;
@@ -84,24 +98,40 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
       // invalidate
       queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
       console.log(sessionId, assistantMessageId);
+      setMessageId(assistantMessageId);
 
-      // //Start the streaming response only after IDs are available
-      // const response = await startStream(
-      //   sessionId as string,
-      //   {
-      //     model_name: chatForm.values.model_name,
-      //     message_id: assistantMessageId,
-      //   } as StreamResponseBody
-      // );
-      // queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
-      // //  Read the streaming response
-      // for await (const token of readSSEStream(response)) {
-      //   console.log("Token:", token);
-      // }
+      SessionService.chat({
+        sessionId: sessionId as string,
+        requestBody: {
+          model_name: values.model_name,
+          message_id: assistantMessageId,
+        } as StreamResponseBody,
+      });
+
+      const { streamingTitle, isStreaming } = useMessageSocket({
+        messageId: chatId as string | null,
+        onTitleComplete: (fullTitle) => {
+          setCurrentMessage(fullTitle);
+          queryClient.invalidateQueries({ queryKey: ["session", chatId] });
+          // queryClient.invalidateQueries({ queryKey: [""] });
+        },
+      });
+      setStreaming(isStreaming);
+      setStreamTitle(streamingTitle);
     } catch (err) {
       console.error("Error sending message or streaming:", err);
     }
   };
+
+  console.log("Streaming:", streaming);
+  console.log("Streaming Title:", streamTitle);
+  useEffect(() => {
+    if (streaming && streamTitle) {
+      // In your hook onmessage
+      setCurrentMessage((prev) => prev + streamTitle);
+      console.log(streamTitle);
+    }
+  }, [streaming, streamTitle, ""]);
 
   return (
     <form
@@ -110,6 +140,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
         handleSubmit(chatForm.getValues());
       }}
     >
+      {currentMessage && <p>{currentMessage}</p>}
       <Textarea
         placeholder="Ask Anything"
         radius="xl"

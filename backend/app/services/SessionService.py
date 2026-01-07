@@ -203,6 +203,21 @@ class SessionService:
 
         return True, None
 
+    def get_message(
+        self, message_id: uuid.UUID
+    ) -> tuple[Message | None, HTTPException | None]:
+        """
+        Args:
+            message_id (uuid.UUID): message id
+
+        Returns:
+            tuple[Message | None, HTTPException | None]:
+        """
+        message = self.session.get(Message, message_id)
+        if not message:
+            return None, HTTPException(status_code=404, detail="Message not found")
+        return message, None
+
     def verify_permissions(
         self, user: User
     ) -> tuple[User | None, HTTPException | None]:

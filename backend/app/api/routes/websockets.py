@@ -1,3 +1,5 @@
+import asyncio
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 router = APIRouter(prefix="/ws", tags=["websocket"])
@@ -61,7 +63,11 @@ async def message_websocket(websocket: WebSocket, message_id: str):
     try:
         while True:
             # Keep connection alive, listen for any client messages
-            _ = await websocket.receive_text()
+            # _ = await websocket.receive_text()
+            try:
+                await asyncio.wait_for(websocket.receive_text(), timeout=30)
+            except asyncio.TimeoutError:
+                pass
             # Could handle client messages here if needed
     except WebSocketDisconnect:
         manager.disconnect(websocket, message_id)

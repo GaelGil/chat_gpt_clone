@@ -206,12 +206,12 @@ export type SessionAddMessageData = {
 
 export type SessionAddMessageResponse = (string);
 
-export type SessionStreamResponseData = {
+export type SessionChatData = {
     requestBody: StreamResponseBody;
     sessionId: string;
 };
 
-export type SessionStreamResponseResponse = (string);
+export type SessionChatResponse = (app__models__Message);
 
 export type UsersReadUsersData = {
     limit?: number;

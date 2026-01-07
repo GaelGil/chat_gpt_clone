@@ -4,6 +4,7 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks
 
 from app.api.deps import CurrentUser, SessionServiceDep
+from app.models import Message as SessionMessage
 from app.schemas.Message import NewMessage
 from app.schemas.Session import (
     NewSession,
@@ -129,14 +130,19 @@ async def chat(
     body: StreamResponseBody,
     background_tasks: BackgroundTasks,
     session_id: uuid.UUID,
-) -> uuid.UUID:
+) -> SessionMessage:
     """
     Add message to a session
     """
     # TODO: update function to just focus on adding generating and streaming to a background task
+
     user, permission_error = session_service.verify_permissions(user=current_user)
     if permission_error:
         raise permission_error
+
+    message, message_error = session_service.get_message(message_id=body.message_id)
+    if message_error:
+        raise message_error
 
     session_history, session_history_error = session_service.session_history(
         session_id=session_id
@@ -144,6 +150,7 @@ async def chat(
     if session_history_error:
         raise session_history_error
 
+    print("DEBUG: BEFORE ADDING TO TASK")
     # Start background task to generate and stream response
     background_tasks.add_task(
         session_service.generate_response,
@@ -153,8 +160,9 @@ async def chat(
         session_id=session_id,
         user_id=user.id,
     )
+    print("DEBUG: AFTER ADDING TO TASK")
 
-    return session_id
+    return message
 
 
 @router.put("/{id}")
