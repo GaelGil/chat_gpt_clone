@@ -3,6 +3,7 @@ import uuid
 from fastapi import HTTPException
 from sqlmodel import Session, select
 
+from app.api.routes.websockets import manager
 from app.models import Message, User
 from app.models import Session as SessionModel
 from app.schemas.Message import NewMessage, Role
@@ -135,18 +136,46 @@ class SessionService:
         user_id: uuid.UUID,
     ):
         # This returns an async generator
-        gen = self.api_service.process_stream(
-            chat_history=chat_history,
-            model_name=model_name,
-            owner_id=user_id,
-            session_id=session_id,
-            message_id=message_id,
-        )
+        # gen = self.api_service.process_stream(
+        #     chat_history=chat_history,
+        #     model_name=model_name,
+        #     owner_id=user_id,
+        #     session_id=session_id,
+        #     message_id=message_id,
+        # )
 
-        # Optionally wrap or intercept tokens:
-        async for token in gen:
-            # You can save tokens, log, meter usage, etc.
-            yield token
+        full_title = ""
+        try:
+            async for chunk in self.api_service.process_stream(
+                chat_history=chat_history,
+                model_name=model_name,
+                owner_id=user_id,
+                session_id=session_id,
+                message_id=message_id,
+            ):
+                full_title += chunk
+                await manager.stream_response_chunk(
+                    message_id=str(message_id), chunk=chunk, is_complete=False
+                )
+
+            # Send completion signal
+            await manager.stream_response_chunk(
+                message_id=str(message_id), chunk="", is_complete=True
+            )
+
+            # self.update_canvas_title(uuid.UUID(canvas_id), full_title.strip())
+
+        except Exception as e:
+            # If title generation fails, keep "New Canvas" as title
+            await manager.send_to_canvas(
+                message_id=str(message_id),
+                message={"type": "title_error", "error": str(e)},
+            )
+
+        # # Optionally wrap or intercept tokens:
+        # async for token in gen:
+        #     # You can save tokens, log, meter usage, etc.
+        #     yield token
 
     def rename_session(
         self, user: User, session_id: uuid.UUID, update_session: UpdateSession
