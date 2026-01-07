@@ -150,7 +150,6 @@ async def chat(
     if session_history_error:
         raise session_history_error
 
-    print("DEBUG: BEFORE ADDING TO TASK")
     # Start background task to generate and stream response
     background_tasks.add_task(
         session_service.generate_response,
@@ -160,7 +159,6 @@ async def chat(
         session_id=session_id,
         user_id=user.id,
     )
-    print("DEBUG: AFTER ADDING TO TASK")
 
     return message
 

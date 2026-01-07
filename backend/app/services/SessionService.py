@@ -135,15 +135,6 @@ class SessionService:
         message_id: uuid.UUID,
         user_id: uuid.UUID,
     ):
-        # This returns an async generator
-        # gen = self.api_service.process_stream(
-        #     chat_history=chat_history,
-        #     model_name=model_name,
-        #     owner_id=user_id,
-        #     session_id=session_id,
-        #     message_id=message_id,
-        # )
-
         full_title = ""
         try:
             async for chunk in self.api_service.process_stream(
@@ -153,7 +144,7 @@ class SessionService:
                 session_id=session_id,
                 message_id=message_id,
             ):
-                print(f"DEBUG: chunk {chunk}")
+                # print(f"DEBUG: chunk {chunk}")
                 full_title += chunk
                 await manager.stream_response_chunk(
                     message_id=str(message_id), chunk=chunk, is_complete=False

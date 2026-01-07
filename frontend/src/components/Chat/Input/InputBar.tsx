@@ -17,7 +17,6 @@ import { useForm } from "@mantine/form";
 import LeftSection from "./LeftSection";
 import { useState, useEffect } from "react";
 import { useMessageSocket } from "@/hooks/useMessageSocket";
-import { set } from "react-hook-form";
 // import RightSection from "./RightSection";
 interface InputBarProps {
   chatId: string | undefined;
@@ -31,8 +30,7 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
   const { showErrorToast } = useCustomToast();
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageId, setMessageId] = useState("");
-  const [streaming, setStreaming] = useState(false);
-  const [streamTitle, setStreamTitle] = useState("");
+
   const sendMessage = useMutation<SendMessageResult, ApiError, NewMessage>({
     mutationFn: async (data: NewMessage): Promise<SendMessageResult> => {
       let sessionId = chatId;
@@ -107,31 +105,26 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
           message_id: assistantMessageId,
         } as StreamResponseBody,
       });
-
-      const { streamingTitle, isStreaming } = useMessageSocket({
-        messageId: chatId as string | null,
-        onTitleComplete: (fullTitle) => {
-          setCurrentMessage(fullTitle);
-          queryClient.invalidateQueries({ queryKey: ["session", chatId] });
-          // queryClient.invalidateQueries({ queryKey: [""] });
-        },
-      });
-      setStreaming(isStreaming);
-      setStreamTitle(streamingTitle);
     } catch (err) {
       console.error("Error sending message or streaming:", err);
     }
   };
 
-  console.log("Streaming:", streaming);
-  console.log("Streaming Title:", streamTitle);
+  const { streamingTitle, isStreaming } = useMessageSocket({
+    messageId: chatId as string | null,
+    onTitleComplete: (fullTitle) => {
+      setCurrentMessage(fullTitle);
+      queryClient.invalidateQueries({ queryKey: ["session", chatId] });
+      // queryClient.invalidateQueries({ queryKey: [""] });
+    },
+  });
   useEffect(() => {
-    if (streaming && streamTitle) {
+    if (isStreaming && streamingTitle) {
       // In your hook onmessage
-      setCurrentMessage((prev) => prev + streamTitle);
-      console.log(streamTitle);
+      setCurrentMessage((prev) => prev + streamingTitle);
+      console.log(streamingTitle);
     }
-  }, [streaming, streamTitle, ""]);
+  }, [isStreaming, streamingTitle, ""]);
 
   return (
     <form
