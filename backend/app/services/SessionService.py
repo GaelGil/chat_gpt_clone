@@ -153,6 +153,7 @@ class SessionService:
                 session_id=session_id,
                 message_id=message_id,
             ):
+                print(f"DEBUG: chunk {chunk}")
                 full_title += chunk
                 await manager.stream_response_chunk(
                     message_id=str(message_id), chunk=chunk, is_complete=False
