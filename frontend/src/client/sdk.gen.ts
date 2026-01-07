@@ -254,7 +254,7 @@ export class SessionService {
      * @param data The data for the request.
      * @param data.sessionId
      * @param data.requestBody
-     * @returns unknown Successful Response
+     * @returns string Successful Response
      * @throws ApiError
      */
     public static streamResponse(data: SessionStreamResponseData): CancelablePromise<SessionStreamResponseResponse> {

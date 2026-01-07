@@ -35,7 +35,7 @@ const HomeSideBar: React.FC<HomeSideBarProps> = ({ collapsed, toggle }) => {
   const [hovered, setHovered] = useState(false);
 
   const listItems = items.map(({ title, link }) => (
-    <Group gap="sm" px="md" py="sm" align="center" fz={"14px"}>
+    <Group key={title} gap="sm" px="md" py="sm" align="center" fz={"14px"}>
       <Anchor key={title} href={link} target="_blank">
         <Text c="white" ml={2}>
           {title}

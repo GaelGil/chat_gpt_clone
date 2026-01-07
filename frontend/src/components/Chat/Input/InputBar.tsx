@@ -2,20 +2,11 @@ import { Textarea, Button, Box } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaSquare } from "react-icons/fa";
 import { FiArrowUp } from "react-icons/fi";
-import {
-  SessionService,
-  NewMessage,
-  NewSession,
-  Role,
-  Status,
-  StreamResponseBody,
-} from "@/client";
+import { SessionService, NewMessage, NewSession, Role, Status } from "@/client";
 import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
 import { useForm } from "@mantine/form";
-import { startStream } from "../Utils/StarStream";
-import { readSSEStream } from "../Utils/readSSEStream";
 import LeftSection from "./LeftSection";
 // import RightSection from "./RightSection";
 interface InputBarProps {
@@ -92,20 +83,21 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
 
       // invalidate
       queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
+      console.log(sessionId, assistantMessageId);
 
-      //Start the streaming response only after IDs are available
-      const response = await startStream(
-        sessionId as string,
-        {
-          model_name: chatForm.values.model_name,
-          message_id: assistantMessageId,
-        } as StreamResponseBody
-      );
-      queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
-      //  Read the streaming response
-      for await (const token of readSSEStream(response)) {
-        console.log("Token:", token);
-      }
+      // //Start the streaming response only after IDs are available
+      // const response = await startStream(
+      //   sessionId as string,
+      //   {
+      //     model_name: chatForm.values.model_name,
+      //     message_id: assistantMessageId,
+      //   } as StreamResponseBody
+      // );
+      // queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
+      // //  Read the streaming response
+      // for await (const token of readSSEStream(response)) {
+      //   console.log("Token:", token);
+      // }
     } catch (err) {
       console.error("Error sending message or streaming:", err);
     }

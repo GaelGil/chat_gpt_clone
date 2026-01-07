@@ -211,7 +211,7 @@ export type SessionStreamResponseData = {
     sessionId: string;
 };
 
-export type SessionStreamResponseResponse = (unknown);
+export type SessionStreamResponseResponse = (string);
 
 export type UsersReadUsersData = {
     limit?: number;
