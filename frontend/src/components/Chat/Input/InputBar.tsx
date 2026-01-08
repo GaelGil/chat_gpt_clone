@@ -98,11 +98,12 @@ const InputBar: React.FC<InputBarProps> = ({
       const { sessionId, assistantMessageId } =
         await sendMessage.mutateAsync(values);
 
-      // invalidate
+      // Invalidate
       queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
-      // console.log(sessionId, assistantMessageId);
+      // Set new assistant message as newMessageId
       setNewMessageId(assistantMessageId);
 
+      // Start chat
       SessionService.chat({
         sessionId: sessionId as string,
         requestBody: {
@@ -115,24 +116,19 @@ const InputBar: React.FC<InputBarProps> = ({
     }
   };
 
+  // Get message and streatming status from socket
   const { streamingMessage, isStreaming } = useMessageSocket({
     messageId: newMessageId,
     onMessageComplete: () => {
-      // setCurrentMessage(fullTitle);
-      // setStreamingContent(""); // reset when complete
-      // setStreamingMessageId(null);
       queryClient.invalidateQueries({ queryKey: ["session", chatId] });
     },
   });
+  // If we are streaming, update the content and message id
+  // these are used to display the message in Messages.tsx
   useEffect(() => {
-    console.log(isStreaming, streamingMessage);
     if (isStreaming && streamingMessage) {
-      // In your hook onmessage
-
-      // setCurrentMessage(streamingMessage);
       setStreamingContent(streamingMessage);
       setStreamingMessageId(newMessageId);
-      console.log(streamingMessage);
     }
   }, [isStreaming, streamingMessage, ""]);
 
