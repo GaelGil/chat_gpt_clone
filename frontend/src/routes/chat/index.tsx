@@ -22,7 +22,11 @@ function NewChat() {
           <InitMessage />
         </Box>
         <Box w="100%" bottom={0} pos={"sticky"} p="md" mt="xl">
-          <InputBar chatId={undefined} />
+          <InputBar
+            chatId={undefined}
+            setStreamingContent={() => {}}
+            setStreamingMessageId={() => {}}
+          />
         </Box>
       </Stack>
     </Container>
