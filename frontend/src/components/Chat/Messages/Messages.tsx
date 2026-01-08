@@ -5,9 +5,15 @@ import ReactMarkdown from "react-markdown";
 import { useEffect, useRef } from "react";
 interface MessagesProps {
   messages: MessageDetail[];
+  streamingContent: string;
+  streamingMessageId: string | null;
 }
 
-const Messages: React.FC<MessagesProps> = ({ messages }) => {
+const Messages: React.FC<MessagesProps> = ({
+  messages,
+  streamingContent,
+  streamingMessageId,
+}) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -36,14 +42,31 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {message.content}
               </ReactMarkdown>
-            ) : message.role === "assistant" &&
-              message.status === "streaming" ? (
-              <Loader size="sm" color="white" />
-            ) : message.role === "assistant" &&
-              message.status === "complete" ? (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {message.content}
-              </ReactMarkdown>
+            ) : message.role === "assistant" ? (
+              <>
+                {message.status === "streaming" ? (
+                  <>
+                    {streamingMessageId === message.id ? (
+                      <>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {streamingContent}
+                        </ReactMarkdown>
+                        <Loader size={"sm"} color="white" />
+                      </>
+                    ) : (
+                      <Loader size={"sm"} color="white" />
+                    )}
+                  </>
+                ) : message.status === "failure" ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    Error
+                  </ReactMarkdown>
+                ) : (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {message.content}
+                  </ReactMarkdown>
+                )}
+              </>
             ) : (
               message.content + message.status
             )}

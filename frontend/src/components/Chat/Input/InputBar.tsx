@@ -20,12 +20,18 @@ import { useMessageSocket } from "@/hooks/useMessageSocket";
 // import RightSection from "./RightSection";
 interface InputBarProps {
   chatId: string | undefined;
+  setStreamingContent: (value: string) => void;
+  setStreamingMessageId: (id: string | null) => void;
 }
 type SendMessageResult = {
   sessionId: string;
   assistantMessageId: string;
 };
-const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
+const InputBar: React.FC<InputBarProps> = ({
+  chatId,
+  setStreamingContent,
+  setStreamingMessageId,
+}) => {
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
   const [currentMessage, setCurrentMessage] = useState("");
@@ -114,15 +120,19 @@ const InputBar: React.FC<InputBarProps> = ({ chatId }) => {
     messageId: newMessageId,
     onMessageComplete: (fullTitle) => {
       setCurrentMessage(fullTitle);
+      setStreamingContent(""); // reset when complete
+      setStreamingMessageId(null);
       queryClient.invalidateQueries({ queryKey: ["session", chatId] });
-      // queryClient.invalidateQueries({ queryKey: [""] });
     },
   });
   useEffect(() => {
     console.log(isStreaming, streamingMessage);
     if (isStreaming && streamingMessage) {
       // In your hook onmessage
+
       setCurrentMessage(streamingMessage);
+      setStreamingContent(streamingMessage);
+      setStreamingMessageId(newMessageId);
       console.log(streamingMessage);
     }
   }, [isStreaming, streamingMessage, ""]);
