@@ -51,7 +51,6 @@ const Messages: React.FC<MessagesProps> = ({
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {streamingContent}
                         </ReactMarkdown>
-                        <Loader size={"sm"} color="white" />
                       </>
                     ) : (
                       <Loader size={"sm"} color="white" />
