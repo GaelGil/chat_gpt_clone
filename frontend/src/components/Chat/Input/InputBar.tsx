@@ -34,7 +34,6 @@ const InputBar: React.FC<InputBarProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
-  const [currentMessage, setCurrentMessage] = useState("");
   const [newMessageId, setNewMessageId] = useState("");
 
   const sendMessage = useMutation<SendMessageResult, ApiError, NewMessage>({
@@ -118,10 +117,10 @@ const InputBar: React.FC<InputBarProps> = ({
 
   const { streamingMessage, isStreaming } = useMessageSocket({
     messageId: newMessageId,
-    onMessageComplete: (fullTitle) => {
-      setCurrentMessage(fullTitle);
-      setStreamingContent(""); // reset when complete
-      setStreamingMessageId(null);
+    onMessageComplete: () => {
+      // setCurrentMessage(fullTitle);
+      // setStreamingContent(""); // reset when complete
+      // setStreamingMessageId(null);
       queryClient.invalidateQueries({ queryKey: ["session", chatId] });
     },
   });
@@ -130,7 +129,7 @@ const InputBar: React.FC<InputBarProps> = ({
     if (isStreaming && streamingMessage) {
       // In your hook onmessage
 
-      setCurrentMessage(streamingMessage);
+      // setCurrentMessage(streamingMessage);
       setStreamingContent(streamingMessage);
       setStreamingMessageId(newMessageId);
       console.log(streamingMessage);
@@ -144,7 +143,6 @@ const InputBar: React.FC<InputBarProps> = ({
         handleSubmit(chatForm.getValues());
       }}
     >
-      {currentMessage && <p>{currentMessage}</p>}
       <Textarea
         placeholder="Ask Anything"
         radius="xl"
