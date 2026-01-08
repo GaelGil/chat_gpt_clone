@@ -23,7 +23,7 @@ def get_sessions(
     current_user: CurrentUser, session_service: SessionServiceDep
 ) -> SessionList:
     """
-    Retrieve sessions
+    Retrieve a users sessions
     """
     user, permission_error = session_service.verify_permissions(user=current_user)
     if permission_error:
@@ -132,9 +132,8 @@ async def chat(
     session_id: uuid.UUID,
 ) -> SessionMessage:
     """
-    Add message to a session
+    Sart the chat
     """
-    # TODO: update function to just focus on adding generating and streaming to a background task
 
     user, permission_error = session_service.verify_permissions(user=current_user)
     if permission_error:
