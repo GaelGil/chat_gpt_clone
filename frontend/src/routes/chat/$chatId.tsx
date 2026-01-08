@@ -6,6 +6,7 @@ import InitMessage from "@/components/Chat/Messages/InitMesssage";
 import Messages from "@/components/Chat/Messages/Messages";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import LoadingMessages from "@/components/Pending/LoadingMessages";
 export const Route = createFileRoute("/chat/$chatId")({
   component: ChatDetail,
 });
@@ -31,7 +32,7 @@ function ChatDetail() {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingMessages />;
   }
 
   if (isError) {
