@@ -9,7 +9,6 @@ from sqlmodel import Session
 
 from app.models import Message, ToolCall
 from app.schemas.Message import NewMessage, Role, Status
-from app.services.BaseService import BaseService
 
 # logging stuff
 logging.basicConfig(
@@ -18,9 +17,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class APIService(BaseService):
-    def __init__(self, session: Session, tool_definitions: dict = None):
-        super().__init__(session)
+class APIService:
+    def __init__(self, session: Session, tool_definitions: dict):
+        self.session = session
         self.openai: OpenAI = OpenAI()
         self.tools = tool_definitions
         pass
