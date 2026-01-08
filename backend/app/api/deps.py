@@ -1,4 +1,4 @@
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from typing import Annotated
 
 import jwt
@@ -60,19 +60,23 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
     return current_user
 
 
-def get_api_service(
-    session: SessionDep,
-) -> APIService:
-    return APIService(session=session, tool_definitions=None)
+def get_service_dep(service_cls: type, /, **kwargs) -> Callable:
+    """
+    Returns a dependency callable that will create service_cls(session=session, *factory_args, **factory_kwargs)
+    Usage:
+        MyServiceDep = Annotated[MyService, Depends(get_service_dep(MyService, extra_arg=...))]
+    """
+
+    def _get(session: Session = Depends(get_db)):
+        # construct service with session + extra args
+        return service_cls(session=session, **kwargs)
+
+    return _get
 
 
-APIServiceDep = Annotated[APIService, Depends(get_api_service)]
-
-
-def get_session_service(
-    session: SessionDep, api_service: APIServiceDep
-) -> SessionService:
-    return SessionService(session=session, api_service=api_service)
-
-
-SessionServiceDep = Annotated[SessionService, Depends(get_session_service)]
+APIServiceDep = Annotated[
+    APIService, Depends(get_service_dep(APIService, tool_definitions=None))
+]
+SessionServiceDep = Annotated[
+    SessionService, Depends(get_service_dep(SessionService, api_service=APIService))
+]

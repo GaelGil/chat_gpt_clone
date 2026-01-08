@@ -15,11 +15,12 @@ from app.schemas.Session import (
     UpdateSession,
 )
 from app.services.APIService import APIService
+from app.services.BaseService import BaseService
 
 
-class SessionService:
+class SessionService(BaseService):
     def __init__(self, session: Session, api_service: APIService):
-        self.session = session
+        super().__init__(session)
         self.api_service = api_service
         pass
 
