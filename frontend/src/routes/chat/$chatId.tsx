@@ -18,7 +18,9 @@ function getUsersQueryOptions({ chatId }: { chatId: string }) {
 }
 function ChatDetail() {
   const { chatId } = Route.useParams();
+  // the content of the message that is being streamed
   const [streamingContent, setStreamingContent] = useState("");
+  // the id of the message that is being streamed
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(
     null
   );
@@ -55,12 +57,12 @@ function ChatDetail() {
         w="100%"
         display={"flex"}
       >
-        {/* Scrollable messages area */}
         {messages.length === 0 ? (
           <InitMessage />
         ) : (
           <Messages
             messages={messages}
+            // pass the streaming content and message id to the Messages component
             streamingContent={streamingContent}
             streamingMessageId={streamingMessageId}
           />
@@ -70,6 +72,7 @@ function ChatDetail() {
       <Box w="100%" bottom={0} pos={"sticky"} p="md">
         <InputBar
           chatId={chatId}
+          // pass the streaming content and message id setters to the InputBar component
           setStreamingContent={setStreamingContent}
           setStreamingMessageId={setStreamingMessageId}
         />
