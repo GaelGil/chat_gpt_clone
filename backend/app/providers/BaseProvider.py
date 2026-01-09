@@ -1,14 +1,17 @@
 import asyncio
 import uuid
-from typing import Protocol
 
 from fastapi import HTTPException
+from sqlmodel import Session
 
 from app.models import Message, ToolCall
 from app.schemas.Message import NewMessage, Role, Status
 
 
-class BaseProvider(Protocol):
+class BaseProvider:
+    def __init__(self, session: Session):
+        self.session = session
+
     def save_message(
         self, session_id: uuid.UUID, owner_id: uuid.UUID, new_message: NewMessage
     ) -> tuple[uuid.UUID | None, HTTPException | None]:
@@ -93,3 +96,14 @@ class BaseProvider(Protocol):
         self.session.add(tool_call_obj)
         self.session.commit()
         pass
+
+    @classmethod
+    async def process_stream(
+        cls,
+        chat_history: list,
+        model_name: str,
+        owner_id: uuid.UUID,
+        session_id: uuid.UUID,
+        message_id: uuid.UUID,
+    ):
+        raise NotImplementedError
