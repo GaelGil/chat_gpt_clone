@@ -3,6 +3,7 @@ import logging
 import uuid
 
 from openai import OpenAI
+from sqlmodel import Session
 
 from app.providers.BaseProvider import BaseProvider
 from app.schemas.Message import Role, Status
@@ -15,7 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 class OpenAIProvider(BaseProvider):
-    def __init__(self):
+    def __init__(self, session: Session):
+        super().__init__(session)
         self.openai: OpenAI = OpenAI()
         self.tools = {}
 
