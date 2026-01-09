@@ -6,6 +6,8 @@ from sqlmodel import Session, select
 from app.api.routes.websockets import manager
 from app.models import Message, User
 from app.models import Session as SessionModel
+from app.providers.GeminiProvider import GeminiProvider
+from app.providers.OpenAIProvider import OpenAIProvider
 from app.schemas.Message import NewMessage, Role
 from app.schemas.Session import (
     NewSession,
@@ -21,6 +23,10 @@ class SessionService:
     def __init__(self, session: Session, api_service: APIService):
         self.session = session
         self.api_service = api_service
+        self.providers = {
+            "gemini": GeminiProvider,
+            "openai": OpenAIProvider,
+        }
 
     def get_sessions(
         self, user: User

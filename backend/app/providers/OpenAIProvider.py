@@ -14,7 +14,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class FalProvider(BaseProvider):
+class OpenAIProvider(BaseProvider):
     def __init__(self):
         self.openai: OpenAI = OpenAI()
         self.tools = {}
