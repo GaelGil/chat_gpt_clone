@@ -127,7 +127,7 @@ export class PrivateService {
 export class SessionService {
     /**
      * Get Sessions
-     * Retrieve sessions
+     * Retrieve a users sessions
      * @returns SessionList Successful Response
      * @throws ApiError
      */
@@ -250,7 +250,7 @@ export class SessionService {
     
     /**
      * Chat
-     * Add message to a session
+     * Sart the chat
      * @param data The data for the request.
      * @param data.sessionId
      * @param data.requestBody

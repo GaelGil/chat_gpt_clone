@@ -5,6 +5,7 @@ import uuid
 from openai import OpenAI
 from sqlmodel import Session
 
+from app.api.routes.websockets import manager
 from app.providers.BaseProvider import BaseProvider
 from app.schemas.Message import Role, Status
 
@@ -46,7 +47,10 @@ class OpenAIProvider(BaseProvider):
             if event.type == "response.output_text.delta":
                 # yield the text
                 # yield json.dumps({"type": "response", "text": event.delta})
-                yield event.delta
+                await manager.stream_response_chunk(
+                    message_id=str(message_id), chunk=event.delta, is_complete=False
+                )
+                # yield event.delta
                 init_response += event.delta
                 # print(event.delta, end="", flush=True)
             # if there is no text, print a newline
@@ -197,7 +201,10 @@ class OpenAIProvider(BaseProvider):
                 # if there is text, print it/yield it
                 if ev.type == "response.output_text.delta":
                     # yield json.dumps({"type": "response", "text": ev.delta})
-                    yield ev.delta
+                    # yield ev.delta
+                    await manager.stream_response_chunk(
+                        message_id=str(message_id), chunk=ev.delta, is_complete=False
+                    )
                     logger.info(f"response.output_text.delta: {ev.delta}")
                     final_response += ev.delta
 
@@ -213,3 +220,6 @@ class OpenAIProvider(BaseProvider):
             role=Role.ASSISTANT,
             content=f"{init_response} {final_response}",
         )
+
+    async def execute_tool(self, tool_name: str, args: dict) -> str:
+        pass
