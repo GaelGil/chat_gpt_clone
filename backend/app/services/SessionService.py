@@ -140,7 +140,7 @@ class SessionService:
         message_id: uuid.UUID,
         user_id: uuid.UUID,
     ):
-        full_title = ""
+        # full_title = ""
         try:
             async for chunk in self.api_service.process_stream(
                 chat_history=chat_history,
@@ -150,7 +150,7 @@ class SessionService:
                 message_id=message_id,
             ):
                 # print(f"DEBUG: chunk {chunk}")
-                full_title += chunk
+                # full_title += chunk
                 await manager.stream_response_chunk(
                     message_id=str(message_id), chunk=chunk, is_complete=False
                 )
