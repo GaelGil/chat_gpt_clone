@@ -45,37 +45,14 @@ class APIService:
         session_id: uuid.UUID,
         message_id: uuid.UUID,
     ):
+        print("API SERVICE PROCESSING STREAM")
         provider = self.map_provider(model_name)
-        provider.process_stream(
+        print(f"Selected provider {provider} to process stream for {model_name}")
+
+        await provider.process_stream(
             chat_history=chat_history,
             model_name=model_name,
             owner_id=owner_id,
+            session_id=session_id,
             message_id=message_id,
         )
-        # try:
-        #     async for chunk in provider.process_stream(
-        #         chat_history=chat_history,
-        #         model_name=model_name,
-        #         owner_id=owner_id,
-        #         session_id=session_id,
-        #         message_id=message_id,
-        #     ):
-        #         # print(f"DEBUG: chunk {chunk}")
-        #         # full_title += chunk
-        #         await manager.stream_response_chunk(
-        #             message_id=str(message_id), chunk=chunk, is_complete=False
-        #         )
-
-        #     # Send completion signal
-        #     await manager.stream_response_chunk(
-        #         message_id=str(message_id), chunk="", is_complete=True
-        #     )
-
-        #     # self.update_canvas_title(uuid.UUID(canvas_id), full_title.strip())
-
-        # except Exception as e:
-        #     # If title generation fails, keep "New Canvas" as title
-        #     await manager.send_to_canvas(
-        #         message_id=str(message_id),
-        #         message={"type": "title_error", "error": str(e)},
-        #     )

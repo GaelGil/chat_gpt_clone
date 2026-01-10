@@ -97,19 +97,18 @@ class SessionService:
             tuple[uuid.UUID| None, HTTPException | None]:
 
         """
-        if user_id is None:
-            return False, HTTPException(status_code=401, detail="Not authenticated")
 
-        message_id, save_error = self.api_service.save_message(
-            session_id=session_id,
-            owner_id=user_id,
-            new_message=message,
+        message_obj = Message.model_validate(
+            message, update={"owner_id": user_id, "session_id": session_id}
         )
+        try:
+            self.session.add(message_obj)
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            return None, HTTPException(status_code=400, detail=str(e))
 
-        if not message_id and save_error:
-            return None, save_error
-
-        return message_id, None
+        return message_obj.id, None
 
     def session_history(
         self, session_id: uuid.UUID, role: Role = None, content: str = None
@@ -133,7 +132,8 @@ class SessionService:
         message_id: uuid.UUID,
         user_id: uuid.UUID,
     ):
-        self.api_service.process_stream(
+        print("CALLING API SERVICE to generate response")
+        await self.api_service.process_stream(
             chat_history=chat_history,
             model_name=model_name,
             owner_id=user_id,

@@ -20,7 +20,7 @@ class OpenAIProvider(BaseProvider):
     def __init__(self, session: Session):
         super().__init__(session)
         self.openai: OpenAI = OpenAI()
-        self.tools = {}
+        self.tools = []
 
     async def process_stream(
         self,
@@ -30,6 +30,8 @@ class OpenAIProvider(BaseProvider):
         session_id: uuid.UUID,
         message_id: uuid.UUID,
     ):
+        print("ABOUT TO STREAM RESPONSE")
+        print("Chat history: ", chat_history)
         # stream the response
         stream = self.openai.responses.create(
             model=model_name,
@@ -39,6 +41,7 @@ class OpenAIProvider(BaseProvider):
             stream=True,
         )
 
+        print("STREAMING RESPONSE")
         tool_calls = {}
         init_response = ""
         # initial call
@@ -47,6 +50,7 @@ class OpenAIProvider(BaseProvider):
             if event.type == "response.output_text.delta":
                 # yield the text
                 # yield json.dumps({"type": "response", "text": event.delta})
+                print(event.delta, end="", flush=True)
                 await manager.stream_response_chunk(
                     message_id=str(message_id), chunk=event.delta, is_complete=False
                 )
@@ -142,7 +146,7 @@ class OpenAIProvider(BaseProvider):
             # yield json.dumps(
             #     {"type": "tool_use", "tool_name": tool_name, "tool_input": parsed_args}
             # )
-            yield f"tool_name: {tool_name}, tool_input: {parsed_args}"
+            # yield f"tool_name: {tool_name}, tool_input: {parsed_args}"
 
             # execute the tool
             try:
@@ -169,7 +173,7 @@ class OpenAIProvider(BaseProvider):
             #         "tool_result": result,
             #     }
             # )
-            yield f"tool_name: {tool_name}, tool_input: {parsed_args}, tool_result: {result}"
+            # yield f"tool_name: {tool_name}, tool_input: {parsed_args}, tool_result: {result}"
 
             # Add the tool call result to the chat history
             chat_history.append(

@@ -1,7 +1,6 @@
 import logging
 import uuid
 
-from google import genai
 from sqlmodel import Session
 
 from app.api.routes.websockets import manager
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 class GeminiProvider(BaseProvider):
     def __init__(self, session: Session):
         super().__init__(session)
-        self.client = genai.Client()
+        # self.client = /genai.Client()
         self.tools = {}
 
     async def process_stream(
