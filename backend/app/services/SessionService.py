@@ -132,7 +132,16 @@ class SessionService:
         message_id: uuid.UUID,
         user_id: uuid.UUID,
     ):
-        print("CALLING API SERVICE to generate response")
+        """
+
+        Get APIService to generate response
+        Args:
+            chat_history (list): chat history
+            model_name (str): model name
+            session_id (uuid.UUID): session id
+            message_id (uuid.UUID): message id
+
+        """
         await self.api_service.process_stream(
             chat_history=chat_history,
             model_name=model_name,

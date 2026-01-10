@@ -45,10 +45,20 @@ class APIService:
         session_id: uuid.UUID,
         message_id: uuid.UUID,
     ):
-        print("API SERVICE PROCESSING STREAM")
-        provider = self.map_provider(model_name)
-        print(f"Selected provider {provider} to process stream for {model_name}")
+        """
+        Select provider based on model name and process stream
 
+        Args:
+            chat_history (list): chat history
+            model_name (str): model name
+            owner_id (uuid.UUID): user id
+            session_id (uuid.UUID): session id
+            message_id (uuid.UUID): message id
+        """
+        # select provider
+        provider = self.map_provider(model_name)
+
+        # process stream
         await provider.process_stream(
             chat_history=chat_history,
             model_name=model_name,
