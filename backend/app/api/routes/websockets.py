@@ -19,11 +19,11 @@ class ConnectionManager:
 
         # Accept the connection
         await websocket.accept()
-        # check if message_id is in active_connections
+        # Check if message_id is in active_connections
         if message_id not in self.active_connections:
-            # if not, add it with an empty list
+            # If not, add it with an empty list
             self.active_connections[message_id] = []
-        # if message_id is in active_connections, add the new connection
+        # If message_id is in active_connections, add the new connection
         self.active_connections[message_id].append(websocket)
 
     def disconnect(self, websocket: WebSocket, message_id: str):

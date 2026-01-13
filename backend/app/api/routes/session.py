@@ -135,14 +135,19 @@ async def chat(
     Sart the chat
     """
 
+    # Verify permissions
     user, permission_error = session_service.verify_permissions(user=current_user)
     if permission_error:
         raise permission_error
 
+    # Get the recently created assistant message (its blank for now).
+    # At the time we call this endpoint, the message is already created in the database
+    # with status "streaming". Once the response is generated, we update the status to "complete".
     message, message_error = session_service.get_message(message_id=body.message_id)
     if message_error:
         raise message_error
 
+    # Get the chat history
     session_history, session_history_error = session_service.session_history(
         session_id=session_id
     )
