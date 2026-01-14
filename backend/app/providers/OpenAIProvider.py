@@ -2,10 +2,10 @@ import json
 import logging
 import uuid
 
+from fastapi import BackgroundTasks
 from openai import OpenAI
 from sqlmodel import Session
 
-from app.api.routes.websockets import manager
 from app.providers.BaseProvider import BaseProvider
 from app.providers.tool_definitions import tool_definitions
 from app.schemas.Message import Role, Status
@@ -30,13 +30,14 @@ class OpenAIProvider(BaseProvider):
         owner_id: uuid.UUID,
         session_id: uuid.UUID,
         message_id: uuid.UUID,
+        tool_choice: str = "auto",
     ):
         # stream the response
         stream = self.openai.responses.create(
             model=model_name,
             input=chat_history,
             tools=self.tools,
-            tool_choice="auto",
+            tool_choice=tool_choice,
             stream=True,
         )
 
@@ -46,7 +47,7 @@ class OpenAIProvider(BaseProvider):
         for event in stream:
             # if there is text, send it to the manager
             if event.type == "response.output_text.delta":
-                await manager.stream_response_chunk(
+                await self.manager.stream_response_chunk(
                     message_id=str(message_id),
                     chunk=event.delta,
                     is_complete=False,
@@ -57,7 +58,7 @@ class OpenAIProvider(BaseProvider):
             # if the response is complete send it to the manager
             # and mark the message as complete
             elif event.type == "response.output_text.done":
-                await manager.stream_response_chunk(
+                await self.manager.stream_response_chunk(
                     message_id=str(message_id),
                     chunk="",
                     is_complete=True,
@@ -124,79 +125,20 @@ class OpenAIProvider(BaseProvider):
                 ).strip()
                 # log statment for tool done
                 logger.info(f"[DEBUG] Marked tool idx={idx} done")
+        chat_history.append({"role": Role.ASSISTANT, "content": init_response})
 
         # if there are tool calls we need to execute them
         # and form a final response
         if tool_calls:
-            logger.info(f"TOOL CALLS: {tool_calls}")
-            chat_history.append({"role": Role.ASSISTANT, "content": init_response})
-            # Execute the tool calls
-            for tool_idx, tool in tool_calls.items():
-                tool_name = tool["name"]
-                args_str = tool["arguments"]
-
-                # if there is no tool name, skip
-                if not tool_name:
-                    logger.info(f"[DEBUG] No tool name for idx={tool_idx}, skipping")
-                    continue  # continue
-
-                # try to parse the arguments
-                try:
-                    parsed_args = json.loads(args_str)
-                except json.JSONDecodeError:
-                    parsed_args = {}
-
-                    logger.info(
-                        f"[DEBUG] Failed to parse args for idx={tool_idx}, using empty dict"
-                    )
-                    continue  # continue
-
-                # send the tool call to the manager
-                await manager.stream_response_chunk(
-                    message_id=str(message_id),
-                    chunk={
-                        "tool_name": tool_name,
-                        "tool_input": parsed_args,
-                    },
-                    is_complete=False,
-                    msg_type="tool_call",
-                )
-
-                # execute the tool
-                try:
-                    result = await self.execute_tool(tool_name, parsed_args)
-                except TypeError:
-                    result = await self.execute_tool(
-                        tool_name, parsed_args.get("location")
-                    )
-
-                logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {result}")
-                # save the tool call after it has been executed
-                self.save_tool_call_async(
-                    session_id=session_id,
-                    name=tool_name,
-                    args=parsed_args,
-                    result=result,
-                    owner_id=owner_id,
-                )
-                # send the tool result to the manager
-                await manager.stream_response_chunk(
-                    message_id=str(message_id),
-                    chunk={
-                        "tool_name": tool_name,
-                        "tool_result": result,
-                    },
-                    is_complete=True,
-                    msg_type="tool_result",
-                )
-
-                # Add the tool call result to the chat history for the final response
-                chat_history.append(
-                    {
-                        "role": Role.ASSISTANT,
-                        "content": f"TOOL_NAME: {tool_name}, RESULT: {result}",
-                    }
-                )
+            background_tasks = BackgroundTasks()
+            background_tasks.add_task(
+                self.execute_tools,
+                chat_history=chat_history,
+                tools=tool_calls,
+                message_id=message_id,
+                session_id=session_id,
+                owner_id=owner_id,
+            )
 
             logger.info(f"[DEBUG] CHAT HISTORY AFTER TOOL RUN: {chat_history}")
 
@@ -217,7 +159,7 @@ class OpenAIProvider(BaseProvider):
                 )
                 # if there is text, print it/yield it
                 if ev.type == "response.output_text.delta":
-                    await manager.stream_response_chunk(
+                    await self.manager.stream_response_chunk(
                         message_id=str(message_id),
                         chunk=ev.delta,
                         is_complete=False,
@@ -227,7 +169,7 @@ class OpenAIProvider(BaseProvider):
                     final_response += ev.delta
                 # if there is no text, print a newline
                 elif ev.type == "response.output_text.done":
-                    await manager.stream_response_chunk(
+                    await self.manager.stream_response_chunk(
                         message_id=str(message_id),
                         chunk="",
                         is_complete=True,
