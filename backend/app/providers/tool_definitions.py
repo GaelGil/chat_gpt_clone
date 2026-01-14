@@ -1,17 +1,37 @@
 tool_definitions = [
     {
         "type": "function",
-        "name": "get_horoscope",
-        "description": "Get today's horoscope for an astrological sign.",
+        "name": "wiki_search",
+        "description": "Searches Wikipedia for the given query and returns a summary.",
         "parameters": {
             "type": "object",
             "properties": {
-                "sign": {
+                "query": {
                     "type": "string",
-                    "description": "An astrological sign like Taurus or Aquarius",
+                    "description": "The query to search Wikipedia for.",
+                },
+                "sentences": {
+                    "type": "integer",
+                    "description": "Number of summary sentences to return.",
+                    "default": 12,
                 },
             },
-            "required": ["sign"],
+            "required": ["query"],
+        },
+    },
+    {
+        "type": "function",
+        "name": "arxiv_search",
+        "description": "Searches arxiv for the given query and returns a summary.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The query to search arxiv for.",
+                },
+            },
+            "required": ["query"],
         },
     },
 ]

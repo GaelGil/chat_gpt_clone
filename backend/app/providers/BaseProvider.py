@@ -1,6 +1,7 @@
 import asyncio
 import uuid
 
+from composio import Composio
 from fastapi import HTTPException
 from sqlmodel import Session
 
@@ -11,6 +12,8 @@ from app.schemas.Message import NewMessage, Role, Status
 class BaseProvider:
     def __init__(self, session: Session):
         self.session = session
+        self.composio_user_id = "0000-1111-2222"
+        self.composio = Composio()
 
     def save_message(
         self, session_id: uuid.UUID, owner_id: uuid.UUID, new_message: NewMessage
