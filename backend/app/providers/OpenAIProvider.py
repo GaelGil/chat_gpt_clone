@@ -2,7 +2,6 @@ import json
 import logging
 import uuid
 
-from fastapi import BackgroundTasks
 from openai import OpenAI
 from sqlmodel import Session
 
@@ -42,7 +41,7 @@ class OpenAIProvider(BaseProvider):
         )
 
         tool_calls = {}
-        init_response = ""
+        response = ""
         # Initial call
         for event in stream:
             # if there is text, send it to the manager
@@ -54,7 +53,7 @@ class OpenAIProvider(BaseProvider):
                     msg_type="message_chunk",
                 )
                 # add the text to the initial response
-                init_response += event.delta
+                response += event.delta
             # if the response is complete send it to the manager
             # and mark the message as complete
             elif event.type == "response.output_text.done":
@@ -125,59 +124,24 @@ class OpenAIProvider(BaseProvider):
                 ).strip()
                 # log statment for tool done
                 logger.info(f"[DEBUG] Marked tool idx={idx} done")
-        chat_history.append({"role": Role.ASSISTANT, "content": init_response})
+        chat_history.append({"role": Role.ASSISTANT, "content": response})
 
         # if there are tool calls we need to execute them
         # and form a final response
         if tool_calls:
-            background_tasks = BackgroundTasks()
-            background_tasks.add_task(
+            self.background_tasks.add_task(
                 self.execute_tools,
                 chat_history=chat_history,
                 tools=tool_calls,
                 message_id=message_id,
                 session_id=session_id,
                 owner_id=owner_id,
+                model_name=model_name,
             )
-
-            logger.info(f"[DEBUG] CHAT HISTORY AFTER TOOL RUN: {chat_history}")
-
-            # Get the final answer
-            final_response = ""
-
-            logger.info("[DEBUG] Calling model for final answer...")
-            # Call the model again with the tool call results
-            final_stream = self.openai.responses.create(
-                model=model_name,
-                input=chat_history,
-                stream=True,
-            )
-            logger.info(f"[DEBUG] CHAT HISTORY AFTER FINAL LLM CALL: {chat_history}")
-            for ev in final_stream:
-                logger.info(
-                    f"\n[DEBUG EVENT FINAL] type={ev.type}, delta={getattr(ev, 'delta', None)}"
+            if tool_choice == "none":
+                await self.update_message_async(
+                    message_id=message_id,
+                    status=Status.COMPLETE,
+                    role=Role.ASSISTANT,
+                    content=f"{response}",
                 )
-                # if there is text, print it/yield it
-                if ev.type == "response.output_text.delta":
-                    await self.manager.stream_response_chunk(
-                        message_id=str(message_id),
-                        chunk=ev.delta,
-                        is_complete=False,
-                        msg_type="message_chunk",
-                    )
-                    logger.info(f"response.output_text.delta: {ev.delta}")
-                    final_response += ev.delta
-                # if there is no text, print a newline
-                elif ev.type == "response.output_text.done":
-                    await self.manager.stream_response_chunk(
-                        message_id=str(message_id),
-                        chunk="",
-                        is_complete=True,
-                        msg_type="message_chunk",
-                    )
-        await self.update_message_async(
-            message_id=message_id,
-            status=Status.COMPLETE,
-            role=Role.ASSISTANT,
-            content=f"{init_response} {final_response}",
-        )

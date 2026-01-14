@@ -4,7 +4,7 @@ import logging
 import uuid
 
 from composio import Composio
-from fastapi import HTTPException
+from fastapi import BackgroundTasks, HTTPException
 from sqlmodel import Session
 
 from app.api.routes.websockets import manager
@@ -25,6 +25,7 @@ class BaseProvider:
         self.composio = Composio()
         self.tools = Tools()
         self.manager = manager
+        self.background_tasks = BackgroundTasks()
 
     def save_message(
         self, session_id: uuid.UUID, owner_id: uuid.UUID, new_message: NewMessage
@@ -117,6 +118,7 @@ class BaseProvider:
         session_id: uuid.UUID,
         tool_calls: dict,
         owner_id: uuid.UUID,
+        model_name: str,
     ):
         logger.info(f"TOOL CALLS: {tool_calls}")
         # Execute the tool calls
@@ -184,6 +186,15 @@ class BaseProvider:
                     "content": f"TOOL_NAME: {tool_name}, RESULT: {result}",
                 }
             )
+            self.background_tasks.add_task(
+                self.process_stream,
+                chat_history=chat_history,
+                model_name=model_name,
+                owner_id=owner_id,
+                session_id=session_id,
+                message_id=message_id,
+                tool_choice="none",
+            )
 
     async def execute_tool(self, tool_name: str, args: dict):
         """
@@ -217,5 +228,6 @@ class BaseProvider:
         owner_id: uuid.UUID,
         session_id: uuid.UUID,
         message_id: uuid.UUID,
+        tool_choice: str = "auto",
     ):
         raise NotImplementedError
