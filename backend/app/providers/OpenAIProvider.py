@@ -133,7 +133,8 @@ class OpenAIProvider(BaseProvider):
             tool_name = tool["name"]
             args_str = tool["arguments"]
 
-            if not tool_name:  # if tool name is None
+            # if there is no tool name, skip
+            if not tool_name:
                 logger.info(f"[DEBUG] No tool name for idx={tool_idx}, skipping")
                 continue  # continue
 
@@ -145,11 +146,17 @@ class OpenAIProvider(BaseProvider):
                 logger.info(
                     f"[DEBUG] Failed to parse args for idx={tool_idx}, using empty dict"
                 )
-            # yield the tool call
-            # yield json.dumps(
-            #     {"type": "tool_use", "tool_name": tool_name, "tool_input": parsed_args}
-            # )
-            # yield f"tool_name: {tool_name}, tool_input: {parsed_args}"
+
+            # send the tool call to the manager
+            await manager.stream_response_chunk(
+                message_id=str(message_id),
+                chunk={
+                    "tool_name": tool_name,
+                    "tool_input": parsed_args,
+                },
+                is_complete=False,
+                msg_type="tool_call",
+            )
 
             # execute the tool
             try:
@@ -157,7 +164,6 @@ class OpenAIProvider(BaseProvider):
             except TypeError:
                 result = self.execute_tool(tool_name, parsed_args.get("location"))
 
-            # result = self.parse_tool_result(tool_name, result)
             logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {result}")
             self.save_tool_call_async(
                 session_id=session_id,
@@ -167,18 +173,17 @@ class OpenAIProvider(BaseProvider):
                 owner_id=owner_id,
             )
 
-            # yield the tool result
-            # yield json.dumps(
-            #     {
-            #         "type": "tool_result",
-            #         "tool_name": tool_name,
-            #         "tool_input": parsed_args,
-            #         "tool_result": result,
-            #     }
-            # )
-            # yield f"tool_name: {tool_name}, tool_input: {parsed_args}, tool_result: {result}"
+            await manager.stream_response_chunk(
+                message_id=str(message_id),
+                chunk={
+                    "tool_name": tool_name,
+                    "tool_result": result,
+                },
+                is_complete=True,
+                msg_type="tool_result",
+            )
 
-            # Add the tool call result to the chat history
+            # Add the tool call result to the chat history for the final response
             chat_history.append(
                 {
                     "role": Role.ASSISTANT,
@@ -207,8 +212,6 @@ class OpenAIProvider(BaseProvider):
                 )
                 # if there is text, print it/yield it
                 if ev.type == "response.output_text.delta":
-                    # yield json.dumps({"type": "response", "text": ev.delta})
-                    # yield ev.delta
                     await manager.stream_response_chunk(
                         message_id=str(message_id),
                         chunk=ev.delta,
@@ -218,11 +221,14 @@ class OpenAIProvider(BaseProvider):
                     logger.info(f"response.output_text.delta: {ev.delta}")
                     final_response += ev.delta
 
-                    # print(ev.delta, end="", flush=True)
                 # if there is no text, print a newline
                 elif ev.type == "response.output_text.done":
-                    logger.info("response.output_text.done")
-            chat_history.append({"role": Role.ASSISTANT, "content": final_response})
+                    await manager.stream_response_chunk(
+                        message_id=str(message_id),
+                        chunk="",
+                        is_complete=True,
+                        msg_type="message_chunk",
+                    )
 
         await self.update_message_async(
             message_id=message_id,
