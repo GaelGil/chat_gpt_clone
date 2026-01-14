@@ -80,7 +80,6 @@ class OpenAIProvider(BaseProvider):
                         "arguments": None,
                         "done": False,
                     }
-
                 tool_calls[idx]["name"] = event.item.name  # get the name of the tool
 
             # else if there is a tool argument (they come in chunks as strings)
@@ -128,75 +127,78 @@ class OpenAIProvider(BaseProvider):
         logger.info(f"TOOL CALLS: {tool_calls}")
         chat_history.append({"role": Role.ASSISTANT, "content": init_response})
 
-        # Execute the tool calls
-        for tool_idx, tool in tool_calls.items():
-            tool_name = tool["name"]
-            args_str = tool["arguments"]
+        if tool_calls:
+            # Execute the tool calls
+            for tool_idx, tool in tool_calls.items():
+                tool_name = tool["name"]
+                args_str = tool["arguments"]
 
-            # if there is no tool name, skip
-            if not tool_name:
-                logger.info(f"[DEBUG] No tool name for idx={tool_idx}, skipping")
-                continue  # continue
+                # if there is no tool name, skip
+                if not tool_name:
+                    logger.info(f"[DEBUG] No tool name for idx={tool_idx}, skipping")
+                    continue  # continue
 
-            # try to parse the arguments
-            try:
-                parsed_args = json.loads(args_str)
-            except json.JSONDecodeError:
-                parsed_args = {}
-                logger.info(
-                    f"[DEBUG] Failed to parse args for idx={tool_idx}, using empty dict"
+                # try to parse the arguments
+                try:
+                    parsed_args = json.loads(args_str)
+                except json.JSONDecodeError:
+                    parsed_args = {}
+                    logger.info(
+                        f"[DEBUG] Failed to parse args for idx={tool_idx}, using empty dict"
+                    )
+
+                # send the tool call to the manager
+                await manager.stream_response_chunk(
+                    message_id=str(message_id),
+                    chunk={
+                        "tool_name": tool_name,
+                        "tool_input": parsed_args,
+                    },
+                    is_complete=False,
+                    msg_type="tool_call",
                 )
 
-            # send the tool call to the manager
-            await manager.stream_response_chunk(
-                message_id=str(message_id),
-                chunk={
-                    "tool_name": tool_name,
-                    "tool_input": parsed_args,
-                },
-                is_complete=False,
-                msg_type="tool_call",
-            )
+                # execute the tool
+                try:
+                    result = await self.execute_tool(tool_name, parsed_args)
+                except TypeError:
+                    result = await self.execute_tool(
+                        tool_name, parsed_args.get("location")
+                    )
 
-            # execute the tool
-            try:
-                result = self.execute_tool(tool_name, parsed_args)
-            except TypeError:
-                result = self.execute_tool(tool_name, parsed_args.get("location"))
+                logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {result}")
+                # save the tool call after it has been executed
+                self.save_tool_call_async(
+                    session_id=session_id,
+                    name=tool_name,
+                    args=parsed_args,
+                    result=result,
+                    owner_id=owner_id,
+                )
+                # send the tool result to the manager
+                await manager.stream_response_chunk(
+                    message_id=str(message_id),
+                    chunk={
+                        "tool_name": tool_name,
+                        "tool_result": result,
+                    },
+                    is_complete=True,
+                    msg_type="tool_result",
+                )
 
-            logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {result}")
-            self.save_tool_call_async(
-                session_id=session_id,
-                name=tool_name,
-                args=parsed_args,
-                result=result,
-                owner_id=owner_id,
-            )
+                # Add the tool call result to the chat history for the final response
+                chat_history.append(
+                    {
+                        "role": Role.ASSISTANT,
+                        "content": f"TOOL_NAME: {tool_name}, RESULT: {result}",
+                    }
+                )
 
-            await manager.stream_response_chunk(
-                message_id=str(message_id),
-                chunk={
-                    "tool_name": tool_name,
-                    "tool_result": result,
-                },
-                is_complete=True,
-                msg_type="tool_result",
-            )
+            logger.info(f"[DEBUG] CHAT HISTORY AFTER TOOL RUN: {chat_history}")
 
-            # Add the tool call result to the chat history for the final response
-            chat_history.append(
-                {
-                    "role": Role.ASSISTANT,
-                    "content": f"TOOL_NAME: {tool_name}, RESULT: {result}",
-                }
-            )
+            # Get the final answer
+            final_response = ""
 
-        logger.info(f"[DEBUG] CHAT HISTORY AFTER TOOL RUN: {chat_history}")
-
-        # Get the final answer
-        final_response = ""
-        # IF we called tools to get updated information then we must form a final response
-        if tool_calls:
             logger.info("[DEBUG] Calling model for final answer...")
             # Call the model again with the tool call results
             final_stream = self.openai.responses.create(
@@ -205,7 +207,6 @@ class OpenAIProvider(BaseProvider):
                 stream=True,
             )
             logger.info(f"[DEBUG] CHAT HISTORY AFTER FINAL LLM CALL: {chat_history}")
-
             for ev in final_stream:
                 logger.info(
                     f"\n[DEBUG EVENT FINAL] type={ev.type}, delta={getattr(ev, 'delta', None)}"
@@ -220,7 +221,6 @@ class OpenAIProvider(BaseProvider):
                     )
                     logger.info(f"response.output_text.delta: {ev.delta}")
                     final_response += ev.delta
-
                 # if there is no text, print a newline
                 elif ev.type == "response.output_text.done":
                     await manager.stream_response_chunk(
@@ -229,13 +229,9 @@ class OpenAIProvider(BaseProvider):
                         is_complete=True,
                         msg_type="message_chunk",
                     )
-
         await self.update_message_async(
             message_id=message_id,
             status=Status.COMPLETE,
             role=Role.ASSISTANT,
             content=f"{init_response} {final_response}",
         )
-
-    async def execute_tool(self, tool_name: str, args: dict) -> str:
-        pass

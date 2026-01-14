@@ -96,7 +96,7 @@ class BaseProvider:
         self.session.add(tool_call_obj)
         self.session.commit()
 
-    def execute_tool(self, tool_name: str, args: dict):
+    async def execute_tool(self, tool_name: str, args: dict):
         pass
 
     @classmethod
