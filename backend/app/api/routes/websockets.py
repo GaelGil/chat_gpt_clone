@@ -33,8 +33,14 @@ class ConnectionManager:
             if not self.active_connections[message_id]:
                 del self.active_connections[message_id]
 
-    async def send_to_canvas(self, message_id: str, message: dict):
-        """Send message to all connections watching a specific canvas."""
+    async def send_to_message(self, message_id: str, message: dict):
+        """Send message to all connections watching a specific message.
+
+        Args:
+            message_id (str): Message ID
+            message (dict): Message
+
+        """
         if message_id in self.active_connections:
             disconnected = []
             for connection in self.active_connections[message_id]:
@@ -47,13 +53,24 @@ class ConnectionManager:
                 self.disconnect(conn, message_id)
 
     async def stream_response_chunk(
-        self, message_id: str, chunk: str, is_complete: bool = False
+        self,
+        message_id: str,
+        chunk: str,
+        is_complete: bool = False,
+        msg_type: str = "message_chunk",
     ):
-        """Stream a title chunk to all canvas connections."""
-        await self.send_to_canvas(
-            message_id,
-            {
-                "type": "message_chunk",
+        """Stream a response chunk to message connections.
+
+        Args:
+            message_id (str): Message ID
+            chunk (str): Response chunk
+            is_complete (bool, optional): Whether the response is complete. Defaults to False.
+            msg_type (str, optional): Message type. Defaults to "message_chunk".
+        """
+        await self.send_to_message(
+            message_id=message_id,
+            message={
+                "type": msg_type,
                 "chunk": chunk,
                 "is_complete": is_complete,
             },

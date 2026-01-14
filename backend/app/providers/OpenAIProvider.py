@@ -30,8 +30,6 @@ class OpenAIProvider(BaseProvider):
         session_id: uuid.UUID,
         message_id: uuid.UUID,
     ):
-        print("ABOUT TO STREAM RESPONSE")
-        print("Chat history: ", chat_history)
         # stream the response
         stream = self.openai.responses.create(
             model=model_name,
@@ -41,33 +39,37 @@ class OpenAIProvider(BaseProvider):
             stream=True,
         )
 
-        print("STREAMING RESPONSE")
         tool_calls = {}
         init_response = ""
-        # initial call
+        # Initial call
         for event in stream:
-            # if there is text, print it
+            # if there is text, send it to the manager
             if event.type == "response.output_text.delta":
-                # yield the text
-                # yield json.dumps({"type": "response", "text": event.delta})
-                print(event.delta, end="", flush=True)
                 await manager.stream_response_chunk(
-                    message_id=str(message_id), chunk=event.delta, is_complete=False
+                    message_id=str(message_id),
+                    chunk=event.delta,
+                    is_complete=False,
+                    msg_type="message_chunk",
                 )
-                # yield event.delta
+                # add the text to the initial response
                 init_response += event.delta
-                # print(event.delta, end="", flush=True)
-            # if there is no text, print a newline
+            # if the response is complete send it to the manager
+            # and mark the message as complete
             elif event.type == "response.output_text.done":
-                logger.info("response.output_text.done")
+                await manager.stream_response_chunk(
+                    message_id=str(message_id),
+                    chunk="",
+                    is_complete=True,
+                    msg_type="message_chunk",
+                )
+                # logger.info("response.output_text.done")
 
             # else if there is a tool call
-            # name of the tool is in response.output.item
             elif (
                 event.type == "response.output_item.added"
                 and event.item.type == "function_call"
             ):
-                # output_index is the index of the tool call
+                # output_index is the index of the tool call (there can be multiple tool calls)
                 # because they come in chunks we need to keep track of the index
                 idx = getattr(event, "output_index", 0)
                 if idx not in tool_calls:
@@ -78,6 +80,7 @@ class OpenAIProvider(BaseProvider):
                         "arguments": None,
                         "done": False,
                     }
+
                 tool_calls[idx]["name"] = event.item.name  # get the name of the tool
 
             # else if there is a tool argument (they come in chunks as strings)
@@ -207,7 +210,10 @@ class OpenAIProvider(BaseProvider):
                     # yield json.dumps({"type": "response", "text": ev.delta})
                     # yield ev.delta
                     await manager.stream_response_chunk(
-                        message_id=str(message_id), chunk=ev.delta, is_complete=False
+                        message_id=str(message_id),
+                        chunk=ev.delta,
+                        is_complete=False,
+                        msg_type="message_chunk",
                     )
                     logger.info(f"response.output_text.delta: {ev.delta}")
                     final_response += ev.delta
