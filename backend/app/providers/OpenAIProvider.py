@@ -7,6 +7,7 @@ from sqlmodel import Session
 
 from app.api.routes.websockets import manager
 from app.providers.BaseProvider import BaseProvider
+from app.providers.tool_definitions import tool_definitions
 from app.schemas.Message import Role, Status
 
 # logging stuff
@@ -20,7 +21,7 @@ class OpenAIProvider(BaseProvider):
     def __init__(self, session: Session):
         super().__init__(session)
         self.openai: OpenAI = OpenAI()
-        self.tools = []
+        self.tools = tool_definitions
 
     async def process_stream(
         self,
@@ -124,10 +125,11 @@ class OpenAIProvider(BaseProvider):
                 # log statment for tool done
                 logger.info(f"[DEBUG] Marked tool idx={idx} done")
 
-        logger.info(f"TOOL CALLS: {tool_calls}")
-        chat_history.append({"role": Role.ASSISTANT, "content": init_response})
-
+        # if there are tool calls we need to execute them
+        # and form a final response
         if tool_calls:
+            logger.info(f"TOOL CALLS: {tool_calls}")
+            chat_history.append({"role": Role.ASSISTANT, "content": init_response})
             # Execute the tool calls
             for tool_idx, tool in tool_calls.items():
                 tool_name = tool["name"]
@@ -143,9 +145,11 @@ class OpenAIProvider(BaseProvider):
                     parsed_args = json.loads(args_str)
                 except json.JSONDecodeError:
                     parsed_args = {}
+
                     logger.info(
                         f"[DEBUG] Failed to parse args for idx={tool_idx}, using empty dict"
                     )
+                    continue  # continue
 
                 # send the tool call to the manager
                 await manager.stream_response_chunk(
