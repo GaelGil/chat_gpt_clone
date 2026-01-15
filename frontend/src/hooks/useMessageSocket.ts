@@ -127,11 +127,12 @@ export function useMessageSocket({
     };
   }, [messageId]); // Only depend on messageId
 
-  return {
+  const res = {
     isConnected,
     streamingMessage,
     isStreaming,
-  };
+  } as UseMessageSocketReturn;
+  return res;
 }
 
 export default useMessageSocket;

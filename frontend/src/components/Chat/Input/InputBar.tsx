@@ -117,7 +117,7 @@ const InputBar: React.FC<InputBarProps> = ({
   };
 
   // Get message and streatming status from socket
-  const { streamingMessage, isStreaming } = useMessageSocket({
+  const res = useMessageSocket({
     messageId: newMessageId,
     onMessageComplete: () => {
       queryClient.invalidateQueries({ queryKey: ["session", chatId] });
@@ -126,11 +126,11 @@ const InputBar: React.FC<InputBarProps> = ({
   // If we are streaming, update the content and message id
   // these are used to display the message in Messages.tsx
   useEffect(() => {
-    if (isStreaming && streamingMessage) {
-      setStreamingContent(streamingMessage);
+    if (res.isStreaming && res.streamingMessage) {
+      setStreamingContent(res.streamingMessage);
       setStreamingMessageId(newMessageId);
     }
-  }, [isStreaming, streamingMessage, ""]);
+  }, [res.isStreaming, res.streamingMessage, ""]);
 
   return (
     <form
