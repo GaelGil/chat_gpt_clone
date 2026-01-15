@@ -136,6 +136,7 @@ class BaseProvider:
         logger.info(f"TOOL CALLS: {tool_calls}")
         # Execute the tool calls
         for tool_idx, tool in tool_calls.items():
+            # get name and args
             tool_name = tool["name"]
             args_str = tool["arguments"]
 
@@ -149,7 +150,6 @@ class BaseProvider:
                 parsed_args = json.loads(args_str)
             except json.JSONDecodeError:
                 parsed_args = {}
-
                 logger.info(
                     f"[DEBUG] Failed to parse args for idx={tool_idx}, using empty dict"
                 )
@@ -167,18 +167,17 @@ class BaseProvider:
             )
 
             # execute the tool
-            try:
-                result = await self.execute_tool(tool_name, parsed_args)
-            except TypeError:
-                result = await self.execute_tool(tool_name, parsed_args.get("location"))
-
-            logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {result}")
+            true_result = None
+            result, error = await self.execute_tool(tool_name, parsed_args)
+            if not result and error:
+                true_result = error
+            logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {true_result}")
             # save the tool call after it has been executed
             self.save_tool_call_async(
                 session_id=session_id,
                 name=tool_name,
                 args=parsed_args,
-                result=result,
+                result=true_result,
                 owner_id=owner_id,
             )
             # send the tool result to the manager
@@ -186,7 +185,7 @@ class BaseProvider:
                 message_id=str(message_id),
                 chunk={
                     "tool_name": tool_name,
-                    "tool_result": result,
+                    "tool_result": true_result,
                 },
                 is_complete=True,
                 msg_type="tool_result",
@@ -196,7 +195,7 @@ class BaseProvider:
             chat_history.append(
                 {
                     "role": Role.ASSISTANT,
-                    "content": f"TOOL_NAME: {tool_name}, RESULT: {result}",
+                    "content": f"TOOL_NAME: {tool_name}, RESULT: {true_result}",
                 }
             )
             self.background_tasks.add_task(
@@ -209,18 +208,21 @@ class BaseProvider:
                 tool_choice="none",
             )
 
-    async def execute_tool(self, tool_name: str, args: dict):
+    async def execute_tool(
+        self, tool_name: str, args: dict
+    ) -> tuple[str | None, str | None]:
         """
         Args:
             tool_name (str): description
             args (dict): description
 
         """
+        result = None
         try:
             if tool_name == "arxiv_search":
-                result = await self.tools.arxiv_search(**args)
+                result = self.tools.arxiv_search(**args)
             elif tool_name == "wiki_search":
-                result = await self.tools.wiki_search(**args)
+                result = self.tools.wiki_search(**args)
             else:
                 result = await self.composio.tools.execute(
                     slug=tool_name,
@@ -228,10 +230,9 @@ class BaseProvider:
                     arguments=args,
                 )
         except Exception as e:
-            raise HTTPException(
-                status_code=400, detail=str(f"Error executing tool: {e}")
-            )
-        return result
+            return result, f"Error executing tool: {e}"
+
+        return result, None
 
     @classmethod
     async def process_stream(
