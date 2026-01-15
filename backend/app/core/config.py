@@ -46,6 +46,7 @@ class Settings(BaseSettings):
 
     OPENAI_API_KEY: str
     GOOGLE_API_KEY: str
+    COMPOSIO_API_KEY: str
 
     @computed_field  # type: ignore[prop-decorator]
     @property
