@@ -124,10 +124,11 @@ class OpenAIProvider(BaseProvider):
                 ).strip()
                 # log statment for tool done
                 logger.info(f"[DEBUG] Marked tool idx={idx} done")
+
+        # add the response to the chat history
         chat_history.append({"role": Role.ASSISTANT, "content": response})
 
         # if there are tool calls we need to execute them
-        # and form a final response
         if tool_calls:
             self.background_tasks.add_task(
                 self.execute_tools,

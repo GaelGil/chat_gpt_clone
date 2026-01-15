@@ -120,6 +120,19 @@ class BaseProvider:
         owner_id: uuid.UUID,
         model_name: str,
     ):
+        """
+        Execute tools that are in the tool_calls dict. Get result and send it to the manager.
+        Then form a response.
+
+        Args:
+            chat_history (list): chat history
+            message_id (uuid.UUID): message id
+            session_id (uuid.UUID): session id
+            tool_calls (dict): tool calls
+            owner_id (uuid.UUID): user id
+            model_name (str): model name
+
+        """
         logger.info(f"TOOL CALLS: {tool_calls}")
         # Execute the tool calls
         for tool_idx, tool in tool_calls.items():
@@ -143,7 +156,7 @@ class BaseProvider:
                 continue  # continue
 
             # send the tool call to the manager
-            await manager.stream_response_chunk(
+            await self.manager.stream_response_chunk(
                 message_id=str(message_id),
                 chunk={
                     "tool_name": tool_name,
@@ -169,7 +182,7 @@ class BaseProvider:
                 owner_id=owner_id,
             )
             # send the tool result to the manager
-            await manager.stream_response_chunk(
+            await self.manager.stream_response_chunk(
                 message_id=str(message_id),
                 chunk={
                     "tool_name": tool_name,
