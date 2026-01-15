@@ -139,10 +139,9 @@ class OpenAIProvider(BaseProvider):
                 owner_id=owner_id,
                 model_name=model_name,
             )
-            if tool_choice == "none":
-                await self.update_message_async(
-                    message_id=message_id,
-                    status=Status.COMPLETE,
-                    role=Role.ASSISTANT,
-                    content=f"{response}",
-                )
+        await self.update_message_async(
+            message_id=message_id,
+            status=Status.COMPLETE,
+            role=Role.ASSISTANT,
+            content=f"{response}",
+        )

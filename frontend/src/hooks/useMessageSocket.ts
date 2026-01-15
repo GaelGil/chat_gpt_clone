@@ -128,9 +128,9 @@ export function useMessageSocket({
   }, [messageId]); // Only depend on messageId
 
   return {
-    isConnected,
-    streamingMessage,
-    isStreaming,
+    isConnected: isConnected,
+    streamingMessage: streamingMessage,
+    isStreaming: isStreaming,
   } as UseMessageSocketReturn;
 }
 
