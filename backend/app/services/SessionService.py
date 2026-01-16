@@ -115,6 +115,7 @@ class SessionService:
     def session_history(
         self, session_id: uuid.UUID, role: Role = None, content: str = None
     ) -> tuple[list | None, HTTPException | None]:
+        # get messages in session and order by created_at
         stmt = (
             select(Message)
             .where(Message.session_id == session_id)

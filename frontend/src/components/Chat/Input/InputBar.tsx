@@ -1,6 +1,5 @@
 import { Textarea } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
 import {
   SessionService,
   NewMessage,
@@ -42,13 +41,7 @@ const InputBar: React.FC<InputBarProps> = ({
     assistantMessageId: string;
     model_name: string;
   } | null>(null);
-  const res = useMessageSocket({
-    messageId: newMessageId,
-    pendingChatRef,
-    // onMessageComplete: () => {
-    //   queryClient.invalidateQueries({ queryKey: ["session", chatId] });
-    // },
-  });
+
   const sendMessage = useMutation<SendMessageResult, ApiError, NewMessage>({
     mutationFn: async (data: NewMessage): Promise<SendMessageResult> => {
       let sessionId = chatId;
@@ -126,6 +119,13 @@ const InputBar: React.FC<InputBarProps> = ({
       console.error("Error sending message or streaming:", err);
     }
   };
+  const res = useMessageSocket({
+    messageId: newMessageId,
+    pendingChatRef,
+    // onMessageComplete: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["session", chatId] });
+    // },
+  });
 
   return (
     <form
