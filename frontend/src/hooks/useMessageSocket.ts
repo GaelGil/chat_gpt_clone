@@ -73,19 +73,21 @@ export function useMessageSocket({
     setIsStreaming(false);
 
     const ws = new WebSocket(url);
-
+    console.log("messageId", messageId);
     ws.onopen = () => {
       setIsConnected(true);
     };
     ws.onmessage = (event) => {
       try {
         const message: SocketMessage = JSON.parse(event.data);
+        console.log("event data", event);
         setMessageType(message.type);
         if (message.type === "message_chunk") {
           // Only set isStreaming when we actually receive content
           if (!message.is_complete) {
             setIsStreaming(true);
           }
+          console.log("message chunk", message.chunk);
           fullmessageRef.current += message.chunk;
           setstreamingMessage(fullmessageRef.current);
           // setLatestChunk(message.chunk); // <-- emit only the new chunk

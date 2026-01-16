@@ -92,7 +92,8 @@ async def message_websocket(websocket: WebSocket, message_id: str):
             # Keep connection alive, listen for any client messages
             # _ = await websocket.receive_text()
             try:
-                await asyncio.wait_for(websocket.receive_text(), timeout=30)
+                # await asyncio.wait_for(websocket.receive_text(), timeout=30)
+                _ = await websocket.receive_text()
             except asyncio.TimeoutError:
                 pass
             # Could handle client messages here if needed
