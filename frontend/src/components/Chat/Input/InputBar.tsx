@@ -1,7 +1,6 @@
-import { Textarea, Button, Box } from "@mantine/core";
+import { Textarea } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { FaSquare } from "react-icons/fa";
-import { FiArrowUp } from "react-icons/fi";
+
 import {
   SessionService,
   NewMessage,
@@ -15,9 +14,9 @@ import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
 import { useForm } from "@mantine/form";
 import LeftSection from "./LeftSection";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useMessageSocket } from "@/hooks/useMessageSocket";
-// import RightSection from "./RightSection";
+import RightSection from "./RightSection";
 import { useRef } from "react";
 interface InputBarProps {
   chatId: string | undefined;
@@ -46,9 +45,9 @@ const InputBar: React.FC<InputBarProps> = ({
   const res = useMessageSocket({
     messageId: newMessageId,
     pendingChatRef,
-    onMessageComplete: () => {
-      queryClient.invalidateQueries({ queryKey: ["session", chatId] });
-    },
+    // onMessageComplete: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["session", chatId] });
+    // },
   });
   const sendMessage = useMutation<SendMessageResult, ApiError, NewMessage>({
     mutationFn: async (data: NewMessage): Promise<SendMessageResult> => {
@@ -65,14 +64,11 @@ const InputBar: React.FC<InputBarProps> = ({
         sessionId = newSessionId;
       }
       // send user message
-      console.log("Saving user message...");
       await SessionService.addMessage({
         sessionId: sessionId as string,
         requestBody: data,
       });
-      console.log("User message saved!");
 
-      console.log("Creating assistant message...");
       // send assistant message (blank for now)
       const assistantMessageId = await SessionService.addMessage({
         sessionId: sessionId as string,
@@ -83,7 +79,6 @@ const InputBar: React.FC<InputBarProps> = ({
           status: "streaming" as Status,
         } as NewMessage,
       });
-      console.log("Assistant message saved:", assistantMessageId);
 
       return {
         sessionId: sessionId as string,
@@ -132,43 +127,6 @@ const InputBar: React.FC<InputBarProps> = ({
     }
   };
 
-  useEffect(() => {
-    if (!newMessageId) return;
-    const pending = pendingChatRef.current;
-    if (!pending) return;
-
-    // Call the streaming API now that messageId is in state (and the socket hook
-    // — declared earlier — will run its effect before this effect).
-    SessionService.chat({
-      sessionId: pending.sessionId,
-      requestBody: {
-        model_name: pending.model_name,
-        message_id: pending.assistantMessageId,
-      } as StreamResponseBody,
-    });
-
-    // clear pending so we don't re-run accidentally
-    pendingChatRef.current = null;
-  }, [newMessageId]);
-  // If we are streaming, update the content and message id
-  // these are used to display the message in Messages.tsx
-  console.log("response:", res);
-  console;
-  useEffect(() => {
-    if (res.isStreaming && res.streamingMessage) {
-      setStreamingContent(res.streamingMessage);
-      setStreamingMessageId(newMessageId);
-      setMessageType(res.messageType);
-
-      console.log("MESSAGE ID", newMessageId);
-      console.log("Response is streaming:", res.isStreaming);
-      console.log("Streaming response:", res);
-      console.log("Streaming message:", res.streamingMessage);
-      console.log("Streaming message type:", res.messageType);
-      console.log("Streaming message id:", newMessageId);
-    }
-  }, [res, newMessageId]);
-
   return (
     <form
       onSubmit={(e) => {
@@ -183,21 +141,11 @@ const InputBar: React.FC<InputBarProps> = ({
         w="100%"
         size="lg"
         rightSection={
-          chatForm.values.content && (
-            <Box>
-              <Button
-                type="submit"
-                disabled={!chatForm.isValid()}
-                radius="xl"
-                bg={sendMessage.isPending ? "gray" : "white"}
-              >
-                {sendMessage.isPending ? (
-                  <FaSquare size={"24px"} color="white" />
-                ) : (
-                  <FiArrowUp size={"24px"} color="black" />
-                )}
-              </Button>
-            </Box>
+          !sendMessage.isPending && (
+            <RightSection
+              isPending={sendMessage.isPending}
+              chatForm={chatForm}
+            />
           )
         }
         leftSection={
