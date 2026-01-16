@@ -3,17 +3,19 @@ import { FiArrowUp } from "react-icons/fi";
 import { FaSquare } from "react-icons/fa";
 
 interface RightSectionProps {
-  // sendMessage: { isPending: boolean };
-  isPending: boolean;
+  sendMessage: { isPending: boolean };
   chatForm: {
     values: { content: string };
     isValid: () => boolean;
   };
 }
 
-const RightSection: React.FC<RightSectionProps> = ({ isPending, chatForm }) => {
+const RightSection: React.FC<RightSectionProps> = ({
+  sendMessage,
+  chatForm,
+}) => {
   // Only render button if there is content in chatForm
-  if (!chatForm.values.content) return null;
+  if (!chatForm.values.content || sendMessage.isPending) return null;
 
   return (
     <Box>
@@ -21,9 +23,9 @@ const RightSection: React.FC<RightSectionProps> = ({ isPending, chatForm }) => {
         type="submit"
         disabled={!chatForm.isValid()}
         radius="xl"
-        bg={isPending ? "gray" : "white"}
+        bg={sendMessage.isPending ? "gray" : "white"}
       >
-        {isPending ? (
+        {sendMessage.isPending ? (
           <FaSquare size={24} color="white" />
         ) : (
           <FiArrowUp size={24} color="black" />

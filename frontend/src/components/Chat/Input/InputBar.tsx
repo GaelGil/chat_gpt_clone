@@ -141,15 +141,10 @@ const InputBar: React.FC<InputBarProps> = ({
         w="100%"
         size="lg"
         rightSection={
-          !sendMessage.isPending && (
-            <RightSection
-              isPending={sendMessage.isPending}
-              chatForm={chatForm}
-            />
-          )
+          <RightSection sendMessage={sendMessage} chatForm={chatForm} />
         }
         leftSection={
-          !sendMessage.isPending && <LeftSection chatForm={chatForm} />
+          <LeftSection sendMessage={sendMessage} chatForm={chatForm} />
         }
         {...chatForm.getInputProps("content")}
       />
