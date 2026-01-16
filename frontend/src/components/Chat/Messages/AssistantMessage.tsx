@@ -17,6 +17,18 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
   streamingMessageId,
   messageType,
 }) => {
+  // console.log(
+  //   "Assistant message compotnent Streaming message:",
+  //   streamingContent
+  // );
+  // console.log(
+  //   "Assistant message compotnent Streaming message type:",
+  //   messageType
+  // );
+  // console.log(
+  //   "Assistant message compotnent Streaming message id:",
+  //   streamingMessageId
+  // );
   return (
     <Flex key={message.id} justify={"flex-start"}>
       <Box

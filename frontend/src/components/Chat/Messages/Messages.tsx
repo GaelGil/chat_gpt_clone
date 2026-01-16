@@ -26,7 +26,7 @@ const Messages: React.FC<MessagesProps> = ({
   return (
     <Stack gap="xs" w="100%">
       {messages.map((message) => (
-        <>
+        <div key={message.id}>
           {message.role === "user" ? (
             <UserMesssage message={message} />
           ) : message.role === "assistant" ? (
@@ -39,7 +39,7 @@ const Messages: React.FC<MessagesProps> = ({
           ) : (
             <> </>
           )}
-        </>
+        </div>
       ))}
       <div ref={bottomRef} />
     </Stack>

@@ -37,7 +37,12 @@ const InputBar: React.FC<InputBarProps> = ({
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
   const [newMessageId, setNewMessageId] = useState("");
-
+  const res = useMessageSocket({
+    messageId: newMessageId,
+    onMessageComplete: () => {
+      queryClient.invalidateQueries({ queryKey: ["session", chatId] });
+    },
+  });
   const sendMessage = useMutation<SendMessageResult, ApiError, NewMessage>({
     mutationFn: async (data: NewMessage): Promise<SendMessageResult> => {
       let sessionId = chatId;
@@ -118,22 +123,21 @@ const InputBar: React.FC<InputBarProps> = ({
     }
   };
 
-  // Get message and streatming status from socket
-  const res = useMessageSocket({
-    messageId: newMessageId,
-    onMessageComplete: () => {
-      queryClient.invalidateQueries({ queryKey: ["session", chatId] });
-    },
-  });
   // If we are streaming, update the content and message id
   // these are used to display the message in Messages.tsx
+  console.log("response:", res);
   useEffect(() => {
     if (res.isStreaming && res.streamingMessage) {
       setStreamingContent(res.streamingMessage);
       setStreamingMessageId(newMessageId);
       setMessageType(res.messageType);
+      console.log("Response is streaming:", res.isStreaming);
+      console.log("Streaming response:", res);
+      console.log("Streaming message:", res.streamingMessage);
+      console.log("Streaming message type:", res.messageType);
+      console.log("Streaming message id:", newMessageId);
     }
-  }, [res.isStreaming, res.streamingMessage, ""]);
+  }, [res, newMessageId]);
 
   return (
     <form
