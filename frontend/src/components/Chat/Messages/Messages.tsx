@@ -3,6 +3,8 @@ import { Flex, Box, Stack, Loader } from "@mantine/core";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
 import { useEffect, useRef } from "react";
+import UserMesssage from "./UserMessage";
+import AssistantMesssage from "./AssistantMessage";
 interface MessagesProps {
   messages: MessageDetail[];
   streamingContent: string;
@@ -26,53 +28,20 @@ const Messages: React.FC<MessagesProps> = ({
   return (
     <Stack gap="xs" w="100%">
       {messages.map((message) => (
-        <Flex
-          key={message.id}
-          justify={message.role === "user" ? "flex-end" : "flex-start"}
-        >
-          <Box
-            p="md"
-            bg={message.role === "user" ? "#303030" : "transparent"}
-            bdrs="md"
-            maw={"60%"}
-            style={{
-              wordBreak: "break-word",
-              textAlign: message.role === "user" ? "right" : "left",
-            }}
-          >
-            {message.role === "user" ? (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {message.content}
-              </ReactMarkdown>
-            ) : message.role === "assistant" ? (
-              <>
-                {message.status === "streaming" ? (
-                  <>
-                    {streamingMessageId === message.id ? (
-                      <>
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {streamingContent}
-                        </ReactMarkdown>
-                      </>
-                    ) : (
-                      <Loader size={"sm"} color="white" />
-                    )}
-                  </>
-                ) : message.status === "failure" ? (
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    Error
-                  </ReactMarkdown>
-                ) : (
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {message.content}
-                  </ReactMarkdown>
-                )}
-              </>
-            ) : (
-              message.content + message.status
-            )}
-          </Box>
-        </Flex>
+        <>
+          {message.role === "user" ? (
+            <UserMesssage message={message} />
+          ) : message.role === "assistant" ? (
+            <AssistantMesssage
+              message={message}
+              streamingContent={streamingContent}
+              streamingMessageId={streamingMessageId}
+              messageType={messageType}
+            />
+          ) : (
+            <> </>
+          )}
+        </>
       ))}
       <div ref={bottomRef} />
     </Stack>
