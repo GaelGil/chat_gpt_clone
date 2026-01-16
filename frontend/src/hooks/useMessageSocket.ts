@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { SessionService } from "@/client";
+import { SessionService, StreamResponseBody } from "@/client";
+
 interface ChunkMessage {
   type: "message_chunk" | "tool_call" | "tool_result" | "tool_error";
   chunk: string;
@@ -15,6 +16,11 @@ type SocketMessage = ChunkMessage | ErrorMessage;
 
 interface UseMessageSocketOptions {
   messageId: string | null;
+  pendingChatRef: React.RefObject<{
+    sessionId: string;
+    assistantMessageId: string;
+    model_name: string;
+  } | null>;
   onMessageChunk?: (chunk: string) => void;
   onMessageComplete?: (fullmessage: string) => void;
   onError?: (error: string) => void;
@@ -29,6 +35,7 @@ interface UseMessageSocketReturn {
 
 export function useMessageSocket({
   messageId,
+  pendingChatRef,
   onMessageChunk,
   onMessageComplete,
   onError,
@@ -76,7 +83,15 @@ export function useMessageSocket({
     const ws = new WebSocket(url);
     console.log("messageId", messageId);
     ws.onopen = () => {
+      console.log("WebSocket connection opened");
+      console.log("WS open, pending:", pendingChatRef.current);
       setIsConnected(true);
+      const pending = pendingChatRef.current;
+      if (!pending) return;
+
+      console.log("WS open, pending:", pending);
+
+      // Make sure backend knows to stream to this WS
       SessionService.chat({
         sessionId: pending.sessionId,
         requestBody: {
@@ -84,6 +99,9 @@ export function useMessageSocket({
           message_id: pending.assistantMessageId,
         } as StreamResponseBody,
       });
+
+      // Clear pending so we don't accidentally call it again
+      pendingChatRef.current = null;
     };
     ws.onmessage = (event) => {
       console.log("Received WebSocket message:", event.data);
