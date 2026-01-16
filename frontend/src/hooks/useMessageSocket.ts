@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-
+import { SessionService } from "@/client";
 interface ChunkMessage {
   type: "message_chunk" | "tool_call" | "tool_result" | "tool_error";
   chunk: string;
@@ -67,6 +67,7 @@ export function useMessageSocket({
 
     const url = `${protocol}//${apiHost}/api/v1/ws/message/${messageId}`;
 
+    console.log("Connecting to WebSocket:", url);
     // Reset state
     setstreamingMessage("");
     fullmessageRef.current = "";
@@ -76,8 +77,16 @@ export function useMessageSocket({
     console.log("messageId", messageId);
     ws.onopen = () => {
       setIsConnected(true);
+      SessionService.chat({
+        sessionId: pending.sessionId,
+        requestBody: {
+          model_name: pending.model_name,
+          message_id: pending.assistantMessageId,
+        } as StreamResponseBody,
+      });
     };
     ws.onmessage = (event) => {
+      console.log("Received WebSocket message:", event.data);
       try {
         const message: SocketMessage = JSON.parse(event.data);
         console.log("event data", event);
@@ -89,6 +98,7 @@ export function useMessageSocket({
           }
           console.log("message chunk", message.chunk);
           fullmessageRef.current += message.chunk;
+          console.log(message.chunk);
           setstreamingMessage(fullmessageRef.current);
           // setLatestChunk(message.chunk); // <-- emit only the new chunk
           onmessageChunkRef.current?.(message.chunk);
@@ -121,7 +131,7 @@ export function useMessageSocket({
     };
 
     wsRef.current = ws;
-    console.log("streamingMessage", streamingMessage);
+    console.log("streamingMessage", fullmessageRef.current);
 
     // Cleanup on unmount or messageId change
     return () => {

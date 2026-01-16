@@ -18,6 +18,7 @@ import LeftSection from "./LeftSection";
 import { useState, useEffect } from "react";
 import { useMessageSocket } from "@/hooks/useMessageSocket";
 // import RightSection from "./RightSection";
+import { useRef } from "react";
 interface InputBarProps {
   chatId: string | undefined;
   setStreamingContent: (value: string) => void;
@@ -37,6 +38,11 @@ const InputBar: React.FC<InputBarProps> = ({
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
   const [newMessageId, setNewMessageId] = useState("");
+  const pendingChatRef = useRef<{
+    sessionId: string;
+    assistantMessageId: string;
+    model_name: string;
+  } | null>(null);
   const res = useMessageSocket({
     messageId: newMessageId,
     onMessageComplete: () => {
@@ -110,27 +116,54 @@ const InputBar: React.FC<InputBarProps> = ({
       // Set new assistant message as newMessageId
       setNewMessageId(assistantMessageId);
 
+      pendingChatRef.current = {
+        sessionId,
+        assistantMessageId,
+        model_name: values.model_name,
+      };
       // Start chat
-      SessionService.chat({
-        sessionId: sessionId as string,
-        requestBody: {
-          model_name: values.model_name,
-          message_id: assistantMessageId,
-        } as StreamResponseBody,
-      });
+      // SessionService.chat({
+      //   sessionId: sessionId as string,
+      //   requestBody: {
+      //     model_name: values.model_name,
+      //     message_id: assistantMessageId,
+      //   } as StreamResponseBody,
+      // });
     } catch (err) {
       console.error("Error sending message or streaming:", err);
     }
   };
 
+  // useEffect(() => {
+  //   if (!newMessageId) return;
+  //   const pending = pendingChatRef.current;
+  //   if (!pending) return;
+
+  //   // Call the streaming API now that messageId is in state (and the socket hook
+  //   // — declared earlier — will run its effect before this effect).
+  //   SessionService.chat({
+  //     sessionId: pending.sessionId,
+  //     requestBody: {
+  //       model_name: pending.model_name,
+  //       message_id: pending.assistantMessageId,
+  //     } as StreamResponseBody,
+  //   });
+  //   queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
+
+  //   // clear pending so we don't re-run accidentally
+  //   pendingChatRef.current = null;
+  // }, [newMessageId]);
   // If we are streaming, update the content and message id
   // these are used to display the message in Messages.tsx
   console.log("response:", res);
+  // console;
   useEffect(() => {
     if (res.isStreaming && res.streamingMessage) {
       setStreamingContent(res.streamingMessage);
       setStreamingMessageId(newMessageId);
       setMessageType(res.messageType);
+
+      console.log("MESSAGE ID", newMessageId);
       console.log("Response is streaming:", res.isStreaming);
       console.log("Streaming response:", res);
       console.log("Streaming message:", res.streamingMessage);
