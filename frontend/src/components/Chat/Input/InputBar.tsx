@@ -2,7 +2,14 @@ import { Textarea, Button, Box } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaSquare } from "react-icons/fa";
 import { FiArrowUp } from "react-icons/fi";
-import { SessionService, NewMessage, NewSession, Role, Status } from "@/client";
+import {
+  SessionService,
+  NewMessage,
+  NewSession,
+  Role,
+  Status,
+  StreamResponseBody,
+} from "@/client";
 import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
@@ -18,7 +25,10 @@ interface InputBarProps {
   setStreamingMessageId: (id: string | null) => void;
   setMessageType: (value: string) => void;
 }
-
+type SendMessageResult = {
+  sessionId: string;
+  assistantMessageId: string;
+};
 const InputBar: React.FC<InputBarProps> = ({
   chatId,
   setStreamingContent,
@@ -28,7 +38,6 @@ const InputBar: React.FC<InputBarProps> = ({
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
   const [newMessageId, setNewMessageId] = useState("");
-  const [sessionId, setSessionId] = useState("");
   const pendingChatRef = useRef<{
     sessionId: string;
     assistantMessageId: string;
@@ -36,29 +45,34 @@ const InputBar: React.FC<InputBarProps> = ({
   } | null>(null);
   const res = useMessageSocket({
     messageId: newMessageId,
-    pendingChatRef, // pass it in!
+    pendingChatRef,
     onMessageComplete: () => {
       queryClient.invalidateQueries({ queryKey: ["session", chatId] });
     },
   });
-  const sendMessage = useMutation({
-    mutationFn: async (data: NewMessage) => {
+  const sendMessage = useMutation<SendMessageResult, ApiError, NewMessage>({
+    mutationFn: async (data: NewMessage): Promise<SendMessageResult> => {
       let sessionId = chatId;
+
+      chatForm.reset();
       // create new session if chatId is undefined
       if (chatId === undefined) {
         const newSession: NewSession = { title: "New Chat" };
+
         const newSessionId = await SessionService.newSession({
           requestBody: newSession,
         });
         sessionId = newSessionId;
       }
-      setSessionId(sessionId as string);
-
       // send user message
+      console.log("Saving user message...");
       await SessionService.addMessage({
         sessionId: sessionId as string,
         requestBody: data,
       });
+      console.log("User message saved!");
+
+      console.log("Creating assistant message...");
       // send assistant message (blank for now)
       const assistantMessageId = await SessionService.addMessage({
         sessionId: sessionId as string,
@@ -69,7 +83,12 @@ const InputBar: React.FC<InputBarProps> = ({
           status: "streaming" as Status,
         } as NewMessage,
       });
-      setNewMessageId(assistantMessageId);
+      console.log("Assistant message saved:", assistantMessageId);
+
+      return {
+        sessionId: sessionId as string,
+        assistantMessageId,
+      };
     },
     onSuccess: () => {
       chatForm.setFieldValue("prompt", "");
@@ -94,13 +113,18 @@ const InputBar: React.FC<InputBarProps> = ({
 
   const handleSubmit = async (values: NewMessage) => {
     try {
-      // Send the message
-      await sendMessage.mutateAsync(values);
-      // Invalidate
+      // Send the message and get IDs
+      const { sessionId, assistantMessageId } =
+        await sendMessage.mutateAsync(values);
+      // Set new assistant message as newMessageId
+      setNewMessageId(assistantMessageId);
+
+      // Invalidate again
       queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
+
       pendingChatRef.current = {
-        sessionId: sessionId,
-        assistantMessageId: newMessageId,
+        sessionId,
+        assistantMessageId,
         model_name: values.model_name,
       };
     } catch (err) {
@@ -109,17 +133,39 @@ const InputBar: React.FC<InputBarProps> = ({
   };
 
   useEffect(() => {
+    if (!newMessageId) return;
+    const pending = pendingChatRef.current;
+    if (!pending) return;
+
+    // Call the streaming API now that messageId is in state (and the socket hook
+    // — declared earlier — will run its effect before this effect).
+    SessionService.chat({
+      sessionId: pending.sessionId,
+      requestBody: {
+        model_name: pending.model_name,
+        message_id: pending.assistantMessageId,
+      } as StreamResponseBody,
+    });
+
+    // clear pending so we don't re-run accidentally
+    pendingChatRef.current = null;
+  }, [newMessageId]);
+  // If we are streaming, update the content and message id
+  // these are used to display the message in Messages.tsx
+  console.log("response:", res);
+  console;
+  useEffect(() => {
     if (res.isStreaming && res.streamingMessage) {
       setStreamingContent(res.streamingMessage);
       setStreamingMessageId(newMessageId);
       setMessageType(res.messageType);
 
-      // console.log("MESSAGE ID", newMessageId);
-      // console.log("Response is streaming:", res.isStreaming);
-      // console.log("Streaming response:", res);
-      // console.log("Streaming message:", res.streamingMessage);
-      // console.log("Streaming message type:", res.messageType);
-      // console.log("Streaming message id:", newMessageId);
+      console.log("MESSAGE ID", newMessageId);
+      console.log("Response is streaming:", res.isStreaming);
+      console.log("Streaming response:", res);
+      console.log("Streaming message:", res.streamingMessage);
+      console.log("Streaming message type:", res.messageType);
+      console.log("Streaming message id:", newMessageId);
     }
   }, [res, newMessageId]);
 
