@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 interface ChunkMessage {
-  type: "message_chunk";
+  type: "message_chunk" | "tool_call" | "tool_result" | "tool_error";
   chunk: string;
   is_complete: boolean;
 }
@@ -24,6 +24,7 @@ interface UseMessageSocketReturn {
   isConnected: boolean;
   streamingMessage: string;
   isStreaming: boolean;
+  messageType: "message_chunk" | "tool_call" | "tool_result" | "tool_error";
 }
 
 export function useMessageSocket({
@@ -36,6 +37,7 @@ export function useMessageSocket({
   const [isConnected, setIsConnected] = useState(false);
   const [streamingMessage, setstreamingMessage] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [messageType, setMessageType] = useState("");
   const fullmessageRef = useRef("");
 
   // Store callbacks in refs to avoid reconnection loops
@@ -75,11 +77,10 @@ export function useMessageSocket({
     ws.onopen = () => {
       setIsConnected(true);
     };
-
     ws.onmessage = (event) => {
       try {
         const message: SocketMessage = JSON.parse(event.data);
-
+        setMessageType(message.type);
         if (message.type === "message_chunk") {
           // Only set isStreaming when we actually receive content
           if (!message.is_complete) {
@@ -94,6 +95,10 @@ export function useMessageSocket({
             setIsStreaming(false);
             onmessageCompleteRef.current?.(fullmessageRef.current.trim());
           }
+        } else if (message.type === "tool_call") {
+          onmessageChunkRef.current?.(message.chunk);
+        } else if (message.type === "tool_result") {
+          onmessageChunkRef.current?.(message.chunk);
         } else if (message.type === "message_error") {
           setIsStreaming(false);
           onErrorRef.current?.(message.error);
@@ -131,6 +136,7 @@ export function useMessageSocket({
     isConnected: isConnected,
     streamingMessage: streamingMessage,
     isStreaming: isStreaming,
+    messageType: messageType,
   } as UseMessageSocketReturn;
 }
 
