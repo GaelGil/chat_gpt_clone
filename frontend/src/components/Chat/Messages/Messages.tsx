@@ -7,12 +7,14 @@ interface MessagesProps {
   messages: MessageDetail[];
   streamingContent: string;
   streamingMessageId: string | null;
+  messageType: string;
 }
 
 const Messages: React.FC<MessagesProps> = ({
   messages,
   streamingContent,
   streamingMessageId,
+  messageType,
 }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 

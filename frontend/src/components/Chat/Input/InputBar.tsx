@@ -22,6 +22,7 @@ interface InputBarProps {
   chatId: string | undefined;
   setStreamingContent: (value: string) => void;
   setStreamingMessageId: (id: string | null) => void;
+  setMessageType: (value: string) => void;
 }
 type SendMessageResult = {
   sessionId: string;
@@ -31,6 +32,7 @@ const InputBar: React.FC<InputBarProps> = ({
   chatId,
   setStreamingContent,
   setStreamingMessageId,
+  setMessageType,
 }) => {
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
@@ -129,6 +131,7 @@ const InputBar: React.FC<InputBarProps> = ({
     if (res.isStreaming && res.streamingMessage) {
       setStreamingContent(res.streamingMessage);
       setStreamingMessageId(newMessageId);
+      setMessageType(res.messageType);
     }
   }, [res.isStreaming, res.streamingMessage, ""]);
 

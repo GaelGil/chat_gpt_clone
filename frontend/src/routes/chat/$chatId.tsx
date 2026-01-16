@@ -25,6 +25,7 @@ function ChatDetail() {
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(
     null
   );
+  const [messageType, setMessageType] = useState("");
   const { data, isLoading, isError } = useQuery({
     ...getUsersQueryOptions({ chatId }),
     enabled: !!chatId,
@@ -65,6 +66,7 @@ function ChatDetail() {
             messages={messages}
             // pass the streaming content and message id to the Messages component
             streamingContent={streamingContent}
+            messageType={messageType}
             streamingMessageId={streamingMessageId}
           />
         )}
@@ -76,6 +78,7 @@ function ChatDetail() {
           // pass the streaming content and message id setters to the InputBar component
           setStreamingContent={setStreamingContent}
           setStreamingMessageId={setStreamingMessageId}
+          setMessageType={setMessageType}
         />
       </Box>
     </Container>
