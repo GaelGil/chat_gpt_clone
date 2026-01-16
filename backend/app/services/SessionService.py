@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import HTTPException
+from sqlalchemy import asc  # or desc for newest first
 from sqlmodel import Session, select
 
 from app.models import Message, User
@@ -114,15 +115,21 @@ class SessionService:
     def session_history(
         self, session_id: uuid.UUID, role: Role = None, content: str = None
     ) -> tuple[list | None, HTTPException | None]:
+        stmt = (
+            select(Message)
+            .where(Message.session_id == session_id)
+            .order_by(asc(Message.created_at))  # oldest first
+        )
+
         chat_history = [
             {"role": str(msg.role.value), "content": msg.content}
-            for msg in self.session.exec(
-                select(Message).where(Message.session_id == session_id)
-            )
+            for msg in self.session.exec(stmt)
         ]
 
+        # Append new content if provided
         if role and content:
-            chat_history.append({"role": role, "content": content})
+            chat_history.append({"role": str(role), "content": content})
+
         return chat_history, None
 
     async def generate_response(
