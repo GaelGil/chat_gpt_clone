@@ -1,5 +1,5 @@
 import { MessageDetail } from "@/client";
-import { Flex, Box, Stack } from "@mantine/core";
+import { Flex, Box } from "@mantine/core";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
 interface MessagesProps {

@@ -1,7 +1,5 @@
 import { MessageDetail } from "@/client";
-import { Flex, Box, Stack, Loader } from "@mantine/core";
-import remarkGfm from "remark-gfm";
-import ReactMarkdown from "react-markdown";
+import { Stack } from "@mantine/core";
 import { useEffect, useRef } from "react";
 import UserMesssage from "./UserMessage";
 import AssistantMesssage from "./AssistantMessage";
