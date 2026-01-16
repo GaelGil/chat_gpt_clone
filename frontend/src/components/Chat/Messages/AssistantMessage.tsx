@@ -10,7 +10,7 @@ interface MessagesProps {
   messageType: string;
 }
 
-const Messages: React.FC<MessagesProps> = ({
+const AssistantMesssage: React.FC<MessagesProps> = ({
   messages,
   streamingContent,
   streamingMessageId,
@@ -79,4 +79,4 @@ const Messages: React.FC<MessagesProps> = ({
   );
 };
 
-export default Messages;
+export default AssistantMesssage;
