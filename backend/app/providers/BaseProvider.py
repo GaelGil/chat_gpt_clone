@@ -10,7 +10,7 @@ from sqlmodel import Session
 from app.api.routes.websockets import manager
 from app.models import Message, ToolCall
 from app.providers.Tools import Tools
-from app.schemas.Message import NewMessage, Role, Status
+from app.schemas.Message import NewMessage, ResponseType, Role, Status
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -163,14 +163,16 @@ class BaseProvider:
                     "tool_input": parsed_args,
                 },
                 is_complete=False,
-                msg_type="tool_call",
+                msg_type=ResponseType.TOOL_CALL,
             )
 
             # execute the tool
             true_result = None
+            msg_type = ResponseType.TOOL_RESULT
             result, error = await self.execute_tool(tool_name, parsed_args)
             if not result and error:
                 true_result = error
+                msg_type = ResponseType.TOOL_ERROR
             logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {true_result}")
             # save the tool call after it has been executed
             self.save_tool_call_async(
@@ -183,12 +185,14 @@ class BaseProvider:
             # send the tool result to the manager
             await self.manager.stream_response_chunk(
                 message_id=str(message_id),
-                chunk={
-                    "tool_name": tool_name,
-                    "tool_result": true_result,
-                },
+                chunk=json.dumps(
+                    {
+                        "tool_name": tool_name,
+                        "tool_result": true_result,
+                    }
+                ),
                 is_complete=True,
-                msg_type="tool_result",
+                msg_type=msg_type,
             )
 
             # Add the tool call result to the chat history for the final response
