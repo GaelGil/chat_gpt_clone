@@ -2,6 +2,8 @@ import asyncio
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from app.schemas.Message import ResponseType
+
 router = APIRouter(prefix="/ws", tags=["websocket"])
 
 
@@ -57,7 +59,7 @@ class ConnectionManager:
         message_id: str,
         chunk: str,
         is_complete: bool = False,
-        msg_type: str = "message_chunk",
+        msg_type: str = ResponseType.MESSAGE_CHUNK,
     ):
         """Stream a response chunk to message connections.
 
@@ -83,7 +85,7 @@ manager = ConnectionManager()
 
 @router.websocket("/message/{message_id}")
 async def message_websocket(websocket: WebSocket, message_id: str):
-    """WebSocket endpoint for real-time canvas updates."""
+    """WebSocket endpoint for real-time message updates."""
     await manager.connect(websocket, message_id)
     try:
         while True:

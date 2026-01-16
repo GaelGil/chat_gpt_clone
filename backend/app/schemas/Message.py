@@ -32,3 +32,10 @@ class NewMessage(MessageBase):
 class MessageDetail(MessageBase):
     id: uuid.UUID
     # created_at: str
+
+
+class ResponseType(Enum):
+    TOOL_CALL = "tool_call"
+    TOOL_RESULT = "tool_result"
+    TOOL_ERROR = "tool_error"
+    MESSAGE_CHUNK = "message_chunk"

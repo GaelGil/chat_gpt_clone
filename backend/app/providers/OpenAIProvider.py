@@ -7,7 +7,7 @@ from sqlmodel import Session
 
 from app.providers.BaseProvider import BaseProvider
 from app.providers.tool_definitions import tool_definitions
-from app.schemas.Message import Role, Status
+from app.schemas.Message import ResponseType, Role, Status
 
 # logging stuff
 logging.basicConfig(
@@ -50,7 +50,7 @@ class OpenAIProvider(BaseProvider):
                     message_id=str(message_id),
                     chunk=event.delta,
                     is_complete=False,
-                    msg_type="message_chunk",
+                    msg_type=ResponseType.MESSAGE_CHUNK,
                 )
                 # add the text to the initial response
                 response += event.delta
@@ -61,7 +61,7 @@ class OpenAIProvider(BaseProvider):
                     message_id=str(message_id),
                     chunk="",
                     is_complete=True,
-                    msg_type="message_chunk",
+                    msg_type=ResponseType.MESSAGE_CHUNK,
                 )
                 # logger.info("response.output_text.done")
 
