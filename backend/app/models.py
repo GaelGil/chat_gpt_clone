@@ -1,5 +1,6 @@
 # import base64
 import uuid
+from datetime import datetime, timezone
 
 from sqlmodel import Field, Relationship
 
@@ -25,9 +26,6 @@ class Session(SessionBase, table=True):
     messages: list["Message"] = Relationship(
         back_populates="session", cascade_delete=True
     )
-    tool_history: list["ToolCall"] = Relationship(
-        back_populates="session", cascade_delete=True
-    )
 
 
 class Message(MessageBase, table=True):
@@ -35,10 +33,15 @@ class Message(MessageBase, table=True):
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
     session_id: uuid.UUID = Field(foreign_key="session.id", nullable=False)
     session: Session = Relationship(back_populates="messages")
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc), nullable=False
+    )
+    tool_calls: list["ToolCall"] = Relationship(back_populates="message")
 
 
 class ToolCall(ToolCallBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
     session_id: uuid.UUID = Field(foreign_key="session.id", nullable=False)
-    session: Session = Relationship(back_populates="tool_history")
+    message_id: uuid.UUID = Field(foreign_key="message.id", nullable=False)
+    message: Message = Relationship(back_populates="tool_calls")

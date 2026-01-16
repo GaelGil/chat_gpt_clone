@@ -48,6 +48,7 @@ class SessionService:
             return None, HTTPException(
                 status_code=403, detail="The user doesn't have enough privileges"
             )
+        session_obj.messages.sort(key=lambda m: m.created_at)
         return SessionDetail.model_validate(session_obj), None
 
     def new_session(
