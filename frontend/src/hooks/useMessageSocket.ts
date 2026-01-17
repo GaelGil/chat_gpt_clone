@@ -141,11 +141,13 @@ export function useMessageSocket({
     ws.onerror = (error) => {
       console.error("WebSocket error:", error);
       onErrorRef.current?.("WebSocket connection error");
+      console.log("ONERROR");
     };
 
     ws.onclose = () => {
       setIsConnected(false);
       setIsStreaming(false);
+      console.log("WebSocket connection closed");
     };
 
     wsRef.current = ws;
