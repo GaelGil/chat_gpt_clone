@@ -82,26 +82,25 @@ export function useMessageSocket({
 
     const ws = new WebSocket(url);
     console.log("messageId", messageId);
+    const pending = pendingChatRef.current;
+    if (!pending) return;
+
+    console.log("WS open, pending:", pending);
+
+    // Make sure backend knows to stream to this WS
+    SessionService.chat({
+      sessionId: pending.sessionId,
+      requestBody: {
+        model_name: pending.model_name,
+        message_id: pending.assistantMessageId,
+      } as StreamResponseBody,
+    });
+    pendingChatRef.current = null;
+
     ws.onopen = () => {
       console.log("WebSocket connection opened");
       console.log("WS open, pending:", pendingChatRef.current);
       setIsConnected(true);
-      const pending = pendingChatRef.current;
-      if (!pending) return;
-
-      console.log("WS open, pending:", pending);
-
-      // Make sure backend knows to stream to this WS
-      SessionService.chat({
-        sessionId: pending.sessionId,
-        requestBody: {
-          model_name: pending.model_name,
-          message_id: pending.assistantMessageId,
-        } as StreamResponseBody,
-      });
-
-      // Clear pending so we don't accidentally call it again
-      pendingChatRef.current = null;
     };
     ws.onmessage = (event) => {
       console.log("Received WebSocket message:", event.data);
@@ -151,7 +150,6 @@ export function useMessageSocket({
     };
 
     wsRef.current = ws;
-    console.log("streamingMessage", fullmessageRef.current);
 
     // Cleanup on unmount or messageId change
     return () => {
