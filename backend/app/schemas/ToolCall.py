@@ -11,3 +11,7 @@ class ToolCallBase(SQLModel):
 
 class NewToolCall(ToolCallBase):
     session_id: uuid.UUID
+
+
+class ToolCallDetail(ToolCallBase):
+    id: uuid.UUID

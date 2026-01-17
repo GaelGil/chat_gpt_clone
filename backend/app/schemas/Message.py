@@ -4,6 +4,8 @@ from enum import Enum
 from sqlalchemy import Column, Text
 from sqlmodel import Field, SQLModel
 
+from app.schemas.ToolCall import ToolCallDetail
+
 
 class Role(str, Enum):
     USER = "user"
@@ -31,6 +33,7 @@ class NewMessage(MessageBase):
 
 class MessageDetail(MessageBase):
     id: uuid.UUID
+    tool_calls: list[ToolCallDetail]
     # created_at: str
 
 

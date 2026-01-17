@@ -87,10 +87,17 @@ export const MessageDetailSchema = {
             type: 'string',
             format: 'uuid',
             title: 'Id'
+        },
+        tool_calls: {
+            items: {
+                '$ref': '#/components/schemas/ToolCallDetail'
+            },
+            type: 'array',
+            title: 'Tool Calls'
         }
     },
     type: 'object',
-    required: ['content', 'id'],
+    required: ['content', 'id', 'tool_calls'],
     title: 'MessageDetail'
 } as const;
 
@@ -276,6 +283,34 @@ export const TokenSchema = {
     type: 'object',
     required: ['access_token'],
     title: 'Token'
+} as const;
+
+export const ToolCallDetailSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Name'
+        },
+        args: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Args'
+        },
+        result: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Result'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        }
+    },
+    type: 'object',
+    required: ['name', 'args', 'result', 'id'],
+    title: 'ToolCallDetail'
 } as const;
 
 export const UpdatePasswordSchema = {
@@ -590,6 +625,11 @@ export const app__models__MessageSchema = {
             type: 'string',
             format: 'uuid',
             title: 'Session Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
         }
     },
     type: 'object',

@@ -7,6 +7,7 @@ export type app__models__Message = {
     id?: string;
     owner_id: string;
     session_id: string;
+    created_at?: string;
 };
 
 export type app__schemas__Utils__Message = {
@@ -31,6 +32,7 @@ export type MessageDetail = {
     content: string;
     status?: Status;
     id: string;
+    tool_calls: Array<ToolCallDetail>;
 };
 
 export type NewMessage = {
@@ -83,6 +85,13 @@ export type StreamResponseBody = {
 export type Token = {
     access_token: string;
     token_type?: string;
+};
+
+export type ToolCallDetail = {
+    name: string;
+    args: string;
+    result: string;
+    id: string;
 };
 
 export type UpdatePassword = {
