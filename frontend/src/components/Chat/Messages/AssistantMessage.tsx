@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
 import ToolCall from "./ToolCall";
 import ToolResult from "./ToolResult";
+import Tool from "./Tool";
 interface MessagesProps {
   message: MessageDetail;
   streamingContent: string;
@@ -35,7 +36,17 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
             streamingContent={streamingContent}
           />
         ) : messageType === "tool_result" ? (
-          <ToolResult
+          <>
+            {message.tool_calls?.map((toolCall) => (
+              <Tool key={toolCall.id} toolCall={toolCall} />
+            ))}
+          </>
+        ) : (
+          <></>
+        )}
+
+        {message.tool_calls ? (
+          <ToolCall
             messageId={message.id}
             streamingContent={streamingContent}
           />
