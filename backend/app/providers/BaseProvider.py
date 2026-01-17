@@ -102,8 +102,8 @@ class BaseProvider:
     ):
         tool_call_obj = ToolCall(
             name=name,
-            args=args,
-            result=result,
+            args=json.dumps(args) if isinstance(args, dict) else args,
+            result=json.dumps(result) if isinstance(result, dict) else result,
             owner_id=owner_id,
             session_id=session_id,
         )
@@ -133,7 +133,6 @@ class BaseProvider:
             model_name (str): model name
 
         """
-        logger.info(f"TOOL CALLS: {tool_calls}")
         # Execute the tool calls
         for tool_idx, tool in tool_calls.items():
             # get name and args
@@ -170,12 +169,15 @@ class BaseProvider:
             true_result = None
             msg_type = ResponseType.TOOL_RESULT
             result, error = await self.execute_tool(tool_name, parsed_args)
-            if not result and error:
+            logger.info(f"[DEBUG] RESULT: {result}, ERROR: {error}")
+            if not isinstance(result, str) and isinstance(result, str):
                 true_result = error
+                # if not result and error:
+                #     true_result = error
                 msg_type = ResponseType.TOOL_ERROR
             logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {true_result}")
             # save the tool call after it has been executed
-            self.save_tool_call_async(
+            await self.save_tool_call_async(
                 session_id=session_id,
                 name=tool_name,
                 args=parsed_args,
@@ -202,14 +204,15 @@ class BaseProvider:
                     "content": f"TOOL_NAME: {tool_name}, RESULT: {true_result}",
                 }
             )
-            self.background_tasks.add_task(
-                self.process_stream,
-                chat_history=chat_history,
-                model_name=model_name,
-                owner_id=owner_id,
-                session_id=session_id,
-                message_id=message_id,
-                tool_choice="none",
+            asyncio.create_task(
+                self.process_stream(
+                    chat_history=chat_history,
+                    model_name=model_name,
+                    owner_id=owner_id,
+                    session_id=session_id,
+                    message_id=message_id,
+                    tool_choice="none",
+                )
             )
 
     async def execute_tool(
@@ -224,8 +227,10 @@ class BaseProvider:
         result = None
         try:
             if tool_name == "arxiv_search":
+                logger.info(f"Executing arxiv_search with args: {args}")
                 result = self.tools.arxiv_search(**args)
             elif tool_name == "wiki_search":
+                logger.info(f"Executing wiki_search with args: {args}")
                 result = self.tools.wiki_search(**args)
             else:
                 result = await self.composio.tools.execute(

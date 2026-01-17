@@ -22,6 +22,8 @@ class Tools:
         Returns:
             tuple[str | None, str, None]: A tuple containing the summary and an error message.
         """
+        print(f"Searching Wikipedia for: {query}")
+        print(f"Number of sentences: {sentences}")
         try:
             summary = wikipedia.summary(query, sentences=sentences)
             return summary, None

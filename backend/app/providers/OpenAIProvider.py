@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import uuid
@@ -20,7 +21,7 @@ class OpenAIProvider(BaseProvider):
     def __init__(self, session: Session):
         super().__init__(session)
         self.openai: OpenAI = OpenAI()
-        self.tools = tool_definitions
+        self.tools_definitions = tool_definitions
 
     async def process_stream(
         self,
@@ -35,7 +36,7 @@ class OpenAIProvider(BaseProvider):
         stream = self.openai.responses.create(
             model=model_name,
             input=chat_history,
-            tools=self.tools,
+            tools=self.tools_definitions,
             tool_choice=tool_choice,
             stream=True,
         )
@@ -130,14 +131,15 @@ class OpenAIProvider(BaseProvider):
 
         # if there are tool calls we need to execute them
         if tool_calls:
-            self.background_tasks.add_task(
-                self.execute_tools,
-                chat_history=chat_history,
-                tools=tool_calls,
-                message_id=message_id,
-                session_id=session_id,
-                owner_id=owner_id,
-                model_name=model_name,
+            asyncio.create_task(
+                self.execute_tools(
+                    chat_history=chat_history,
+                    tool_calls=tool_calls,
+                    message_id=message_id,
+                    session_id=session_id,
+                    owner_id=owner_id,
+                    model_name=model_name,
+                )
             )
         await self.update_message_async(
             message_id=message_id,
