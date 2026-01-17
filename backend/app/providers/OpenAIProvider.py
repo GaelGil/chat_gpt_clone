@@ -129,6 +129,12 @@ class OpenAIProvider(BaseProvider):
         # add the response to the chat history
         chat_history.append({"role": Role.ASSISTANT, "content": response})
 
+        await self.update_message_async(
+            message_id=message_id,
+            status=Status.COMPLETE,
+            role=Role.ASSISTANT,
+            content=f"{response}",
+        )
         # if there are tool calls we need to execute them
         if tool_calls:
             asyncio.create_task(
@@ -141,9 +147,3 @@ class OpenAIProvider(BaseProvider):
                     model_name=model_name,
                 )
             )
-        await self.update_message_async(
-            message_id=message_id,
-            status=Status.COMPLETE,
-            role=Role.ASSISTANT,
-            content=f"{response}",
-        )

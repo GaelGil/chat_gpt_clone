@@ -223,6 +223,7 @@ class BaseProvider:
         self, tool_name: str, args: dict
     ) -> tuple[str | None, str | None]:
         """
+        Execute tool from composio or from tools defined in Tools.py
         Args:
             tool_name (str): description
             args (dict): description
@@ -231,10 +232,8 @@ class BaseProvider:
         result = None
         try:
             if tool_name == "arxiv_search":
-                logger.info(f"Executing arxiv_search with args: {args}")
                 result = self.tools.arxiv_search(**args)
             elif tool_name == "wiki_search":
-                logger.info(f"Executing wiki_search with args: {args}")
                 result = self.tools.wiki_search(**args)
             else:
                 result = await self.composio.tools.execute(

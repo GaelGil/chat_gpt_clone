@@ -46,10 +46,11 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
         )}
 
         {message.tool_calls ? (
-          <ToolCall
-            messageId={message.id}
-            streamingContent={streamingContent}
-          />
+          <>
+            {message.tool_calls?.map((toolCall) => (
+              <Tool key={toolCall.id} toolCall={toolCall} />
+            ))}
+          </>
         ) : (
           <></>
         )}
