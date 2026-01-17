@@ -2,7 +2,6 @@ import { ToolCallDetail } from "@/client";
 import { Flex, Box } from "@mantine/core";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
-import { Accordion } from "@mantine/core";
 
 interface ToolProps {
   toolCall: ToolCallDetail;
