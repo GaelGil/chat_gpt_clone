@@ -22,7 +22,8 @@ const Messages: React.FC<MessagesProps> = ({
     bottomRef.current?.scrollIntoView({
       behavior: "smooth",
     });
-  }, [messages.length]);
+  }, [messages, streamingContent]);
+
   return (
     <Stack gap="xs" w="100%">
       {messages.map((message) => (
