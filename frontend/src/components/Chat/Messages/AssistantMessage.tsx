@@ -3,8 +3,10 @@ import { Flex, Box, Loader } from "@mantine/core";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
 import ToolCall from "./ToolCall";
-import ToolResult from "./ToolResult";
 import Tool from "./Tool";
+import { Accordion } from "@mantine/core";
+import { FiTool } from "react-icons/fi";
+
 interface MessagesProps {
   message: MessageDetail;
   streamingContent: string;
@@ -38,7 +40,12 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
         ) : messageType === "tool_result" ? (
           <>
             {message.tool_calls?.map((toolCall) => (
-              <Tool key={toolCall.id} toolCall={toolCall} />
+              <Accordion defaultValue="Apples">
+                <Accordion.Item key={toolCall.id} value={toolCall.id}>
+                  <Tool key={toolCall.id} toolCall={toolCall} />
+                  <Accordion.Panel>{toolCall.result}</Accordion.Panel>
+                </Accordion.Item>
+              </Accordion>
             ))}
           </>
         ) : (
@@ -48,7 +55,14 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
         {message.tool_calls ? (
           <>
             {message.tool_calls?.map((toolCall) => (
-              <Tool key={toolCall.id} toolCall={toolCall} />
+              <Accordion defaultValue="Apples">
+                <Accordion.Item key={toolCall.id} value={toolCall.id}>
+                  <Accordion.Control icon={<FiTool />}>
+                    {toolCall.name}
+                  </Accordion.Control>
+                  <Accordion.Panel>{toolCall.result}</Accordion.Panel>
+                </Accordion.Item>
+              </Accordion>
             ))}
           </>
         ) : (
