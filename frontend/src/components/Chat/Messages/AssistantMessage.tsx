@@ -1,5 +1,13 @@
 import { MessageDetail } from "@/client";
-import { Flex, Box, Loader } from "@mantine/core";
+import {
+  Flex,
+  Box,
+  Loader,
+  Group,
+  Text,
+  Typography,
+  Blockquote,
+} from "@mantine/core";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
 import ToolCall from "./ToolCall";
@@ -58,9 +66,18 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
               <Accordion defaultValue="Apples">
                 <Accordion.Item key={toolCall.id} value={toolCall.id}>
                   <Accordion.Control icon={<FiTool />}>
-                    {toolCall.name}
+                    <Group wrap="nowrap">
+                      <div>
+                        <Text>{toolCall.name}</Text>
+                        <Text size="sm" c="dimmed" fw={400}>
+                          {toolCall.args}
+                        </Text>
+                      </div>
+                    </Group>
                   </Accordion.Control>
-                  <Accordion.Panel>{toolCall.result}</Accordion.Panel>
+                  <Accordion.Panel>
+                    <Blockquote mt="xl">{toolCall.result}</Blockquote>
+                  </Accordion.Panel>
                 </Accordion.Item>
               </Accordion>
             ))}
@@ -85,9 +102,9 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
           ) : message.status === "failure" ? (
             <ReactMarkdown remarkPlugins={[remarkGfm]}>Error</ReactMarkdown>
           ) : (
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {message.content}
-            </ReactMarkdown>
+            <Typography>
+              <>{message.content}</>
+            </Typography>
           )}
         </>
       </Box>
