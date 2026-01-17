@@ -87,9 +87,10 @@ class BaseProvider:
         args: dict,
         result: str,
         owner_id: uuid.UUID,
+        message_id: uuid.UUID,
     ):
         await asyncio.to_thread(
-            self.save_tool_call, session_id, name, args, result, owner_id
+            self.save_tool_call, session_id, name, args, result, owner_id, message_id
         )
 
     def save_tool_call(
@@ -99,6 +100,7 @@ class BaseProvider:
         args: dict,
         result: str,
         owner_id: uuid.UUID,
+        message_id: uuid.UUID,
     ):
         tool_call_obj = ToolCall(
             name=name,
@@ -106,6 +108,7 @@ class BaseProvider:
             result=json.dumps(result) if isinstance(result, dict) else result,
             owner_id=owner_id,
             session_id=session_id,
+            message_id=message_id,
         )
 
         self.session.add(tool_call_obj)
@@ -166,15 +169,15 @@ class BaseProvider:
             )
 
             # execute the tool
-            true_result = None
             msg_type = ResponseType.TOOL_RESULT
-            result, error = await self.execute_tool(tool_name, parsed_args)
-            logger.info(f"[DEBUG] RESULT: {result}, ERROR: {error}")
-            if not isinstance(result, str) and isinstance(result, str):
-                true_result = error
-                # if not result and error:
-                #     true_result = error
+            result, tool_error = await self.execute_tool(tool_name, parsed_args)
+            logger.info(f"[DEBUG] RESULT: {result}, ERROR: {tool_error}")
+            true_result = result
+
+            if not result and tool_error:
+                true_result = tool_error
                 msg_type = ResponseType.TOOL_ERROR
+
             logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {true_result}")
             # save the tool call after it has been executed
             await self.save_tool_call_async(
@@ -183,6 +186,7 @@ class BaseProvider:
                 args=parsed_args,
                 result=true_result,
                 owner_id=owner_id,
+                message_id=message_id,
             )
             # send the tool result to the manager
             await self.manager.stream_response_chunk(
