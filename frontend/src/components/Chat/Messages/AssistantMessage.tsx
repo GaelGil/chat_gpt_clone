@@ -34,7 +34,7 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
         p="md"
         bg={"transparent"}
         bdrs="md"
-        maw={"60%"}
+        w={"100%"}
         style={{
           wordBreak: "break-word",
           textAlign: "left",
