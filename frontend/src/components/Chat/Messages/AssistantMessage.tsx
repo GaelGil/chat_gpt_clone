@@ -1,19 +1,7 @@
 import { MessageDetail } from "@/client";
-import {
-  Flex,
-  Box,
-  Loader,
-  Group,
-  Text,
-  Typography,
-  Blockquote,
-} from "@mantine/core";
+import { Flex, Box, Loader, Typography, Text } from "@mantine/core";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
-import ToolCall from "./ToolCalls";
-import Tool from "./Tool";
-import { Accordion } from "@mantine/core";
-import { FiTool } from "react-icons/fi";
 import ToolCalls from "./ToolCalls";
 interface MessagesProps {
   message: MessageDetail;
@@ -30,6 +18,7 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
 }) => {
   return (
     <Flex key={message.id} justify={"flex-start"}>
+      <Text hidden={true}>{messageType} </Text>
       <Box
         p="md"
         bg={"transparent"}
