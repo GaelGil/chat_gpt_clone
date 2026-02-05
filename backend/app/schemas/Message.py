@@ -26,15 +26,12 @@ class MessageBase(SQLModel):
 
 
 class NewMessage(MessageBase):
-    # session_id: uuid.UUID
     model_name: str
-    # prev_messages: list[MessageBase] | None = None
 
 
 class MessageDetail(MessageBase):
     id: uuid.UUID
     tool_calls: list[ToolCallDetail]
-    # created_at: str
 
 
 class ResponseType(Enum):
