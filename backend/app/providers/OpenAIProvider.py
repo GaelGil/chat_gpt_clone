@@ -6,9 +6,9 @@ import uuid
 from openai import OpenAI
 from sqlmodel import Session
 
+from app.database.schemas.Message import ResponseType, Role, Status
 from app.providers.BaseProvider import BaseProvider
 from app.providers.tool_definitions import tool_definitions
-from app.schemas.Message import ResponseType, Role, Status
 
 # logging stuff
 logging.basicConfig(

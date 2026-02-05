@@ -8,9 +8,9 @@ from fastapi import BackgroundTasks, HTTPException
 from sqlmodel import Session
 
 from app.api.websocket.ConnectionManager import ConnectionManager
-from app.models import Message, ToolCall
+from app.database.models import Message, ToolCall
+from app.database.schemas.Message import NewMessage, ResponseType, Role, Status
 from app.providers.Tools import Tools
-from app.schemas.Message import NewMessage, ResponseType, Role, Status
 
 manager = ConnectionManager()
 logging.basicConfig(

@@ -3,8 +3,8 @@ import uuid
 
 from sqlmodel import Session
 
+from app.database.schemas.Message import Role, Status
 from app.providers.BaseProvider import BaseProvider
-from app.schemas.Message import Role, Status
 
 # logging stuff
 logging.basicConfig(
