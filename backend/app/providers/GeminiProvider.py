@@ -3,7 +3,6 @@ import uuid
 
 from sqlmodel import Session
 
-from app.api.routes.websockets import manager
 from app.providers.BaseProvider import BaseProvider
 from app.schemas.Message import Role, Status
 
@@ -36,7 +35,7 @@ class GeminiProvider(BaseProvider):
         # tool_calls = {}
         init_response = ""
         for chunk in response:
-            await manager.stream_response_chunk(
+            await self.manager.stream_response_chunk(
                 message_id=str(message_id), chunk=chunk, is_complete=False
             )
             # yield chunk.text

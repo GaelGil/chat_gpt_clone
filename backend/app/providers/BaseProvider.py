@@ -7,11 +7,12 @@ from composio import Composio
 from fastapi import BackgroundTasks, HTTPException
 from sqlmodel import Session
 
-from app.api.routes.websockets import manager
+from app.api.websocket.ConnectionManager import ConnectionManager
 from app.models import Message, ToolCall
 from app.providers.Tools import Tools
 from app.schemas.Message import NewMessage, ResponseType, Role, Status
 
+manager = ConnectionManager()
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
