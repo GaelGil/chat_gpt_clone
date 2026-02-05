@@ -70,6 +70,16 @@ class SessionService:
     def delete_session(
         self, user: User, session_id: uuid.UUID
     ) -> tuple[bool, HTTPException | None]:
+        """
+        Delete a session
+
+        Args:
+            user: The user who is deleting the session
+            session_id: The id of the session we are trying to delete
+
+        Returns:
+            tuplep[bool, HTTPException | None]
+        """
         session_obj = self.session.get(SessionModel, session_id)
         if not session_obj:
             return False, HTTPException(status_code=404, detail="Session not found")
