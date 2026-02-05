@@ -57,7 +57,7 @@ class ConnectionManager:
         message_id: str,
         chunk: str,
         is_complete: bool = False,
-        msg_type: str = ResponseType.MESSAGE_CHUNK,
+        msg_type: ResponseType = ResponseType.MESSAGE_CHUNK,
     ):
         """Stream a response chunk to message connections.
 
