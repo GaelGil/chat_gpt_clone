@@ -1,6 +1,6 @@
 from fastapi import WebSocket
 
-from app.schemas.Message import ResponseType
+from app.database.schemas.Message import ResponseType
 
 
 class ConnectionManager:

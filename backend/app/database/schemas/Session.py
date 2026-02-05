@@ -2,7 +2,7 @@ import uuid
 
 from sqlmodel import Field, SQLModel
 
-from app.schemas.Message import MessageDetail
+from app.database.schemas.Message import MessageDetail
 
 
 class SessionBase(SQLModel):

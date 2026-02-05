@@ -4,16 +4,16 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks
 
 from app.api.deps import CurrentUser, SessionServiceDep
-from app.models import Message as SessionMessage
-from app.schemas.Message import NewMessage
-from app.schemas.Session import (
+from app.database.models import Message as SessionMessage
+from app.database.schemas.Message import NewMessage
+from app.database.schemas.Session import (
     NewSession,
     SessionDetail,
     SessionList,
     StreamResponseBody,
     UpdateSession,
 )
-from app.schemas.Utils import Message
+from app.database.schemas.Utils import Message
 
 router = APIRouter(prefix="/session", tags=["session"])
 

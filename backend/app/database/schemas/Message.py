@@ -4,7 +4,7 @@ from enum import Enum
 from sqlalchemy import Column, Text
 from sqlmodel import Field, SQLModel
 
-from app.schemas.ToolCall import ToolCallDetail
+from app.database.schemas.ToolCall import ToolCallDetail
 
 
 class Role(str, Enum):

@@ -4,10 +4,10 @@ from fastapi import HTTPException
 from sqlalchemy import asc  # or desc for newest first
 from sqlmodel import Session, select
 
-from app.models import Message, User
-from app.models import Session as SessionModel
-from app.schemas.Message import NewMessage, Role
-from app.schemas.Session import (
+from app.database.models import Message, User
+from app.database.models import Session as SessionModel
+from app.database.schemas.Message import NewMessage, Role
+from app.database.schemas.Session import (
     NewSession,
     SessionDetail,
     SessionList,

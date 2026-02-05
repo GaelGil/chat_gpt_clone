@@ -4,10 +4,10 @@ from datetime import datetime, timezone
 
 from sqlmodel import Field, Relationship
 
-from app.schemas.Message import MessageBase
-from app.schemas.Session import SessionBase
-from app.schemas.ToolCall import ToolCallBase
-from app.schemas.User import UserBase
+from app.database.schemas.Message import MessageBase
+from app.database.schemas.Session import SessionBase
+from app.database.schemas.ToolCall import ToolCallBase
+from app.database.schemas.User import UserBase
 
 
 # Database model, database table inferred from class name
