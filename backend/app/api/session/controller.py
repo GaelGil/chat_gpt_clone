@@ -26,12 +26,12 @@ def get_sessions(
     Retrieve a users sessions
     """
     user, permission_error = session_service.verify_permissions(user=current_user)
-    if permission_error:
+    if not user and permission_error:
         raise permission_error
 
     sessions, error = session_service.get_sessions(user=user)
 
-    if error:
+    if not sessions and error:
         raise error
     return sessions
 
@@ -110,7 +110,7 @@ def add_message(
     """
 
     user, permission_error = session_service.verify_permissions(user=current_user)
-    if permission_error:
+    if not user and permission_error:
         raise permission_error
 
     message_id, save_error = session_service.save_message(
@@ -137,7 +137,7 @@ async def chat(
 
     # Verify permissions
     user, permission_error = session_service.verify_permissions(user=current_user)
-    if permission_error:
+    if not user and permission_error:
         raise permission_error
 
     # Get the recently created assistant message (its blank for now).
