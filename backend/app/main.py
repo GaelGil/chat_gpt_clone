@@ -30,4 +30,10 @@ if settings.all_cors_origins:
         allow_headers=["*"],
     )
 
+
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+# routes = api_router.routes
+# for route in app.routes:
+#     print("APP ROUTE:", getattr(route, "path", route))

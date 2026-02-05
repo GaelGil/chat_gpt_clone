@@ -34,6 +34,7 @@ const useAuth = () => {
       navigate({ to: "/auth/login" });
     },
     onError: (err: ApiError) => {
+      console.log("ERROR", error);
       handleError(err);
     },
     onSettled: () => {
@@ -42,9 +43,11 @@ const useAuth = () => {
   });
 
   const login = async (data: AccessToken) => {
+    console.log("Access Token", data);
     const response = await LoginService.loginAccessToken({
       formData: data,
     });
+    console.log("LOGIN RESPONSE", response);
     localStorage.setItem("access_token", response.access_token);
   };
 
@@ -54,6 +57,7 @@ const useAuth = () => {
       navigate({ to: "/" });
     },
     onError: (err: ApiError) => {
+      console.log("LOGIN ERROR", error);
       handleError(err);
     },
   });

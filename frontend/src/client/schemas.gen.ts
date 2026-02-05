@@ -299,7 +299,6 @@ export const ToolCallDetailSchema = {
         },
         result: {
             type: 'string',
-            maxLength: 255,
             title: 'Result'
         },
         id: {
@@ -597,7 +596,7 @@ export const ValidationErrorSchema = {
     title: 'ValidationError'
 } as const;
 
-export const app__models__MessageSchema = {
+export const app__database__models__MessageSchema = {
     properties: {
         role: {
             '$ref': '#/components/schemas/Role',
@@ -637,7 +636,7 @@ export const app__models__MessageSchema = {
     title: 'Message'
 } as const;
 
-export const app__schemas__Utils__MessageSchema = {
+export const app__database__schemas__Utils__MessageSchema = {
     properties: {
         message: {
             type: 'string',

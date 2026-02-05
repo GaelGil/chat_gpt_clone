@@ -44,7 +44,7 @@ export class LoginService {
      * Password Recovery
      * @param data The data for the request.
      * @param data.email
-     * @returns app__models__Message Successful Response
+     * @returns app__database__models__Message Successful Response
      * @throws ApiError
      */
     public static recoverPassword(data: LoginRecoverPasswordData): CancelablePromise<LoginRecoverPasswordResponse> {
@@ -65,7 +65,7 @@ export class LoginService {
      * Reset password
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns app__models__Message Successful Response
+     * @returns app__database__models__Message Successful Response
      * @throws ApiError
      */
     public static resetPassword(data: LoginResetPasswordData): CancelablePromise<LoginResetPasswordResponse> {
@@ -184,7 +184,7 @@ export class SessionService {
      * Delete a Session
      * @param data The data for the request.
      * @param data.sessionId
-     * @returns app__schemas__Utils__Message Successful Response
+     * @returns app__database__schemas__Utils__Message Successful Response
      * @throws ApiError
      */
     public static deleteSession(data: SessionDeleteSessionData): CancelablePromise<SessionDeleteSessionResponse> {
@@ -206,7 +206,7 @@ export class SessionService {
      * @param data The data for the request.
      * @param data.sessionId
      * @param data.requestBody
-     * @returns app__schemas__Utils__Message Successful Response
+     * @returns app__database__schemas__Utils__Message Successful Response
      * @throws ApiError
      */
     public static renameSession(data: SessionRenameSessionData): CancelablePromise<SessionRenameSessionResponse> {
@@ -254,7 +254,7 @@ export class SessionService {
      * @param data The data for the request.
      * @param data.sessionId
      * @param data.requestBody
-     * @returns app__models__Message Successful Response
+     * @returns app__database__models__Message Successful Response
      * @throws ApiError
      */
     public static chat(data: SessionChatData): CancelablePromise<SessionChatResponse> {
@@ -333,7 +333,7 @@ export class UsersService {
     /**
      * Delete User Me
      * Delete own user.
-     * @returns app__models__Message Successful Response
+     * @returns app__database__models__Message Successful Response
      * @throws ApiError
      */
     public static deleteUserMe(): CancelablePromise<UsersDeleteUserMeResponse> {
@@ -368,7 +368,7 @@ export class UsersService {
      * Update own password.
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns app__models__Message Successful Response
+     * @returns app__database__models__Message Successful Response
      * @throws ApiError
      */
     public static updatePasswordMe(data: UsersUpdatePasswordMeData): CancelablePromise<UsersUpdatePasswordMeResponse> {
@@ -453,7 +453,7 @@ export class UsersService {
      * Delete a user.
      * @param data The data for the request.
      * @param data.userId
-     * @returns app__models__Message Successful Response
+     * @returns app__database__models__Message Successful Response
      * @throws ApiError
      */
     public static deleteUser(data: UsersDeleteUserData): CancelablePromise<UsersDeleteUserResponse> {
@@ -476,7 +476,7 @@ export class UtilsService {
      * Test emails.
      * @param data The data for the request.
      * @param data.emailTo
-     * @returns app__models__Message Successful Response
+     * @returns app__database__models__Message Successful Response
      * @throws ApiError
      */
     public static testEmail(data: UtilsTestEmailData): CancelablePromise<UtilsTestEmailResponse> {

@@ -49,6 +49,7 @@ function Login() {
     resetError();
 
     try {
+      console.log(data);
       await loginMutation.mutateAsync(data);
     } catch {
       // handled by useAuth
