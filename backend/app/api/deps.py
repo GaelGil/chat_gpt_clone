@@ -8,13 +8,13 @@ from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
 from sqlmodel import Session
 
+from app.api.session.SessionService import SessionService
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models import User
 from app.schemas.Utils import TokenPayload
 from app.services.APIService import APIService
-from app.services.SessionService import SessionService
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -63,7 +63,7 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
 def get_api_service(
     session: SessionDep,
 ) -> APIService:
-    return APIService(session=session, tool_definitions=None)
+    return APIService(session=session, tool_definitions={})
 
 
 APIServiceDep = Annotated[APIService, Depends(get_api_service)]
