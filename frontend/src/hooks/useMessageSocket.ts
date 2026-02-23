@@ -88,19 +88,30 @@ export function useMessageSocket({
     console.log("WS open, pending:", pending);
 
     // Make sure backend knows to stream to this WS
-    SessionService.chat({
-      sessionId: pending.sessionId,
-      requestBody: {
-        model_name: pending.model_name,
-        message_id: pending.assistantMessageId,
-      } as StreamResponseBody,
-    });
-    pendingChatRef.current = null;
+    // SessionService.chat({
+    //   sessionId: pending.sessionId,
+    //   requestBody: {
+    //     model_name: pending.model_name,
+    //     message_id: pending.assistantMessageId,
+    //   } as StreamResponseBody,
+    // });
+    // pendingChatRef.current = null;
 
     ws.onopen = () => {
       console.log("WebSocket connection opened");
       console.log("WS open, pending:", pendingChatRef.current);
       setIsConnected(true);
+      // NOW trigger the backend to start streaming
+      const pending = pendingChatRef.current;
+      if (!pending) return;
+      SessionService.chat({
+        sessionId: pending.sessionId,
+        requestBody: {
+          model_name: pending.model_name,
+          message_id: pending.assistantMessageId,
+        } as StreamResponseBody,
+      });
+      pendingChatRef.current = null;
     };
     ws.onmessage = (event) => {
       console.log("Received WebSocket message:", event.data);

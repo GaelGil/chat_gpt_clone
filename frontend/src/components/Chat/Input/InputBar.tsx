@@ -1,13 +1,6 @@
 import { Textarea } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  SessionService,
-  NewMessage,
-  NewSession,
-  Role,
-  Status,
-  StreamResponseBody,
-} from "@/client";
+import { SessionService, NewMessage, NewSession, Role, Status } from "@/client";
 import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 import type { ApiError } from "@/client/core/ApiError";
@@ -16,7 +9,7 @@ import LeftSection from "./LeftSection";
 import { useState } from "react";
 import { useMessageSocket } from "@/hooks/useMessageSocket";
 import RightSection from "./RightSection";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 interface InputBarProps {
   chatId: string | undefined;
   setStreamingContent: (value: string) => void;
@@ -88,7 +81,7 @@ const InputBar: React.FC<InputBarProps> = ({
       handleError(err);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
+      queryClient.refetchQueries({ queryKey: ["messages", chatId] });
     },
   });
 
@@ -101,31 +94,43 @@ const InputBar: React.FC<InputBarProps> = ({
 
   const handleSubmit = async (values: NewMessage) => {
     try {
-      // Send the message and get IDs
+      // FIRST set pendingChatRef, THEN trigger the state change
+      // This ensures the ref is populated before useMessageSocket reads it
       const { sessionId, assistantMessageId } =
         await sendMessage.mutateAsync(values);
-      // Set new assistant message as newMessageId
-      setNewMessageId(assistantMessageId);
-
-      // Invalidate again
-      queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
-
       pendingChatRef.current = {
         sessionId,
         assistantMessageId,
         model_name: values.model_name,
       };
+      // Set the messageId AFTER pendingChatRef is populated
+      setNewMessageId(assistantMessageId);
+      queryClient.refetchQueries({ queryKey: ["messages", chatId] });
     } catch (err) {
       console.error("Error sending message or streaming:", err);
     }
   };
-  const res = useMessageSocket({
+  const { streamingMessage, isStreaming, messageType } = useMessageSocket({
     messageId: newMessageId,
     pendingChatRef,
-    // onMessageComplete: () => {
-    //   queryClient.invalidateQueries({ queryKey: ["session", chatId] });
-    // },
+    onMessageComplete: () => {
+      queryClient.invalidateQueries({ queryKey: ["session", chatId] });
+    },
   });
+  // Pass streaming content to parent component
+  setStreamingContent(streamingMessage);
+  // Set the streaming message ID when streaming starts
+  useEffect(() => {
+    if (isStreaming && newMessageId) {
+      setStreamingMessageId(newMessageId);
+    }
+  }, [isStreaming, newMessageId]);
+  // Update message type in parent
+  useEffect(() => {
+    if (messageType) {
+      setMessageType(messageType);
+    }
+  }, [messageType]);
 
   return (
     <form
