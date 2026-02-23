@@ -104,11 +104,15 @@ const InputBar: React.FC<InputBarProps> = ({
         model_name: values.model_name,
       };
       setNewMessageId(assistantMessageId);
-      await queryClient.refetchQueries({ queryKey: ["messages", chatId] });
+      // Use sessionId (returned from mutation) instead of chatId (might be undefined for new sessions)
+      await queryClient.refetchQueries({
+        queryKey: ["messages", sessionId],
+      });
     } catch (err) {
       console.error("Error sending message or streaming:", err);
     }
   };
+
   const { streamingMessage, isStreaming, messageType } = useMessageSocket({
     messageId: newMessageId,
     pendingChatRef,
