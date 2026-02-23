@@ -69,8 +69,11 @@ class ConnectionManager:
         await self.send_to_message(
             message_id=message_id,
             message={
-                "type": msg_type,
+                "type": msg_type.value,
                 "chunk": chunk,
                 "is_complete": is_complete,
             },
         )
+
+
+manager = ConnectionManager()

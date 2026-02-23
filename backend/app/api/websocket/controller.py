@@ -1,12 +1,11 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from app.api.websocket.ConnectionManager import ConnectionManager
+from app.api.websocket.ConnectionManager import manager
 
 router = APIRouter(prefix="/ws", tags=["websocket"])
 
 
 # Global connection manager instance
-manager = ConnectionManager()
 
 
 @router.websocket("/message/{message_id}")
