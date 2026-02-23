@@ -8,6 +8,7 @@ interface MessagesProps {
   streamingContent: string;
   streamingMessageId: string | null;
   messageType: string;
+  isStreaming: boolean;
 }
 
 const AssistantMesssage: React.FC<MessagesProps> = ({
@@ -15,6 +16,7 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
   streamingContent,
   streamingMessageId,
   messageType,
+  isStreaming,
 }) => {
   return (
     <Flex key={message.id} justify={"flex-start"}>
@@ -39,6 +41,9 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {streamingContent}
                   </ReactMarkdown>
+                  {isStreaming && (
+                    <Loader size={"sm"} color="white" ml="xs" />
+                  )}
                 </>
               ) : (
                 <Loader size={"sm"} color="white" />

@@ -26,6 +26,7 @@ function ChatDetail() {
     null
   );
   const [messageType, setMessageType] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
   const { data, isLoading, isError } = useQuery({
     ...getUsersQueryOptions({ chatId }),
     enabled: !!chatId,
@@ -68,6 +69,7 @@ function ChatDetail() {
             streamingContent={streamingContent}
             messageType={messageType}
             streamingMessageId={streamingMessageId}
+            isStreaming={isStreaming}
           />
         )}
       </Box>
@@ -79,6 +81,7 @@ function ChatDetail() {
           setStreamingContent={setStreamingContent}
           setStreamingMessageId={setStreamingMessageId}
           setMessageType={setMessageType}
+          setIsStreaming={setIsStreaming}
         />
       </Box>
     </Container>

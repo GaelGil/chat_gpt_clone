@@ -15,6 +15,7 @@ interface InputBarProps {
   setStreamingContent: (value: string) => void;
   setStreamingMessageId: (id: string | null) => void;
   setMessageType: (value: string) => void;
+  setIsStreaming: (value: boolean) => void;
 }
 type SendMessageResult = {
   sessionId: string;
@@ -25,6 +26,7 @@ const InputBar: React.FC<InputBarProps> = ({
   setStreamingContent,
   setStreamingMessageId,
   setMessageType,
+  setIsStreaming,
 }) => {
   const queryClient = useQueryClient();
   const { showErrorToast } = useCustomToast();
@@ -94,8 +96,6 @@ const InputBar: React.FC<InputBarProps> = ({
 
   const handleSubmit = async (values: NewMessage) => {
     try {
-      // FIRST set pendingChatRef, THEN trigger the state change
-      // This ensures the ref is populated before useMessageSocket reads it
       const { sessionId, assistantMessageId } =
         await sendMessage.mutateAsync(values);
       pendingChatRef.current = {
@@ -103,9 +103,8 @@ const InputBar: React.FC<InputBarProps> = ({
         assistantMessageId,
         model_name: values.model_name,
       };
-      // Set the messageId AFTER pendingChatRef is populated
       setNewMessageId(assistantMessageId);
-      queryClient.refetchQueries({ queryKey: ["messages", chatId] });
+      await queryClient.refetchQueries({ queryKey: ["messages", chatId] });
     } catch (err) {
       console.error("Error sending message or streaming:", err);
     }
@@ -118,19 +117,27 @@ const InputBar: React.FC<InputBarProps> = ({
     },
   });
   // Pass streaming content to parent component
-  setStreamingContent(streamingMessage);
-  // Set the streaming message ID when streaming starts
   useEffect(() => {
-    if (isStreaming && newMessageId) {
+    setStreamingContent(streamingMessage);
+  }, [streamingMessage, setStreamingContent]);
+  // Set streaming message ID immediately when newMessageId is set
+  useEffect(() => {
+    if (newMessageId) {
       setStreamingMessageId(newMessageId);
     }
-  }, [isStreaming, newMessageId]);
+  }, [newMessageId, setStreamingMessageId]);
+
   // Update message type in parent
   useEffect(() => {
     if (messageType) {
       setMessageType(messageType);
     }
-  }, [messageType]);
+  }, [messageType, setMessageType]);
+
+  // Pass isStreaming to parent
+  useEffect(() => {
+    setIsStreaming(isStreaming);
+  }, [isStreaming, setIsStreaming]);
 
   return (
     <form

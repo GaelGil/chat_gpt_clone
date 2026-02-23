@@ -8,6 +8,7 @@ interface MessagesProps {
   streamingContent: string;
   streamingMessageId: string | null;
   messageType: string;
+  isStreaming: boolean;
 }
 
 const Messages: React.FC<MessagesProps> = ({
@@ -15,6 +16,7 @@ const Messages: React.FC<MessagesProps> = ({
   streamingContent,
   streamingMessageId,
   messageType,
+  isStreaming,
 }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -22,7 +24,7 @@ const Messages: React.FC<MessagesProps> = ({
     bottomRef.current?.scrollIntoView({
       behavior: "smooth",
     });
-  }, [messages, streamingContent]);
+  });
 
   return (
     <Stack gap="xs" w="100%">
@@ -36,6 +38,7 @@ const Messages: React.FC<MessagesProps> = ({
               streamingContent={streamingContent}
               streamingMessageId={streamingMessageId}
               messageType={messageType}
+              isStreaming={isStreaming}
             />
           ) : (
             <> </>
