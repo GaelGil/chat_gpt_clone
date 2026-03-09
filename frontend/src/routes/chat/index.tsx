@@ -26,6 +26,7 @@ function NewChat() {
             chatId={undefined}
             setStreamingContent={() => {}}
             setStreamingMessageId={() => {}}
+            setIsStreaming={() => {}}
             setMessageType={() => {}}
           />
         </Box>
