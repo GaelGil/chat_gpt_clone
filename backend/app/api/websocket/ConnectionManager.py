@@ -14,7 +14,6 @@ class ConnectionManager:
         """
         Add a WebSocket connection to the manager.
         """
-        print("NEW WS CONNECTED FOR", message_id)
         # Accept the connection
         await websocket.accept()
         # Check if message_id is in active_connections
@@ -65,7 +64,6 @@ class ConnectionManager:
             is_complete (bool, optional): Whether the response is complete. Defaults to False.
             msg_type (str, optional): Message type. Defaults to "message_chunk".
         """
-        print(f"STREAM RESPONSE CHUNK CALLED {chunk} for message_id: {message_id}")
         await self.send_to_message(
             message_id=message_id,
             message={
