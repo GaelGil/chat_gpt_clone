@@ -110,10 +110,6 @@ const InputBar: React.FC<InputBarProps> = ({
         model_name: values.model_name,
       }
       setNewMessageId(assistantMessageId)
-      // Use sessionId (returned from mutation) instead of chatId (might be undefined for new sessions)
-      await queryClient.refetchQueries({
-        queryKey: ["messages", sessionId],
-      })
     } catch (err) {
       console.error("Error sending message or streaming:", err)
     }
@@ -123,7 +119,7 @@ const InputBar: React.FC<InputBarProps> = ({
     messageId: newMessageId,
     pendingChatRef,
     onMessageComplete: () => {
-      queryClient.invalidateQueries({ queryKey: ["session", chatId] })
+      queryClient.invalidateQueries({ queryKey: ["messages", chatId] })
     },
   })
   // Pass streaming content to parent component
@@ -162,6 +158,7 @@ const InputBar: React.FC<InputBarProps> = ({
         autosize
         w="100%"
         size="lg"
+        disabled={sendMessage.isPending}
         rightSection={
           <RightSection sendMessage={sendMessage} chatForm={chatForm} />
         }
