@@ -29,10 +29,12 @@ def get_sessions(
     if not user and permission_error:
         raise permission_error
 
+    assert user
     sessions, error = session_service.get_sessions(user=user)
 
     if not sessions and error:
         raise error
+    assert sessions
     return sessions
 
 
@@ -46,11 +48,12 @@ def get_session(
     user, permission_error = session_service.verify_permissions(user=current_user)
     if permission_error:
         raise permission_error
+    assert user
     session, error = session_service.get_session(user=user, session_id=session_id)
 
     if error:
         raise error
-
+    assert session
     return session
 
 
@@ -68,6 +71,7 @@ def new_session(
     if permission_error:
         raise permission_error
 
+    assert user
     session_id, new_session_error = session_service.new_session(
         user=user, new_session=new_session
     )
@@ -75,6 +79,7 @@ def new_session(
     if new_session_error:
         raise new_session_error
 
+    assert session_id
     return session_id
 
 
@@ -90,7 +95,7 @@ def delete_session(
     user, permission_error = session_service.verify_permissions(user=current_user)
     if permission_error:
         raise permission_error
-
+    assert user
     deleted, error = session_service.delete_session(user=user, session_id=session_id)
     if not deleted and error:
         raise error
@@ -113,6 +118,7 @@ def add_message(
     if not user and permission_error:
         raise permission_error
 
+    assert user
     message_id, save_error = session_service.save_message(
         user_id=user.id, session_id=session_id, message=message
     )
@@ -120,6 +126,7 @@ def add_message(
     if not message_id and save_error:
         raise save_error
 
+    assert message_id
     return message_id
 
 
@@ -154,6 +161,9 @@ async def chat(
     if session_history_error:
         raise session_history_error
 
+    assert session_history
+    assert user
+    assert message
     # Start background task to generate and stream response
     background_tasks.add_task(
         session_service.generate_response,
@@ -181,6 +191,7 @@ async def rename_session(
     if permission_error:
         raise permission_error
 
+    assert user
     updated, update_error = session_service.rename_session(
         user=user, session_id=session_id, update_session=session_updates
     )
