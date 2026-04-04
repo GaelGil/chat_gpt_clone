@@ -1,5 +1,5 @@
-import { createTheme } from "@mantine/core";
-import type { CSSVariablesResolver } from "@mantine/core";
+import type { CSSVariablesResolver } from "@mantine/core"
+import { createTheme } from "@mantine/core"
 
 export const theme = createTheme({
   colors: {
@@ -20,7 +20,7 @@ export const theme = createTheme({
   primaryColor: "gray",
 
   components: {}, // default theme (can be 'dark')
-});
+})
 
 export const cssResolver: CSSVariablesResolver = () => ({
   variables: {
@@ -35,4 +35,4 @@ export const cssResolver: CSSVariablesResolver = () => ({
   },
   light: {},
   dark: {},
-});
+})

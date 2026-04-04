@@ -1,39 +1,39 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { Button, Group, Text, Modal, Stack } from "@mantine/core";
+import { Button, Group, Modal, Stack, Text } from "@mantine/core"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
 
-import { type ApiError, UsersService } from "@/client";
-import useAuth from "@/hooks/useAuth";
-import useCustomToast from "@/hooks/useCustomToast";
-import { handleError } from "@/utils";
+import { type ApiError, UsersService } from "@/client"
+import useAuth from "@/hooks/useAuth"
+import useCustomToast from "@/hooks/useCustomToast"
+import { handleError } from "@/utils"
 
 const DeleteConfirmation = () => {
-  const [opened, setOpened] = useState(false);
-  const queryClient = useQueryClient();
-  const { showSuccessToast } = useCustomToast();
-  const { logout } = useAuth();
+  const [opened, setOpened] = useState(false)
+  const queryClient = useQueryClient()
+  const { showSuccessToast } = useCustomToast()
+  const { logout } = useAuth()
 
   const {
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm();
+  } = useForm()
 
   const mutation = useMutation({
     mutationFn: () => UsersService.deleteUserMe(),
     onSuccess: () => {
-      showSuccessToast("Your account has been successfully deleted");
-      setOpened(false);
-      logout();
+      showSuccessToast("Your account has been successfully deleted")
+      setOpened(false)
+      logout()
     },
     onError: (err: ApiError) => handleError(err),
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: ["currentUser"] }),
-  });
+  })
 
-  const onSubmit = async () => mutation.mutate();
+  const onSubmit = async () => mutation.mutate()
 
   return (
     <>
@@ -75,7 +75,7 @@ const DeleteConfirmation = () => {
         </form>
       </Modal>
     </>
-  );
-};
+  )
+}
 
-export default DeleteConfirmation;
+export default DeleteConfirmation

@@ -1,49 +1,49 @@
-import { Button, Text } from "@mantine/core";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { FiTrash2 } from "react-icons/fi";
+import { Button, Text } from "@mantine/core"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { FiTrash2 } from "react-icons/fi"
 
-import { UsersService } from "@/client";
+import { UsersService } from "@/client"
 import {
-  DialogContent,
-  DialogCloseTrigger,
-  DialogTitle,
-  DialogHeader,
   DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
   // DialogActionTrigger,
-} from "@/components/ui/dialog";
-import useCustomToast from "@/hooks/useCustomToast";
+} from "@/components/ui/dialog"
+import useCustomToast from "@/hooks/useCustomToast"
 
 const DeleteUser = ({ id }: { id: string }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const { showSuccessToast, showErrorToast } = useCustomToast();
-  const { handleSubmit, formState } = useForm();
-  const { isSubmitting } = formState;
+  const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const { showSuccessToast, showErrorToast } = useCustomToast()
+  const { handleSubmit, formState } = useForm()
+  const { isSubmitting } = formState
 
   const deleteUser = async (id: string) => {
-    await UsersService.deleteUser({ userId: id });
-  };
+    await UsersService.deleteUser({ userId: id })
+  }
 
   const mutation = useMutation({
     mutationFn: deleteUser,
     onSuccess: () => {
-      showSuccessToast("The user was deleted successfully");
-      setIsOpen(false);
+      showSuccessToast("The user was deleted successfully")
+      setIsOpen(false)
     },
     onError: () => {
-      showErrorToast("An error occurred while deleting the user");
+      showErrorToast("An error occurred while deleting the user")
     },
     onSettled: () => {
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries()
     },
-  });
+  })
 
   const onSubmit = async () => {
-    mutation.mutate(id);
-  };
+    mutation.mutate(id)
+  }
 
   return (
     <>
@@ -102,7 +102,7 @@ const DeleteUser = ({ id }: { id: string }) => {
         <DialogCloseTrigger />
       </DialogContent>
     </>
-  );
-};
+  )
+}
 
-export default DeleteUser;
+export default DeleteUser

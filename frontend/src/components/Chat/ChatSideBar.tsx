@@ -1,19 +1,26 @@
-import { Box, Text, Anchor, Flex, Stack, Image } from "@mantine/core";
-import { Link } from "@tanstack/react-router";
-import { ActionIcon } from "@mantine/core";
-import { FiArrowRight, FiColumns, FiEdit } from "react-icons/fi";
-import { PROJECT_NAME, LOGO } from "@/const";
-import { useState } from "react";
-import Chats from "./Chats";
-import UserMenu from "../Common/UserMenu";
+import {
+  ActionIcon,
+  Anchor,
+  Box,
+  Flex,
+  Image,
+  Stack,
+  Text,
+} from "@mantine/core"
+import { Link } from "@tanstack/react-router"
+import { useState } from "react"
+import { FiArrowRight, FiColumns, FiEdit } from "react-icons/fi"
+import { LOGO, PROJECT_NAME } from "@/const"
+import UserMenu from "../Common/UserMenu"
+import Chats from "./Chats"
 
 interface SidebarProps {
-  collapsed: boolean;
-  toggle: () => void;
+  collapsed: boolean
+  toggle: () => void
 }
 
 const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
-  const [hovered, setHovered] = useState(false);
+  const [hovered, setHovered] = useState(false)
   return (
     <Stack h="100%">
       {/* Controls */}
@@ -22,8 +29,8 @@ const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           onClick={() => {
-            toggle();
-            setHovered(false);
+            toggle()
+            setHovered(false)
           }}
           style={{ cursor: "pointer", position: "relative" }}
         >
@@ -73,7 +80,7 @@ const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
         </>
       )}
     </Stack>
-  );
-};
+  )
+}
 
-export default ChatSideBar;
+export default ChatSideBar

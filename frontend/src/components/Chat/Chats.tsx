@@ -1,39 +1,40 @@
-import { SessionService } from "@/client";
-import { useQuery } from "@tanstack/react-query";
-import { Menu, Button, Stack, Flex, Text } from "@mantine/core";
-import { FiMoreHorizontal, FiEdit2, FiTrash2 } from "react-icons/fi";
-import { Link } from "@tanstack/react-router";
-import Rename from "./Settings/Rename";
-import DeleteSession from "./Settings/Delete";
-import { useState } from "react";
+import { Button, Flex, Menu, Stack, Text } from "@mantine/core"
+import { useQuery } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
+import { useState } from "react"
+import { FiEdit2, FiMoreHorizontal, FiTrash2 } from "react-icons/fi"
+import { SessionService } from "@/client"
+import DeleteSession from "./Settings/Delete"
+import Rename from "./Settings/Rename"
+
 function getUsersQueryOptions() {
   return {
     queryFn: () => SessionService.getSessions(),
     queryKey: ["sessions"],
-  };
+  }
 }
 const Chats = () => {
   // const sessions;
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [editId, setEditId] = useState<string | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [editId, setEditId] = useState<string | null>(null)
   const { data, isLoading, isError } = useQuery({
     ...getUsersQueryOptions(),
     placeholderData: (prevData) => prevData,
-  });
+  })
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   if (isError) {
-    return <div>Error</div>;
+    return <div>Error</div>
   }
 
-  const sessions = data?.sessions ?? [];
+  const sessions = data?.sessions ?? []
 
   if (sessions.length === 0) {
-    return <Text>Start a new chat!</Text>;
+    return <Text>Start a new chat!</Text>
   }
 
   return (
@@ -57,7 +58,7 @@ const Chats = () => {
             </Link>
           )}
 
-          <Button variant="transparent" size="xs" px={6}></Button>
+          <Button variant="transparent" size="xs" px={6} />
           {hoveredId === session.id && (
             <Menu position="bottom-end" withinPortal>
               <Menu.Target>
@@ -90,7 +91,7 @@ const Chats = () => {
         </Flex>
       ))}
     </Stack>
-  );
-};
+  )
+}
 
-export default Chats;
+export default Chats

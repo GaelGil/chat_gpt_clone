@@ -1,27 +1,27 @@
 export async function* readSSEStream(
-  response: Response
+  response: Response,
 ): AsyncGenerator<any, void, unknown> {
-  const reader = response.body?.getReader();
-  const decoder = new TextDecoder();
+  const reader = response.body?.getReader()
+  const decoder = new TextDecoder()
 
   if (!reader) {
-    throw new Error("No response body");
+    throw new Error("No response body")
   }
 
-  let buffer = "";
+  let buffer = ""
 
   try {
     while (true) {
-      const { done, value } = await reader.read();
+      const { done, value } = await reader.read()
 
       if (done) {
-        break;
+        break
       }
-      yield buffer;
-      buffer += decoder.decode(value, { stream: true });
-      console.log("Raw chunk from stream:", buffer);
+      yield buffer
+      buffer += decoder.decode(value, { stream: true })
+      console.log("Raw chunk from stream:", buffer)
     }
   } finally {
-    reader.releaseLock();
+    reader.releaseLock()
   }
 }

@@ -1,9 +1,9 @@
-import { Accordion, Blockquote, Group, Text } from "@mantine/core";
-import { FiTool } from "react-icons/fi";
-import { ToolCallDetail } from "@/client";
+import { Accordion, Blockquote, Group, Text } from "@mantine/core"
+import { FiTool } from "react-icons/fi"
+import type { ToolCallDetail } from "@/client"
 
 interface ToolCallProps {
-  toolCalls: ToolCallDetail[];
+  toolCalls: ToolCallDetail[]
 }
 
 const ToolCalls: React.FC<ToolCallProps> = ({ toolCalls }) => {
@@ -29,7 +29,7 @@ const ToolCalls: React.FC<ToolCallProps> = ({ toolCalls }) => {
         </Accordion>
       ))}
     </>
-  );
-};
+  )
+}
 
-export default ToolCalls;
+export default ToolCalls

@@ -1,27 +1,26 @@
-import { AppShell, Group, Text } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
-import ChatSideBar from "@/components/Chat/ChatSideBar";
-import { PROJECT_NAME } from "@/const";
-import { isLoggedIn } from "@/hooks/useAuth";
-import { redirect } from "@tanstack/react-router";
+import { AppShell, Group, Text } from "@mantine/core"
+import { useDisclosure } from "@mantine/hooks"
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
+import ChatSideBar from "@/components/Chat/ChatSideBar"
+import { PROJECT_NAME } from "@/const"
+import { isLoggedIn } from "@/hooks/useAuth"
 export const Route = createFileRoute("/chat")({
   component: Chat,
   beforeLoad: async () => {
     if (!isLoggedIn()) {
       throw redirect({
         to: "/auth/login",
-      });
+      })
     }
   },
-});
+})
 function Chat() {
-  const [collapsed, { toggle: toggleCollapsed }] = useDisclosure(false);
+  const [collapsed, { toggle: toggleCollapsed }] = useDisclosure(false)
 
-  const fullWidth = 260;
-  const collapsedWidth = 60;
+  const fullWidth = 260
+  const collapsedWidth = 60
 
-  const sidebarWidth = collapsed ? collapsedWidth : fullWidth;
+  const sidebarWidth = collapsed ? collapsedWidth : fullWidth
 
   return (
     <AppShell
@@ -56,5 +55,5 @@ function Chat() {
         <Outlet />
       </AppShell.Main>
     </AppShell>
-  );
+  )
 }

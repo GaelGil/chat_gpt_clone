@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { Button, Center, Flex, Text } from "@mantine/core";
-import { Link } from "@tanstack/react-router";
+import { Button, Center, Flex, Text } from "@mantine/core"
+import { Link } from "@tanstack/react-router"
 
 const NotFound = () => {
   return (
@@ -51,7 +51,7 @@ const NotFound = () => {
         </Link>
       </Center>
     </Flex>
-  );
-};
+  )
+}
 
-export default NotFound;
+export default NotFound

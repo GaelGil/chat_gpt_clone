@@ -1,13 +1,12 @@
-import { Container, Title, Tabs } from "@mantine/core";
-import { createFileRoute } from "@tanstack/react-router";
-
-import Appearance from "@/components/UserSettings/Appearance";
-import ChangePassword from "@/components/UserSettings/ChangePassword";
-import DeleteAccount from "@/components/UserSettings/DeleteAccount";
-import UserInformation from "@/components/UserSettings/UserInformation";
-import useAuth from "@/hooks/useAuth";
-import { useState } from "react";
-import { FaEye, FaLock, FaUser, FaSun } from "react-icons/fa";
+import { Container, Tabs, Title } from "@mantine/core"
+import { createFileRoute } from "@tanstack/react-router"
+import { useState } from "react"
+import { FaEye, FaLock, FaSun, FaUser } from "react-icons/fa"
+import Appearance from "@/components/UserSettings/Appearance"
+import ChangePassword from "@/components/UserSettings/ChangePassword"
+import DeleteAccount from "@/components/UserSettings/DeleteAccount"
+import UserInformation from "@/components/UserSettings/UserInformation"
+import useAuth from "@/hooks/useAuth"
 
 const tabsConfig = [
   {
@@ -34,22 +33,22 @@ const tabsConfig = [
     component: DeleteAccount,
     icon: <FaEye />,
   },
-];
+]
 
 export const Route = createFileRoute("/dashboard/settings")({
   component: UserSettings,
-});
+})
 
 function UserSettings() {
-  const { user: currentUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<string | null>("my-profile");
+  const { user: currentUser } = useAuth()
+  const [activeTab, setActiveTab] = useState<string | null>("my-profile")
 
   const finalTabs = currentUser?.is_superuser
     ? tabsConfig.slice(0, 3)
-    : tabsConfig;
+    : tabsConfig
 
   if (!currentUser) {
-    return null;
+    return null
   }
 
   return (
@@ -80,5 +79,5 @@ function UserSettings() {
         ))}
       </Tabs>
     </Container>
-  );
+  )
 }

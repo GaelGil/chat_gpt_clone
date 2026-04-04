@@ -1,21 +1,21 @@
-"use client";
+"use client"
 
-import { Container, Text, Image, Input, Stack } from "@mantine/core";
+import { Container, Image, Input, Stack, Text } from "@mantine/core"
 import {
   createFileRoute,
   Link as RouterLink,
   redirect,
-} from "@tanstack/react-router";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import type { Body_login_login_access_token as AccessToken } from "@/client";
-import { FiLock, FiMail } from "react-icons/fi";
-import { Button } from "@/components/ui/button";
-import { Field } from "@/components/ui/field";
-import { InputGroup } from "@/components/ui/input-group";
-import { PasswordInput } from "@/components/ui/password-input";
-import useAuth, { isLoggedIn } from "@/hooks/useAuth";
-import Logo from "/assets/images/fastapi-logo.svg";
-import { emailPattern, passwordRules } from "../../utils";
+} from "@tanstack/react-router"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import { FiLock, FiMail } from "react-icons/fi"
+import type { Body_login_login_access_token as AccessToken } from "@/client"
+import { Button } from "@/components/ui/button"
+import { Field } from "@/components/ui/field"
+import { InputGroup } from "@/components/ui/input-group"
+import { PasswordInput } from "@/components/ui/password-input"
+import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+import Logo from "/assets/images/fastapi-logo.svg"
+import { emailPattern, passwordRules } from "../../utils"
 
 export const Route = createFileRoute("/auth/login")({
   component: Login,
@@ -23,13 +23,13 @@ export const Route = createFileRoute("/auth/login")({
     if (isLoggedIn()) {
       throw redirect({
         to: "/dashboard",
-      });
+      })
     }
   },
-});
+})
 
 function Login() {
-  const { loginMutation, error, resetError } = useAuth();
+  const { loginMutation, error, resetError } = useAuth()
   const {
     register,
     handleSubmit,
@@ -41,20 +41,20 @@ function Login() {
       username: "",
       password: "",
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<AccessToken> = async (data) => {
-    if (isSubmitting) return;
+    if (isSubmitting) return
 
-    resetError();
+    resetError()
 
     try {
-      console.log(data);
-      await loginMutation.mutateAsync(data);
+      console.log(data)
+      await loginMutation.mutateAsync(data)
     } catch {
       // handled by useAuth
     }
-  };
+  }
 
   return (
     <Container
@@ -115,5 +115,5 @@ function Login() {
         </Stack>
       </form>
     </Container>
-  );
+  )
 }

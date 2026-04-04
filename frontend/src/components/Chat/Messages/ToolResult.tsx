@@ -1,10 +1,10 @@
-import { Flex, Box } from "@mantine/core";
-import remarkGfm from "remark-gfm";
-import ReactMarkdown from "react-markdown";
+import { Box, Flex } from "@mantine/core"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface ToolCallResultProps {
-  messageId: string;
-  streamingContent: string;
+  messageId: string
+  streamingContent: string
 }
 
 const ToolResult: React.FC<ToolCallResultProps> = ({
@@ -28,7 +28,7 @@ const ToolResult: React.FC<ToolCallResultProps> = ({
         </ReactMarkdown>
       </Box>
     </Flex>
-  );
-};
+  )
+}
 
-export default ToolResult;
+export default ToolResult

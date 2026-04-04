@@ -1,21 +1,21 @@
-"use client";
+"use client"
 
-import { Box, Button, Container, Title, Stack, Group } from "@mantine/core";
-import { useMutation } from "@tanstack/react-query";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { FiLock } from "react-icons/fi";
+import { Box, Button, Container, Group, Stack, Title } from "@mantine/core"
+import { useMutation } from "@tanstack/react-query"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import { FiLock } from "react-icons/fi"
 
-import { type ApiError, type UpdatePassword, UsersService } from "@/client";
-import useCustomToast from "@/hooks/useCustomToast";
-import { confirmPasswordRules, handleError, passwordRules } from "@/utils";
-import { PasswordInput } from "../ui/password-input";
+import { type ApiError, type UpdatePassword, UsersService } from "@/client"
+import useCustomToast from "@/hooks/useCustomToast"
+import { confirmPasswordRules, handleError, passwordRules } from "@/utils"
+import { PasswordInput } from "../ui/password-input"
 
 interface UpdatePasswordForm extends UpdatePassword {
-  confirm_password: string;
+  confirm_password: string
 }
 
 const ChangePassword = () => {
-  const { showSuccessToast } = useCustomToast();
+  const { showSuccessToast } = useCustomToast()
   const {
     register,
     handleSubmit,
@@ -25,23 +25,23 @@ const ChangePassword = () => {
   } = useForm<UpdatePasswordForm>({
     mode: "onBlur",
     criteriaMode: "all",
-  });
+  })
 
   const mutation = useMutation({
     mutationFn: (data: UpdatePassword) =>
       UsersService.updatePasswordMe({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("Password updated successfully.");
-      reset();
+      showSuccessToast("Password updated successfully.")
+      reset()
     },
     onError: (err: ApiError) => {
-      handleError(err);
+      handleError(err)
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<UpdatePasswordForm> = async (data) => {
-    mutation.mutate(data);
-  };
+    mutation.mutate(data)
+  }
 
   return (
     <Container size="xl" px="md">
@@ -83,7 +83,7 @@ const ChangePassword = () => {
         </Group>
       </Box>
     </Container>
-  );
-};
+  )
+}
 
-export default ChangePassword;
+export default ChangePassword

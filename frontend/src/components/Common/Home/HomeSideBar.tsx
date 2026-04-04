@@ -1,19 +1,20 @@
-"use client";
+"use client"
 
 import {
-  Box,
-  Group,
-  Text,
-  Anchor,
-  Stack,
-  Flex,
-  Image,
   ActionIcon,
-} from "@mantine/core";
-import { useState } from "react";
-import { FiColumns, FiArrowRight } from "react-icons/fi";
-import { LOGO, PROJECT_NAME } from "@/const";
-import { Link } from "@tanstack/react-router";
+  Anchor,
+  Box,
+  Flex,
+  Group,
+  Image,
+  Stack,
+  Text,
+} from "@mantine/core"
+import { Link } from "@tanstack/react-router"
+import { useState } from "react"
+import { FiArrowRight, FiColumns } from "react-icons/fi"
+import { LOGO, PROJECT_NAME } from "@/const"
+
 const items = [
   { title: "Research", link: "https://openai.com/research" },
   { title: "Safety", link: "https://openai.com/safety" },
@@ -24,15 +25,15 @@ const items = [
   { title: "Stories", link: "https://openai.com/stories" },
   { title: "Company", link: "https://openai.com/company" },
   { title: "News", link: "https://openai.com/news" },
-];
+]
 
 interface HomeSideBarProps {
-  collapsed: boolean;
-  toggle: () => void;
+  collapsed: boolean
+  toggle: () => void
 }
 
 const HomeSideBar: React.FC<HomeSideBarProps> = ({ collapsed, toggle }) => {
-  const [hovered, setHovered] = useState(false);
+  const [hovered, setHovered] = useState(false)
 
   const listItems = items.map(({ title, link }) => (
     <Group key={title} gap="sm" px="md" py="sm" align="center" fz={"14px"}>
@@ -42,7 +43,7 @@ const HomeSideBar: React.FC<HomeSideBarProps> = ({ collapsed, toggle }) => {
         </Text>
       </Anchor>
     </Group>
-  ));
+  ))
 
   return (
     <Stack>
@@ -57,8 +58,8 @@ const HomeSideBar: React.FC<HomeSideBarProps> = ({ collapsed, toggle }) => {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             onClick={() => {
-              toggle();
-              setHovered(false);
+              toggle()
+              setHovered(false)
             }}
             style={{ cursor: "pointer", position: "relative" }}
           >
@@ -84,13 +85,9 @@ const HomeSideBar: React.FC<HomeSideBarProps> = ({ collapsed, toggle }) => {
         )}
       </Flex>
       {}
-      {!collapsed && (
-        <>
-          <Box p="sm">{listItems}</Box>
-        </>
-      )}
+      {!collapsed && <Box p="sm">{listItems}</Box>}
     </Stack>
-  );
-};
+  )
+}
 
-export default HomeSideBar;
+export default HomeSideBar

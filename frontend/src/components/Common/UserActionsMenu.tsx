@@ -1,22 +1,21 @@
-"use client";
+"use client"
 
-import { ActionIcon } from "@mantine/core";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import type { UserPublic } from "@/client";
-import DeleteUser from "../Admin/DeleteUser";
-import EditUser from "../Admin/EditUser";
-import { useState } from "react";
-import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu";
-import { Button } from "../ui/button";
-import { Menu } from "@mantine/core";
+import { ActionIcon, Menu } from "@mantine/core"
+import { useState } from "react"
+import { BsThreeDotsVertical } from "react-icons/bs"
+import type { UserPublic } from "@/client"
+import DeleteUser from "../Admin/DeleteUser"
+import EditUser from "../Admin/EditUser"
+import { Button } from "../ui/button"
+import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu"
 
 interface UserActionsMenuProps {
-  user: UserPublic;
-  disabled?: boolean;
+  user: UserPublic
+  disabled?: boolean
 }
 
 export const UserActionsMenu = ({ user, disabled }: UserActionsMenuProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <MenuRoot>
@@ -41,5 +40,5 @@ export const UserActionsMenu = ({ user, disabled }: UserActionsMenuProps) => {
 
       <EditUser user={user} open={isOpen} onClose={() => setIsOpen(false)} />
     </MenuRoot>
-  );
-};
+  )
+}

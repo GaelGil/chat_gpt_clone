@@ -1,33 +1,33 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm, type SubmitHandler } from "react-hook-form";
 import {
+  Button,
   Container,
+  Group,
+  Stack,
   Text,
   TextInput,
-  Button,
-  Stack,
-  Group,
   Title,
-} from "@mantine/core";
+} from "@mantine/core"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
 
 import {
   type ApiError,
   type UserPublic,
   UsersService,
   type UserUpdateMe,
-} from "@/client";
-import useAuth from "@/hooks/useAuth";
-import useCustomToast from "@/hooks/useCustomToast";
-import { emailPattern, handleError } from "@/utils";
+} from "@/client"
+import useAuth from "@/hooks/useAuth"
+import useCustomToast from "@/hooks/useCustomToast"
+import { emailPattern, handleError } from "@/utils"
 
 const UserInformation = () => {
-  const queryClient = useQueryClient();
-  const { showSuccessToast } = useCustomToast();
-  const [editMode, setEditMode] = useState(false);
-  const { user: currentUser } = useAuth();
+  const queryClient = useQueryClient()
+  const { showSuccessToast } = useCustomToast()
+  const [editMode, setEditMode] = useState(false)
+  const { user: currentUser } = useAuth()
 
   const {
     register,
@@ -42,27 +42,27 @@ const UserInformation = () => {
       full_name: currentUser?.full_name,
       email: currentUser?.email,
     },
-  });
+  })
 
-  const toggleEditMode = () => setEditMode(!editMode);
+  const toggleEditMode = () => setEditMode(!editMode)
 
   const mutation = useMutation({
     mutationFn: (data: UserUpdateMe) =>
       UsersService.updateUserMe({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("User updated successfully.");
-      toggleEditMode();
+      showSuccessToast("User updated successfully.")
+      toggleEditMode()
     },
     onError: (err: ApiError) => handleError(err),
     onSettled: () => queryClient.invalidateQueries(),
-  });
+  })
 
-  const onSubmit: SubmitHandler<UserUpdateMe> = (data) => mutation.mutate(data);
+  const onSubmit: SubmitHandler<UserUpdateMe> = (data) => mutation.mutate(data)
 
   const onCancel = () => {
-    reset();
-    toggleEditMode();
-  };
+    reset()
+    toggleEditMode()
+  }
 
   return (
     <Container size="xl" px="md">
@@ -124,7 +124,7 @@ const UserInformation = () => {
         </Stack>
       </form>
     </Container>
-  );
-};
+  )
+}
 
-export default UserInformation;
+export default UserInformation

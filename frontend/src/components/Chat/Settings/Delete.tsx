@@ -1,52 +1,52 @@
-import { Button, Group, Text } from "@mantine/core";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { handleError } from "@/utils";
-import type { ApiError } from "@/client/core/ApiError";
-import { SessionService } from "@/client";
+import { Button, Group, Text } from "@mantine/core"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { SessionService } from "@/client"
+import type { ApiError } from "@/client/core/ApiError"
 import {
-  DialogContent,
-  DialogTitle,
-  DialogHeader,
   DialogBody,
+  DialogContent,
   DialogFooter,
-} from "@/components/ui/dialog";
-import useCustomToast from "@/hooks/useCustomToast";
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import useCustomToast from "@/hooks/useCustomToast"
+import { handleError } from "@/utils"
 
 const DeleteSession = ({ id, opened }: { id: string; opened: boolean }) => {
-  const [isOpen, setIsOpen] = useState(opened);
-  const queryClient = useQueryClient();
-  const { showSuccessToast, showErrorToast } = useCustomToast();
-  const { handleSubmit, formState } = useForm();
-  const { isSubmitting } = formState;
+  const [isOpen, setIsOpen] = useState(opened)
+  const queryClient = useQueryClient()
+  const { showSuccessToast, showErrorToast } = useCustomToast()
+  const { handleSubmit, formState } = useForm()
+  const { isSubmitting } = formState
 
   const deleteSession = async (id: string) => {
-    await SessionService.deleteSession({ sessionId: id });
-  };
+    await SessionService.deleteSession({ sessionId: id })
+  }
 
   const deleteMutation = useMutation({
     mutationFn: deleteSession,
     onSuccess: (res: any) => {
-      const message = res.message;
-      showSuccessToast(message);
-      setIsOpen(false);
+      const message = res.message
+      showSuccessToast(message)
+      setIsOpen(false)
     },
     onError: (err: ApiError) => {
-      const body = err.body as { detail?: string } | undefined;
-      const message = body?.detail ?? "An error occurred";
-      console.error(message);
-      showErrorToast(message);
-      handleError(err);
+      const body = err.body as { detail?: string } | undefined
+      const message = body?.detail ?? "An error occurred"
+      console.error(message)
+      showErrorToast(message)
+      handleError(err)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["sessions"] })
     },
-  });
+  })
 
   const onSubmit = async () => {
-    deleteMutation.mutate(id);
-  };
+    deleteMutation.mutate(id)
+  }
 
   return (
     <DialogContent
@@ -89,7 +89,7 @@ const DeleteSession = ({ id, opened }: { id: string; opened: boolean }) => {
         </DialogFooter>
       </form>
     </DialogContent>
-  );
-};
+  )
+}
 
-export default DeleteSession;
+export default DeleteSession

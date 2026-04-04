@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { Container, Title, Text } from "@mantine/core";
+import { Container, Text, Title } from "@mantine/core"
 
-import DeleteConfirmation from "./DeleteConfirmation";
+import DeleteConfirmation from "./DeleteConfirmation"
 
 const DeleteAccount = () => {
   return (
@@ -16,7 +16,7 @@ const DeleteAccount = () => {
       </Text>
       <DeleteConfirmation />
     </Container>
-  );
-};
+  )
+}
 
-export default DeleteAccount;
+export default DeleteAccount

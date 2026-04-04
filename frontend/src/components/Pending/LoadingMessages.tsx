@@ -1,4 +1,4 @@
-import { Container, Box, Loader, Textarea } from "@mantine/core";
+import { Box, Container, Loader, Textarea } from "@mantine/core"
 
 const LoadingMessages = () => {
   return (
@@ -32,7 +32,7 @@ const LoadingMessages = () => {
         />
       </Box>
     </Container>
-  );
-};
+  )
+}
 
-export default LoadingMessages;
+export default LoadingMessages

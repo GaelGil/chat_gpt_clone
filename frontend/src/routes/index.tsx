@@ -1,23 +1,24 @@
 // routes/index.tsx
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useDisclosure } from "@mantine/hooks";
-import { AppShell, Anchor, Group } from "@mantine/core";
-import { Button } from "@/components/ui/button";
-import HomeBanner from "../components/Common/Home/HomeBanner";
-import { isLoggedIn } from "@/hooks/useAuth";
-import HomeSideBar from "../components/Common/Home/HomeSideBar";
+
+import { Anchor, AppShell, Group } from "@mantine/core"
+import { useDisclosure } from "@mantine/hooks"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { Button } from "@/components/ui/button"
+import { isLoggedIn } from "@/hooks/useAuth"
+import HomeBanner from "../components/Common/Home/HomeBanner"
+import HomeSideBar from "../components/Common/Home/HomeSideBar"
 export const Route = createFileRoute("/")({
   component: HomePage,
-});
+})
 
 function HomePage() {
-  const loggedIn = isLoggedIn();
-  const [collapsed, { toggle: toggleCollapsed }] = useDisclosure(false);
+  const loggedIn = isLoggedIn()
+  const [collapsed, { toggle: toggleCollapsed }] = useDisclosure(false)
 
-  const fullWidth = 200;
-  const collapsedWidth = 60;
+  const fullWidth = 200
+  const collapsedWidth = 60
 
-  const sidebarWidth = collapsed ? collapsedWidth : fullWidth;
+  const sidebarWidth = collapsed ? collapsedWidth : fullWidth
 
   return (
     <AppShell
@@ -49,5 +50,5 @@ function HomePage() {
         <HomeBanner />
       </AppShell.Main>
     </AppShell>
-  );
+  )
 }

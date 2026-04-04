@@ -1,4 +1,4 @@
-import { Box, Title } from "@mantine/core";
+import { Box, Title } from "@mantine/core"
 
 const InitMessage = () => {
   return (
@@ -7,7 +7,7 @@ const InitMessage = () => {
         What Can I Help With?
       </Title>
     </Box>
-  );
-};
+  )
+}
 
-export default InitMessage;
+export default InitMessage

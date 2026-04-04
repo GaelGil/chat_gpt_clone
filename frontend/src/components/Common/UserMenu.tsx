@@ -1,19 +1,19 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { Box, Button, Group, Text, Avatar } from "@mantine/core";
-import { Link } from "@tanstack/react-router";
-import { FiLogOut } from "react-icons/fi";
+import { Avatar, Box, Button, Group, Text } from "@mantine/core"
+import { Link } from "@tanstack/react-router"
+import type * as React from "react"
+import { FiLogOut } from "react-icons/fi"
 
-import useAuth from "@/hooks/useAuth";
-import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "../ui/menu";
+import useAuth from "@/hooks/useAuth"
+import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "../ui/menu"
 
 const UserMenu: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuth()
 
   const handleLogout = async () => {
-    logout();
-  };
+    logout()
+  }
 
   return (
     <MenuRoot>
@@ -44,7 +44,7 @@ const UserMenu: React.FC = () => {
         </MenuItem>
       </MenuContent>
     </MenuRoot>
-  );
-};
+  )
+}
 
-export default UserMenu;
+export default UserMenu

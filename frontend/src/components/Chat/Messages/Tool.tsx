@@ -1,10 +1,10 @@
-import { ToolCallDetail } from "@/client";
-import { Flex, Box } from "@mantine/core";
-import remarkGfm from "remark-gfm";
-import ReactMarkdown from "react-markdown";
+import { Box, Flex } from "@mantine/core"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import type { ToolCallDetail } from "@/client"
 
 interface ToolProps {
-  toolCall: ToolCallDetail;
+  toolCall: ToolCallDetail
 }
 
 const Tool: React.FC<ToolProps> = ({ toolCall }) => {
@@ -25,7 +25,7 @@ const Tool: React.FC<ToolProps> = ({ toolCall }) => {
         {toolCall.result}
       </ReactMarkdown>
     </Box>
-  );
-};
+  )
+}
 
-export default Tool;
+export default Tool

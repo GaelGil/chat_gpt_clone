@@ -1,47 +1,47 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Container, Box } from "@mantine/core";
-import InputBar from "@/components/Chat/Input/InputBar";
-import { SessionService } from "@/client";
-import InitMessage from "@/components/Chat/Messages/InitMesssage";
-import Messages from "@/components/Chat/Messages/Messages";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import LoadingMessages from "@/components/Pending/LoadingMessages";
+import { Box, Container } from "@mantine/core"
+import { useQuery } from "@tanstack/react-query"
+import { createFileRoute } from "@tanstack/react-router"
+import { useState } from "react"
+import { SessionService } from "@/client"
+import InputBar from "@/components/Chat/Input/InputBar"
+import InitMessage from "@/components/Chat/Messages/InitMesssage"
+import Messages from "@/components/Chat/Messages/Messages"
+import LoadingMessages from "@/components/Pending/LoadingMessages"
 export const Route = createFileRoute("/chat/$chatId")({
   component: ChatDetail,
-});
+})
 
 function getUsersQueryOptions({ chatId }: { chatId: string }) {
   return {
     queryFn: () => SessionService.getSession({ sessionId: chatId }),
     queryKey: ["messages", chatId],
-  };
+  }
 }
 function ChatDetail() {
-  const { chatId } = Route.useParams();
+  const { chatId } = Route.useParams()
   // the content of the message that is being streamed
-  const [streamingContent, setStreamingContent] = useState("");
+  const [streamingContent, setStreamingContent] = useState("")
   // the id of the message that is being streamed
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(
-    null
-  );
-  const [messageType, setMessageType] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
+    null,
+  )
+  const [messageType, setMessageType] = useState("")
+  const [_isStreaming, setIsStreaming] = useState(false)
   const { data, isLoading, isError } = useQuery({
     ...getUsersQueryOptions({ chatId }),
     enabled: !!chatId,
     placeholderData: (prevData) => prevData,
-  });
+  })
 
   if (isLoading) {
-    return <LoadingMessages />;
+    return <LoadingMessages />
   }
 
   if (isError) {
-    return <div>Error</div>;
+    return <div>Error</div>
   }
 
-  const messages = data?.messages ?? [];
+  const messages = data?.messages ?? []
 
   return (
     <Container
@@ -69,7 +69,6 @@ function ChatDetail() {
             streamingContent={streamingContent}
             messageType={messageType}
             streamingMessageId={streamingMessageId}
-            isStreaming={isStreaming}
           />
         )}
       </Box>
@@ -85,5 +84,5 @@ function ChatDetail() {
         />
       </Box>
     </Container>
-  );
+  )
 }

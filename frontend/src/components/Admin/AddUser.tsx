@@ -1,41 +1,41 @@
-"use client";
+"use client"
 
-import { Button, Text, Stack, Group, Input } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { FaPlus } from "react-icons/fa";
-import { type UserCreate, UsersService } from "@/client";
-import type { ApiError } from "@/client/core/ApiError";
-import useCustomToast from "@/hooks/useCustomToast";
-import { Checkbox } from "../ui/checkbox";
+import { Button, Group, Input, Stack, Text } from "@mantine/core"
+import { useForm } from "@mantine/form"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { FaPlus } from "react-icons/fa"
+import { FiLock, FiUser } from "react-icons/fi"
+import { type UserCreate, UsersService } from "@/client"
+import type { ApiError } from "@/client/core/ApiError"
+import { Field } from "@/components/ui/field"
+import { InputGroup } from "@/components/ui/input-group"
+import { PasswordInput } from "@/components/ui/password-input"
+import useCustomToast from "@/hooks/useCustomToast"
 import {
-  handleError,
-  emailPattern,
-  passwordRules,
   confirmPasswordRules,
-} from "@/utils";
+  emailPattern,
+  handleError,
+  passwordRules,
+} from "@/utils"
+import { Checkbox } from "../ui/checkbox"
 import {
-  DialogContent,
-  DialogCloseTrigger,
-  DialogTitle,
-  DialogHeader,
   DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
   DialogFooter,
-} from "../ui/dialog";
-import { Field } from "@/components/ui/field";
-import { InputGroup } from "@/components/ui/input-group";
-import { PasswordInput } from "@/components/ui/password-input";
-import { FiUser, FiLock } from "react-icons/fi";
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog"
 
 interface UserCreateForm extends UserCreate {
-  confirm_password: string;
+  confirm_password: string
 }
 
 const AddUser = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const { showSuccessToast, showErrorToast } = useCustomToast();
+  const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const { showSuccessToast, showErrorToast } = useCustomToast()
 
   const form = useForm<UserCreateForm>({
     validateInputOnBlur: true,
@@ -51,39 +51,39 @@ const AddUser = () => {
       email: (value) =>
         emailPattern.value.test(value) ? null : emailPattern.message,
       password: (value) => {
-        const rule = passwordRules();
+        const rule = passwordRules()
         return value.length >= 8
           ? null
           : (rule.minLength?.message ??
-              "Password must be at least 8 characters");
+              "Password must be at least 8 characters")
       },
       confirm_password: (value, values) => {
-        const rule = confirmPasswordRules(() => values.password);
+        const rule = confirmPasswordRules(() => values.password)
         return value === values.password
           ? null
-          : (rule.validate?.(value, values) ?? "Passwords do not match");
+          : (rule.validate?.(value, values) ?? "Passwords do not match")
       },
     },
-  });
+  })
 
   const mutation = useMutation({
     mutationFn: (data: UserCreate) =>
       UsersService.createUser({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("User created successfully.");
-      form.reset();
-      setIsOpen(false);
+      showSuccessToast("User created successfully.")
+      form.reset()
+      setIsOpen(false)
     },
     onError: (err: ApiError) => {
-      const body = err.body as { detail?: string } | undefined;
-      const message = body?.detail ?? "An error occurred";
-      showErrorToast(message);
-      handleError(err);
+      const body = err.body as { detail?: string } | undefined
+      const message = body?.detail ?? "An error occurred"
+      showErrorToast(message)
+      handleError(err)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] })
     },
-  });
+  })
 
   return (
     <>
@@ -186,7 +186,7 @@ const AddUser = () => {
         </form>
       </DialogContent>
     </>
-  );
-};
+  )
+}
 
-export default AddUser;
+export default AddUser

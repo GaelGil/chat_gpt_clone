@@ -1,12 +1,13 @@
-import ModelSelection from "../Settings/ModelSelection";
-import { Box } from "@mantine/core";
+import { Box } from "@mantine/core"
+import ModelSelection from "../Settings/ModelSelection"
+
 interface LeftSectionProps {
-  chatForm: any;
-  sendMessage: { isPending: boolean };
+  chatForm: any
+  sendMessage: { isPending: boolean }
 }
 
 const LeftSection: React.FC<LeftSectionProps> = ({ chatForm, sendMessage }) => {
-  if (sendMessage.isPending) return null;
+  if (sendMessage.isPending) return null
   return (
     <Box w={40}>
       <ModelSelection
@@ -14,7 +15,7 @@ const LeftSection: React.FC<LeftSectionProps> = ({ chatForm, sendMessage }) => {
         onChange={(model) => chatForm.setFieldValue("model_name", model)}
       />
     </Box>
-  );
-};
+  )
+}
 
-export default LeftSection;
+export default LeftSection

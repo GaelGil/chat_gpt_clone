@@ -1,14 +1,14 @@
-import { MessageDetail } from "@/client";
-import { Stack } from "@mantine/core";
-import { useEffect, useRef } from "react";
-import UserMesssage from "./UserMessage";
-import AssistantMesssage from "./AssistantMessage";
+import { Stack } from "@mantine/core"
+import { useEffect, useRef } from "react"
+import type { MessageDetail } from "@/client"
+import AssistantMesssage from "./AssistantMessage"
+import UserMesssage from "./UserMessage"
+
 interface MessagesProps {
-  messages: MessageDetail[];
-  streamingContent: string;
-  streamingMessageId: string | null;
-  messageType: string;
-  isStreaming: boolean;
+  messages: MessageDetail[]
+  streamingContent: string
+  streamingMessageId: string | null
+  messageType: string
 }
 
 const Messages: React.FC<MessagesProps> = ({
@@ -16,15 +16,14 @@ const Messages: React.FC<MessagesProps> = ({
   streamingContent,
   streamingMessageId,
   messageType,
-  isStreaming,
 }) => {
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
       behavior: "smooth",
-    });
-  });
+    })
+  })
 
   return (
     <Stack gap="xs" w="100%">
@@ -38,7 +37,6 @@ const Messages: React.FC<MessagesProps> = ({
               streamingContent={streamingContent}
               streamingMessageId={streamingMessageId}
               messageType={messageType}
-              isStreaming={isStreaming}
             />
           ) : (
             <> </>
@@ -47,7 +45,7 @@ const Messages: React.FC<MessagesProps> = ({
       ))}
       <div ref={bottomRef} />
     </Stack>
-  );
-};
+  )
+}
 
-export default Messages;
+export default Messages

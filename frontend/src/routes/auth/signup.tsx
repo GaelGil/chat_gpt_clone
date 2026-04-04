@@ -1,23 +1,21 @@
-"use client";
+"use client"
 
-import { Container, Text, Image, Input, Stack } from "@mantine/core";
+import { Container, Image, Input, Stack, Text } from "@mantine/core"
+import { useForm } from "@mantine/form"
 import {
   createFileRoute,
   Link as RouterLink,
   redirect,
-} from "@tanstack/react-router";
-import { FiLock, FiUser } from "react-icons/fi";
-
-import type { UserRegister } from "@/client";
-import { Button } from "@/components/ui/button";
-import { Field } from "@/components/ui/field";
-import { InputGroup } from "@/components/ui/input-group";
-import { PasswordInput } from "@/components/ui/password-input";
-import useAuth, { isLoggedIn } from "@/hooks/useAuth";
-import { confirmPasswordRules, emailPattern, passwordRules } from "@/utils";
-import Logo from "/assets/images/fastapi-logo.svg";
-
-import { useForm } from "@mantine/form";
+} from "@tanstack/react-router"
+import { FiLock, FiUser } from "react-icons/fi"
+import type { UserRegister } from "@/client"
+import { Button } from "@/components/ui/button"
+import { Field } from "@/components/ui/field"
+import { InputGroup } from "@/components/ui/input-group"
+import { PasswordInput } from "@/components/ui/password-input"
+import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+import { confirmPasswordRules, emailPattern, passwordRules } from "@/utils"
+import Logo from "/assets/images/fastapi-logo.svg"
 
 export const Route = createFileRoute("/auth/signup")({
   component: SignUp,
@@ -25,17 +23,17 @@ export const Route = createFileRoute("/auth/signup")({
     if (isLoggedIn()) {
       throw redirect({
         to: "/",
-      });
+      })
     }
   },
-});
+})
 
 interface UserRegisterForm extends UserRegister {
-  confirm_password: string;
+  confirm_password: string
 }
 
 function SignUp() {
-  const { signUpMutation } = useAuth();
+  const { signUpMutation } = useAuth()
 
   // Build Mantine form and re-use your emailPattern and helpers
   const form = useForm<UserRegisterForm>({
@@ -49,27 +47,27 @@ function SignUp() {
     },
     validate: {
       full_name: (value) => {
-        if (!value || value.trim().length < 3) return "Full Name is required";
-        return null;
+        if (!value || value.trim().length < 3) return "Full Name is required"
+        return null
       },
 
       email: (value) =>
         emailPattern.value.test(value) ? null : emailPattern.message,
       password: (value) => {
-        const rule = passwordRules();
+        const rule = passwordRules()
         return value.length >= 8
           ? null
           : (rule.minLength?.message ??
-              "Password must be at least 8 characters");
+              "Password must be at least 8 characters")
       },
       confirm_password: (value, values) => {
-        const rule = confirmPasswordRules(() => values.password);
+        const rule = confirmPasswordRules(() => values.password)
         return value === values.password
           ? null
-          : (rule.validate?.(value, values) ?? "Passwords do not match");
+          : (rule.validate?.(value, values) ?? "Passwords do not match")
       },
     },
-  });
+  })
 
   // Convert Mantine errors into react-hook-form-like shape (so your custom components keep working)
   const rhfErrors: Record<string, any> = {
@@ -83,11 +81,11 @@ function SignUp() {
     confirm_password: form.errors.confirm_password
       ? { message: form.errors.confirm_password }
       : undefined,
-  };
+  }
 
   const handleSubmit = (values: UserRegisterForm) => {
-    signUpMutation.mutate(values);
-  };
+    signUpMutation.mutate(values)
+  }
 
   return (
     <Container
@@ -161,6 +159,5 @@ function SignUp() {
         </Stack>
       </form>
     </Container>
-  );
+  )
 }
-

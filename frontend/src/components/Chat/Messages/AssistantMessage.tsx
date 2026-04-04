@@ -1,13 +1,14 @@
-import { MessageDetail } from "@/client";
-import { Flex, Box, Loader, Typography, Text } from "@mantine/core";
-import remarkGfm from "remark-gfm";
-import ReactMarkdown from "react-markdown";
-import ToolCalls from "./ToolCalls";
+import { Box, Flex, Loader, Text, Typography } from "@mantine/core"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import type { MessageDetail } from "@/client"
+import ToolCalls from "./ToolCalls"
+
 interface MessagesProps {
-  message: MessageDetail;
-  streamingContent: string;
-  streamingMessageId: string | null;
-  messageType: string;
+  message: MessageDetail
+  streamingContent: string
+  streamingMessageId: string | null
+  messageType: string
 }
 
 const AssistantMesssage: React.FC<MessagesProps> = ({
@@ -31,30 +32,22 @@ const AssistantMesssage: React.FC<MessagesProps> = ({
       >
         {message.tool_calls && <ToolCalls toolCalls={message.tool_calls} />}
 
-        <>
-          {message.status === "streaming" ? (
-            <>
-              {streamingMessageId === message.id ? (
-                <>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {streamingContent}
-                  </ReactMarkdown>
-                </>
-              ) : (
-                <Loader size={"sm"} color="white" />
-              )}
-            </>
-          ) : message.status === "failure" ? (
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>Error</ReactMarkdown>
+        {message.status === "streaming" ? (
+          streamingMessageId === message.id ? (
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {streamingContent}
+            </ReactMarkdown>
           ) : (
-            <Typography>
-              <>{message.content}</>
-            </Typography>
-          )}
-        </>
+            <Loader size={"sm"} color="white" />
+          )
+        ) : message.status === "failure" ? (
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>Error</ReactMarkdown>
+        ) : (
+          <Typography>{message.content}</Typography>
+        )}
       </Box>
     </Flex>
-  );
-};
+  )
+}
 
-export default AssistantMesssage;
+export default AssistantMesssage

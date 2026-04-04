@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { Table } from "@mantine/core";
-import { SkeletonText } from "../ui/skeleton";
+import { Table } from "@mantine/core"
+import { SkeletonText } from "../ui/skeleton"
 
 const PendingUsers = () => (
   <Table striped highlightOnHover withTableBorder withColumnBorders>
@@ -37,6 +37,6 @@ const PendingUsers = () => (
       ))}
     </tbody>
   </Table>
-);
+)
 
-export default PendingUsers;
+export default PendingUsers

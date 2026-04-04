@@ -1,24 +1,23 @@
 // EditUser.tsx
-"use client";
-import { useEffect } from "react";
-import { Button, Text, Stack, Group, Input } from "@mantine/core";
-import { useState } from "react";
-import { Checkbox } from "../ui/checkbox";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type UserPublic, UsersService, type UserUpdate } from "@/client";
-import { InputGroup } from "@/components/ui/input-group";
-import { PasswordInput } from "@/components/ui/password-input";
-import { Field } from "@/components/ui/field";
-import type { ApiError } from "@/client/core/ApiError";
-import { useForm } from "@mantine/form";
-import useCustomToast from "@/hooks/useCustomToast";
-import { FiUser, FiLock } from "react-icons/fi";
+"use client"
+import { Button, Group, Input, Stack, Text } from "@mantine/core"
+import { useForm } from "@mantine/form"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
+import { FiLock, FiUser } from "react-icons/fi"
+import { type UserPublic, UsersService, type UserUpdate } from "@/client"
+import type { ApiError } from "@/client/core/ApiError"
+import { Field } from "@/components/ui/field"
+import { InputGroup } from "@/components/ui/input-group"
+import { PasswordInput } from "@/components/ui/password-input"
+import useCustomToast from "@/hooks/useCustomToast"
 import {
-  handleError,
-  emailPattern,
-  passwordRules,
   confirmPasswordRules,
-} from "@/utils";
+  emailPattern,
+  handleError,
+  passwordRules,
+} from "@/utils"
+import { Checkbox } from "../ui/checkbox"
 
 import {
   DialogBody,
@@ -27,22 +26,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
+} from "../ui/dialog"
 
 interface EditUserProps {
-  user: UserPublic;
-  open?: boolean;
-  onClose?: () => void;
+  user: UserPublic
+  open?: boolean
+  onClose?: () => void
 }
 
 interface UserUpdateForm extends UserUpdate {
-  confirm_password?: string;
+  confirm_password?: string
 }
 
 const EditUser = ({ user }: EditUserProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const { showSuccessToast } = useCustomToast();
+  const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const { showSuccessToast } = useCustomToast()
 
   // 🔹 Mantine form
   const form = useForm<UserUpdateForm>({
@@ -60,42 +59,42 @@ const EditUser = ({ user }: EditUserProps) => {
       email: (value) =>
         emailPattern.value.test(value ?? "") ? null : emailPattern.message,
       password: (value) => {
-        if (!value) return null;
-        const rule = passwordRules();
+        if (!value) return null
+        const rule = passwordRules()
         return value.length >= 8
           ? null
           : (rule.minLength?.message ??
-              "Password must be at least 8 characters");
+              "Password must be at least 8 characters")
       },
       confirm_password: (value, values) => {
-        if (!value && !values.password) return null;
-        const rule = confirmPasswordRules(() => values.password ?? "");
+        if (!value && !values.password) return null
+        const rule = confirmPasswordRules(() => values.password ?? "")
         return value === values.password
           ? null
-          : (rule.validate?.(value, values) ?? "Passwords do not match");
+          : (rule.validate?.(value, values) ?? "Passwords do not match")
       },
     },
-  });
+  })
 
   const mutation = useMutation({
     mutationFn: (data: UserUpdateForm) =>
       UsersService.updateUser({ userId: user.id, requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("User updated successfully.");
-      setIsOpen(false);
-      form.reset();
+      showSuccessToast("User updated successfully.")
+      setIsOpen(false)
+      form.reset()
     },
     onError: (err: ApiError) => handleError(err),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
-  });
+  })
   useEffect(() => {
-    console.log("EditUser mounted", user.id);
-    return () => console.log("EditUser unmounted", user.id);
-  }, [user.id]);
+    console.log("EditUser mounted", user.id)
+    return () => console.log("EditUser unmounted", user.id)
+  }, [user.id])
 
   useEffect(() => {
-    console.log("isOpen state changed:", isOpen);
-  }, [isOpen]);
+    console.log("isOpen state changed:", isOpen)
+  }, [isOpen])
 
   return (
     <>
@@ -192,7 +191,7 @@ const EditUser = ({ user }: EditUserProps) => {
         </form>
       </DialogContent>
     </>
-  );
-};
+  )
+}
 
-export default EditUser;
+export default EditUser

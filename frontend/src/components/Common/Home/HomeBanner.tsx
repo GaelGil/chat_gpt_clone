@@ -1,9 +1,10 @@
-import { Link } from "@tanstack/react-router";
-import { PROJECT_NAME } from "@/const";
-import { Text, Container, Stack, Anchor, Box, Title } from "@mantine/core";
-import { Button } from "../../../components/ui/button";
+import { Anchor, Box, Container, Stack, Text, Title } from "@mantine/core"
+import { Link } from "@tanstack/react-router"
+import { PROJECT_NAME } from "@/const"
+import { Button } from "../../../components/ui/button"
+
 const HomeBanner = () => {
-  const today = new Date().toLocaleDateString();
+  const today = new Date().toLocaleDateString()
   return (
     <Container size="lg">
       <Stack align="center" gap="xl" mt={80}>
@@ -38,7 +39,7 @@ const HomeBanner = () => {
         </Box>
       </Stack>
     </Container>
-  );
-};
+  )
+}
 
-export default HomeBanner;
+export default HomeBanner
