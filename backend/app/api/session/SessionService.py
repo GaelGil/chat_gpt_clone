@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import HTTPException
+from sqlalchemy import asc  # or desc for newest first
 from sqlmodel import Session, select
 
 from app.database.models import Message, User
@@ -130,10 +131,8 @@ class SessionService:
         # get messages in session and order by created_at
         stmt = (
             select(Message)
-            .order_by(Message.created_at.desc())
             .where(Message.session_id == session_id)
-            # .order_by(asc(Message.created_at))
-            # oldest first
+            .order_by(asc(Message.created_at))  # oldest first
         )
 
         chat_history = [
