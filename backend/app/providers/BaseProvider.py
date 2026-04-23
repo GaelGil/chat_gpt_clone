@@ -70,6 +70,7 @@ class BaseProvider:
 
         """
         msg = self.session.get(Message, message_id)
+        assert msg is not None
         msg.status = status
         msg.role = role
         msg.content = content
@@ -181,6 +182,7 @@ class BaseProvider:
 
             logger.info(f"[DEBUG] Tool result for idx={tool_idx}: {true_result}")
             # save the tool call after it has been executed
+            assert true_result is not None
             await self.save_tool_call_async(
                 session_id=session_id,
                 name=tool_name,
@@ -230,22 +232,20 @@ class BaseProvider:
             args (dict): description
 
         """
-        result = None
         try:
             if tool_name == "arxiv_search":
                 result = self.tools.arxiv_search(**args)
             elif tool_name == "wiki_search":
                 result = self.tools.wiki_search(**args)
             else:
-                result = await self.composio.tools.execute(
+                result = self.composio.tools.execute(
                     slug=tool_name,
                     user_id=self.composio_user_id,
                     arguments=args,
                 )
+            return result, None
         except Exception as e:
-            return result, f"Error executing tool: {e}"
-
-        return result, None
+            return None, f"Error executing tool: {e}"
 
     @classmethod
     async def process_stream(
