@@ -34,15 +34,15 @@ function Chat() {
       padding="md"
     >
       <AppShell.Navbar
-        p="sm"
+        p={0}
         w={sidebarWidth}
         h="100vh"
-        bg={collapsed ? "#212121" : "#181818"}
+        bg="#181818"
         style={{
           flexShrink: 0,
           transition: "width 0.3s ease",
         }}
-        withBorder={collapsed}
+        withBorder={false}
       >
         <ChatSideBar collapsed={collapsed} toggle={toggleCollapsed} />
       </AppShell.Navbar>

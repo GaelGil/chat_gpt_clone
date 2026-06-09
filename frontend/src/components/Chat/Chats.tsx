@@ -24,27 +24,54 @@ const Chats = () => {
   })
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <Text c="#b4b4b4" fz="sm" px="sm">
+        Loading…
+      </Text>
+    )
   }
 
   if (isError) {
-    return <div>Error</div>
+    return (
+      <Text c="#ececec" fz="sm" px="sm" role="alert">
+        Unable to Load Chats. Try Again.
+      </Text>
+    )
   }
 
   const sessions = data?.sessions ?? []
 
   if (sessions.length === 0) {
-    return <Text>Start a new chat!</Text>
+    return (
+      <Text c="#b4b4b4" fz="sm" px="sm">
+        Start a New Chat
+      </Text>
+    )
   }
 
   return (
-    <Stack>
+    <Stack gap={2} style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
       {sessions.map((session) => (
         <Flex
           key={session.id}
           align="center"
           justify="space-between"
+          gap={4}
+          px="sm"
+          py={6}
+          bdrs="md"
           onMouseEnter={() => setHoveredId(session.id)}
+          onMouseLeave={() => setHoveredId(null)}
+          onFocus={() => setHoveredId(session.id)}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) {
+              setHoveredId(null)
+            }
+          }}
+          style={{
+            background: hoveredId === session.id ? "#2f2f2f" : "transparent",
+            minHeight: 36,
+          }}
         >
           {editId === session.id ? (
             <Rename session={session} onCancel={() => setEditId(null)} />
@@ -52,24 +79,37 @@ const Chats = () => {
             <Link
               to="/chat/$chatId"
               params={{ chatId: session.id.toString() }}
-              style={{ textDecoration: "none" }}
+              style={{
+                color: "#ececec",
+                flex: 1,
+                minWidth: 0,
+                textDecoration: "none",
+              }}
             >
-              <Text fz="sm">{session.title}</Text>
+              <Text fz="sm" truncate>
+                {session.title}
+              </Text>
             </Link>
           )}
 
-          <Button variant="transparent" size="xs" px={6} />
           {hoveredId === session.id && (
             <Menu position="bottom-end" withinPortal>
               <Menu.Target>
-                <Button variant="transparent" size="xs" px={6}>
-                  <FiMoreHorizontal />
+                <Button
+                  aria-label="Open Chat Actions"
+                  type="button"
+                  variant="transparent"
+                  size="xs"
+                  px={6}
+                  c="#b4b4b4"
+                >
+                  <FiMoreHorizontal aria-hidden="true" />
                 </Button>
               </Menu.Target>
 
               <Menu.Dropdown>
                 <Menu.Item
-                  leftSection={<FiEdit2 size={14} />}
+                  leftSection={<FiEdit2 size={14} aria-hidden="true" />}
                   onClick={() => setEditId(session.id)}
                 >
                   Rename
@@ -77,7 +117,7 @@ const Chats = () => {
 
                 <Menu.Item
                   color="red"
-                  leftSection={<FiTrash2 />}
+                  leftSection={<FiTrash2 aria-hidden="true" />}
                   onClick={() => setDeleteId(session.id)}
                 >
                   Delete

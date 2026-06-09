@@ -8,7 +8,6 @@ import {
   Text,
 } from "@mantine/core"
 import { Link } from "@tanstack/react-router"
-import { useState } from "react"
 import { FiArrowRight, FiColumns, FiEdit } from "react-icons/fi"
 import { LOGO, PROJECT_NAME } from "@/const"
 import UserMenu from "../Common/UserMenu"
@@ -20,64 +19,105 @@ interface SidebarProps {
 }
 
 const ChatSideBar: React.FC<SidebarProps> = ({ collapsed, toggle }) => {
-  const [hovered, setHovered] = useState(false)
   return (
-    <Stack h="100%">
-      {/* Controls */}
+    <Stack h="100%" gap={0} p={8} bg="#181818">
       {collapsed ? (
-        <Box
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          onClick={() => {
-            toggle()
-            setHovered(false)
-          }}
-          style={{ cursor: "pointer", position: "relative" }}
-        >
-          {hovered ? (
-            <ActionIcon variant="subtle" h={32} w={32}>
-              <FiArrowRight size={18} color="var(--mantine-color-text)" />
-            </ActionIcon>
-          ) : (
-            <Image src={LOGO} alt={`${PROJECT_NAME} Logo`} h={25} w={25} />
-          )}
-        </Box>
+        <Stack align="center" gap={8}>
+          <Anchor
+            aria-label={`${PROJECT_NAME} Home`}
+            component={Link}
+            to="/"
+            underline="never"
+          >
+            <Image src={LOGO} alt={`${PROJECT_NAME} Logo`} h={30} w={30} />
+          </Anchor>
+          <ActionIcon
+            aria-label="Expand Sidebar"
+            onClick={toggle}
+            variant="subtle"
+            size="lg"
+            radius="md"
+            c="#ececec"
+            styles={{ root: { "&:hover": { background: "#2f2f2f" } } }}
+          >
+            <FiArrowRight size={18} aria-hidden="true" />
+          </ActionIcon>
+          <ActionIcon
+            aria-label="New Chat"
+            component={Link}
+            to="/chat"
+            variant="subtle"
+            size="lg"
+            radius="md"
+            c="#ececec"
+            styles={{ root: { "&:hover": { background: "#2f2f2f" } } }}
+          >
+            <FiEdit size={18} aria-hidden="true" />
+          </ActionIcon>
+        </Stack>
       ) : (
-        <>
-          <Flex align="center" justify="space-between" w="100%" mb={"md"}>
-            <Anchor underline="never" component={Link} to="/">
+        <Flex direction="column" h="100%" style={{ minHeight: 0 }}>
+          <Flex align="center" justify="space-between" w="100%" mb="md">
+            <Anchor
+              aria-label={`${PROJECT_NAME} Home`}
+              underline="never"
+              component={Link}
+              to="/"
+            >
               <Image src={LOGO} alt={`${PROJECT_NAME} Logo`} h={32} w={32} />
             </Anchor>
 
-            <ActionIcon onClick={toggle} variant="subtle" size="sm">
-              <FiColumns size={18} color="var(--mantine-color-text)" />
+            <ActionIcon
+              aria-label="Collapse Sidebar"
+              onClick={toggle}
+              variant="subtle"
+              size="lg"
+              radius="md"
+              c="#b4b4b4"
+              styles={{ root: { "&:hover": { background: "#2f2f2f" } } }}
+            >
+              <FiColumns size={18} aria-hidden="true" />
             </ActionIcon>
           </Flex>
-          <Flex
-            direction="column"
-            justify="space-between"
-            style={{ height: "100%" }}
-          >
-            {/* Top controls + chats */}
-            <Box>
-              <Anchor fw={700} component={Link} to={`/chat`} underline="never">
-                <Flex align="center" gap="xs" mb={"md"}>
-                  <FiEdit size={18} />
-                  <Text fz="sm" fw={500}>
-                    New chat
-                  </Text>
-                </Flex>
-              </Anchor>
-              <Text c="dimmed" fz="sm" mb={"sm"}>
-                Your Chats
+
+          <Anchor component={Link} to="/chat" underline="never" mb="md">
+            <Flex
+              align="center"
+              gap="xs"
+              px="sm"
+              py={8}
+              bdrs="md"
+              c="#ececec"
+              style={{
+                minHeight: 40,
+              }}
+            >
+              <FiEdit size={18} aria-hidden="true" />
+              <Text fz="sm" fw={500}>
+                New Chat
               </Text>
-              <Chats />
-            </Box>
-            <Box>
-              <UserMenu />
-            </Box>
-          </Flex>
-        </>
+            </Flex>
+          </Anchor>
+
+          <Box
+            style={{
+              display: "flex",
+              flex: 1,
+              flexDirection: "column",
+              minHeight: 0,
+              overflow: "hidden",
+            }}
+          >
+            <Text c="#b4b4b4" fz="xs" fw={600} mb="xs" px="sm">
+              Chats
+            </Text>
+            <Chats />
+          </Box>
+
+          <Box pt="sm">
+            <UserMenu />
+          </Box>
+        </Flex>
       )}
     </Stack>
   )

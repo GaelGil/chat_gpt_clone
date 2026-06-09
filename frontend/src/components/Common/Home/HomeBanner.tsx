@@ -1,41 +1,118 @@
-import { Anchor, Box, Container, Stack, Text, Title } from "@mantine/core"
+import {
+  Anchor,
+  Box,
+  Container,
+  Flex,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core"
 import { Link } from "@tanstack/react-router"
 import { PROJECT_NAME } from "@/const"
 import { Button } from "../../../components/ui/button"
 
-const HomeBanner = () => {
-  const today = new Date().toLocaleDateString()
+interface HomeBannerProps {
+  loggedIn: boolean
+}
+
+const features = [
+  {
+    title: "Fast Conversations",
+    description:
+      "Start a prompt and get a clean streaming-style workspace for everyday questions.",
+  },
+  {
+    title: "Saved Chats",
+    description:
+      "Return to previous sessions from the sidebar and keep work organized.",
+  },
+  {
+    title: "Simple Workspace",
+    description: "A focused ChatGPT-inspired interface without extra clutter.",
+  },
+]
+
+const HomeBanner: React.FC<HomeBannerProps> = ({ loggedIn }) => {
   return (
-    <Container size="lg">
-      <Stack align="center" gap="xl" mt={80}>
-        <Box ta="center">
-          <Title order={1} fw={700} mb={4} c="white">
+    <Container size="xl" px={{ base: "md", sm: "xl" }}>
+      <Stack justify="center" gap={64} mih="calc(100vh - 60px)" py={80}>
+        <Box maw={920}>
+          <Text c="#b4b4b4" fz="sm" mb="md" tt="uppercase" lts={1.2}>
+            ChatGPT-inspired AI workspace
+          </Text>
+          <Title
+            order={1}
+            fw={500}
+            c="white"
+            fz={{ base: 48, md: 84 }}
+            lh={0.95}
+            mb="xl"
+            style={{ textWrap: "balance" }}
+          >
             {PROJECT_NAME}
           </Title>
 
-          <Text fz="sm" c="dimmed" mb="lg">
-            {today}
+          <Text
+            fz={{ base: "lg", md: 24 }}
+            c="#d7d7d7"
+            lh={1.45}
+            maw={720}
+            mb="xl"
+          >
+            A simple conversational AI clone with saved chats, a focused
+            workspace, and a familiar ChatGPT-style flow.
           </Text>
 
-          <Anchor component={Link} underline="never" to="/chat">
-            <Button radius="xl" size="lg" variant="outline" px="xl">
-              Get Started
-            </Button>
-          </Anchor>
+          <Flex gap="sm" wrap="wrap">
+            <Anchor
+              component={Link}
+              underline="never"
+              to={loggedIn ? "/chat" : "/auth/login"}
+            >
+              <Button radius="xl" size="lg" px="xl">
+                {loggedIn ? "Open Chat" : "Try ChatGPT Clone"}
+              </Button>
+            </Anchor>
+            <Anchor component={Link} underline="never" to="/auth/signup">
+              <Button radius="xl" size="lg" variant="outline" px="xl">
+                Create Account
+              </Button>
+            </Anchor>
+          </Flex>
         </Box>
 
-        {/* Main content */}
-        <Box maw={720} ta="center">
-          <Title order={2} mb="md" fw={600} c="white">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
+        <Box>
+          <Title
+            order={2}
+            fw={500}
+            c="white"
+            fz={{ base: 28, md: 42 }}
+            mb="xl"
+            style={{ textWrap: "balance" }}
+          >
+            Built for a small, focused clone project.
           </Title>
-
-          <Text fz="lg" c="dimmed" lh={1.6}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque,
-            quaerat minima ducimus doloribus dolore, inventore impedit iste
-            maxime temporibus earum beatae tenetur quisquam enim reprehenderit
-            rem necessitatibus eaque omnis deserunt.
-          </Text>
+          <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl">
+            {features.map((feature) => (
+              <Box
+                key={feature.title}
+                p="lg"
+                bdrs="lg"
+                style={{
+                  border: "1px solid rgba(255, 255, 255, 0.12)",
+                  background: "rgba(255, 255, 255, 0.03)",
+                }}
+              >
+                <Title order={3} c="white" fz="lg" fw={500} mb="sm">
+                  {feature.title}
+                </Title>
+                <Text c="#b4b4b4" lh={1.6}>
+                  {feature.description}
+                </Text>
+              </Box>
+            ))}
+          </SimpleGrid>
         </Box>
       </Stack>
     </Container>

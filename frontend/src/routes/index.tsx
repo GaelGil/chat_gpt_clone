@@ -1,5 +1,3 @@
-// routes/index.tsx
-
 import { Anchor, AppShell, Group } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { createFileRoute, Link } from "@tanstack/react-router"
@@ -29,25 +27,25 @@ function HomePage() {
         breakpoint: "sm",
         collapsed: { mobile: false, desktop: false },
       }}
-      padding="md"
-      bg={"black"}
+      padding={0}
+      bg="#000"
     >
-      <AppShell.Header withBorder={false} bg={"black"}>
-        <Group h="100%" px="md" justify="flex-end">
+      <AppShell.Header withBorder={false} bg="#000">
+        <Group h="100%" px={{ base: "md", sm: "xl" }} justify="flex-end">
           <Anchor
             component={Link}
-            to={loggedIn ? "/chat" : "/auth/login"}
+            to={!loggedIn ? "/chat" : "/auth/login"}
             underline="never"
           >
-            <Button radius="xl">{loggedIn ? "Chat" : "Login"}</Button>
+            <Button radius="xl">{loggedIn ? "Open Chat" : "Log In"}</Button>
           </Anchor>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md" withBorder={false} bg={"black"}>
+      <AppShell.Navbar p={0} withBorder={false} bg="#000">
         <HomeSideBar collapsed={collapsed} toggle={toggleCollapsed} />
       </AppShell.Navbar>
-      <AppShell.Main>
-        <HomeBanner />
+      <AppShell.Main bg="#000">
+        <HomeBanner loggedIn={loggedIn} />
       </AppShell.Main>
     </AppShell>
   )

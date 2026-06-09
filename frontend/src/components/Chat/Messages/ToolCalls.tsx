@@ -10,8 +10,8 @@ const ToolCalls: React.FC<ToolCallProps> = ({ toolCalls }) => {
   return (
     <>
       {toolCalls?.map((toolCall) => (
-        <Accordion defaultValue="Apples" variant="separated">
-          <Accordion.Item key={toolCall.id} value={toolCall.id}>
+        <Accordion key={toolCall.id} defaultValue="Apples" variant="separated">
+          <Accordion.Item value={toolCall.id}>
             <Accordion.Control icon={<FiTool />}>
               <Group wrap="nowrap">
                 <div>
